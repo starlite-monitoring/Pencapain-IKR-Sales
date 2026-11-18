@@ -140,7 +140,7 @@ th{background:color-mix(in srgb,var(--accent) 6%,var(--surface-2))!important}
 .sec-h h2{margin:0;font-size:16px;font-weight:800}
 .sub2{font-size:12px;color:var(--muted)}
 /* team cards */
-.lb{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:14px;margin-bottom:20px}
+.lb{display:grid;grid-template-columns:repeat(auto-fill,minmax(max(255px,calc((100% - 42px) / 4)),1fr));gap:14px;margin-bottom:20px}
 .tc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;position:relative;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:border-color .15s}
 .tc:hover{border-color:var(--accent)}
 .tc .rk{position:absolute;top:14px;right:14px;font-weight:800;font-size:13px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);color:var(--text-2)}
