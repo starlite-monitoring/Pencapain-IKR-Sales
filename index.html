@@ -76,7 +76,7 @@ aside.side{background:var(--side);color:var(--side-text);padding:18px 12px;posit
 .side .foot button{font:inherit;font-weight:600;background:var(--side-2);color:var(--side-text);border:0;border-radius:7px;padding:7px 10px;cursor:pointer;text-align:left}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--side-muted);display:inline-block;flex:none}
 .dot.ok{background:#4fbf6a}.dot.err{background:#ef6b6b}.dot.demo{background:#e0a92e}
-main{padding:24px 28px 60px;min-width:0;max-width:1400px}
+main{padding:24px 28px 60px;min-width:0;width:100%;max-width:none}
 @media (max-width:900px){.app{grid-template-columns:1fr;background:none}aside.side{position:static;height:auto;flex-direction:row;overflow-x:auto;padding:10px;gap:4px}.side h6,.logo small,.side .foot{display:none}.logo{padding:0 8px 0 0}.side a{white-space:nowrap}main{padding:16px}}
 .p-plus{position:absolute;top:18px;right:18px;z-index:5}
 .plus-btn{width:46px;height:46px;border-radius:50%;border:0;background:#fff;color:#0a3a78;font-size:30px;font-weight:700;line-height:1;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18);transition:transform .15s}
@@ -140,7 +140,7 @@ th{background:color-mix(in srgb,var(--accent) 6%,var(--surface-2))!important}
 .sec-h h2{margin:0;font-size:16px;font-weight:800}
 .sub2{font-size:12px;color:var(--muted)}
 /* team cards */
-.lb{display:grid;grid-template-columns:repeat(auto-fill,minmax(max(255px,calc((100% - 42px) / 4)),1fr));gap:14px;margin-bottom:20px}
+.lb{display:grid;grid-template-columns:repeat(auto-fill,minmax(max(255px,min(calc((100% - 42px) / 4),400px)),1fr));gap:14px;margin-bottom:20px}
 .tc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;position:relative;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:border-color .15s}
 .tc:hover{border-color:var(--accent)}
 .tc .rk{position:absolute;top:14px;right:14px;font-weight:800;font-size:13px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);color:var(--text-2)}
@@ -200,7 +200,7 @@ html[data-theme=dark] .tag.sls{background:#33201a;color:#f08c5f}
 .chip{border:1px solid var(--line-2);background:var(--surface);border-radius:20px;padding:5px 12px;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--text-2)}
 .chip.on{background:var(--side);border-color:var(--side);color:#fff}
 /* portal & home */
-body.portalmode main{max-width:1180px}
+body.portalmode main{max-width:1180px;margin:0 auto}
 .p-hero{background:var(--grad);color:#fff;border-radius:18px;padding:22px 24px;margin-bottom:18px;position:relative;overflow:hidden;box-shadow:0 10px 30px rgba(10,60,130,.25)}
 .p-hero .wm{position:absolute;right:-30px;top:-40px;height:230px;opacity:.13;filter:brightness(0) invert(1)}
 .p-hero .chip{display:inline-flex;align-items:center;gap:8px;background:#fff;border-radius:11px;padding:6px 12px;margin-bottom:14px}
