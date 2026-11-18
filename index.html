@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
+<script>(function(){var t=null;try{t=localStorage.getItem('stl_theme')}catch(e){}if(t!=='dark'&&t!=='light')t=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Starlite Mitra Center — Pencapaian IKR & Sales</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,12 +30,12 @@ const SUPABASE_ANON_KEY = '';
   --gold:#b7791f;--silver:#8b95a3;--bronze:#a0603a;
   --r:12px;--shadow:0 1px 2px rgba(16,24,40,.05);
 }
-@media (prefers-color-scheme:dark){:root{
+html[data-theme=dark]{
   color-scheme:dark;--bg:#111211;--surface:#1a1a19;--surface-2:#232321;--line:#2f2f2c;--line-2:#3a3a36;
   --text:#f0efec;--text-2:#c3c2b7;--muted:#8d8c85;--side:#041a38;--side-2:#0a2a55;--grad:linear-gradient(135deg,#072b5a 0%,#0a4f9c 55%,#1f86d6 100%);
   --accent:#3d9bf0;--accent-soft:#12294a;--brand:#2a95ec;
   --good:#4fbf6a;--good-bg:#16291b;--warn:#e0a92e;--warn-bg:#2d2513;--bad:#ef6b6b;--bad-bg:#331a1a;--info:#6da7ec;--info-bg:#1b2a3d;
-  --gold:#e0a92e;--silver:#a9b3c1;--bronze:#d08a5c;}}
+  --gold:#e0a92e;--silver:#a9b3c1;--bronze:#d08a5c;--c-ikr:#4a9df0;--c-sls:#f39445;}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 "Plus Jakarta Sans",system-ui,sans-serif}
 .mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12.5px}
@@ -119,9 +120,22 @@ textarea{resize:vertical}
 .kpi .k{font-size:12px;color:var(--text-2);font-weight:600}
 .kpi .v{font-size:27px;font-weight:800;margin-top:2px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .kpi .d{font-size:12px;color:var(--muted);margin-top:1px}
-.kpi.hero{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 8px 22px rgba(11,95,184,.28)}.kpi.hero .k,.kpi.hero .d{color:var(--side-text)}
+.kpi{--kc:var(--accent);position:relative;overflow:hidden;border-top:3px solid var(--kc);background:linear-gradient(180deg,color-mix(in srgb,var(--kc) 7%,var(--surface)) 0%,var(--surface) 75%)}
+.kpi .k::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--kc);margin-right:7px;vertical-align:1px}
+.kpi .v{color:color-mix(in srgb,var(--kc) 35%,var(--text))}
+.kpis>.kpi:nth-child(4n+1){--kc:#2f7fd8}.kpis>.kpi:nth-child(4n+2){--kc:#159a8c}.kpis>.kpi:nth-child(4n+3){--kc:#d08a1e}.kpis>.kpi:nth-child(4n+4){--kc:#3d9a4f}
+.kpis.k5>.kpi:nth-child(5){--kc:#b4573a}
+html[data-theme=dark] .kpis>.kpi:nth-child(4n+1){--kc:#5aa2ee}html[data-theme=dark] .kpis>.kpi:nth-child(4n+2){--kc:#3cc0b0}html[data-theme=dark] .kpis>.kpi:nth-child(4n+3){--kc:#e8a840}html[data-theme=dark] .kpis>.kpi:nth-child(4n+4){--kc:#62c072}
+html[data-theme] .kpis>.kpi.j-ikr:nth-child(n){--kc:var(--c-ikr)}html[data-theme] .kpis>.kpi.j-sls:nth-child(n){--kc:var(--c-sls)}
+.kpi.hero{background:linear-gradient(180deg,color-mix(in srgb,var(--kc) 14%,var(--surface)) 0%,color-mix(in srgb,var(--kc) 4%,var(--surface)) 100%);box-shadow:var(--shadow)}
+.kpi .dot{display:none!important}
+.sec-h h2::before,.card>h2::before{content:"";display:inline-block;width:4px;height:15px;border-radius:2px;background:var(--accent);margin-right:8px;vertical-align:-2px}
+th{background:color-mix(in srgb,var(--accent) 6%,var(--surface-2))!important}
+.cap-bar{display:inline-flex;align-items:center;gap:8px}.cap-bar i{display:inline-block;width:54px;height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden;position:relative}.cap-bar i b{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--kc2,var(--accent))}
+.theme-btn{position:fixed;right:18px;bottom:18px;z-index:60;width:42px;height:42px;border-radius:50%;border:1px solid var(--line-2);background:var(--surface);color:var(--text);font-size:18px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.15);display:grid;place-items:center}
+.theme-btn:hover{border-color:var(--accent)}
 .up{color:var(--good);font-weight:700}.down{color:var(--bad);font-weight:700}
-.kpi.hero .up{color:#7bd88f}.kpi.hero .down{color:#ff9a9a}
+
 .sec-h{display:flex;align-items:center;justify-content:space-between;margin:0 0 10px;gap:10px;flex-wrap:wrap}
 .sec-h h2{margin:0;font-size:16px;font-weight:800}
 .sub2{font-size:12px;color:var(--muted)}
@@ -134,7 +148,7 @@ textarea{resize:vertical}
 .tc.r1{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 10px 26px rgba(183,121,31,.18);background:linear-gradient(180deg,#fff8e8 0%,var(--surface) 42%)}.tc.r1::before{background:linear-gradient(90deg,#e0a92e,#b7791f)}
 .tc.r2::before{background:var(--silver)}.tc.r3::before{background:var(--bronze)}
 .tc .crown{font-size:11px;font-weight:800;color:var(--gold);letter-spacing:.05em}
-@media (prefers-color-scheme:dark){.tc.r1{background:linear-gradient(180deg,#2d2513 0%,var(--surface) 45%)}}
+html[data-theme=dark] .tc.r1{background:linear-gradient(180deg,#2d2513 0%,var(--surface) 45%)}
 .tc.r1 .rk{background:var(--gold);color:#fff}.tc.r2 .rk{background:var(--silver);color:#fff}.tc.r3 .rk{background:var(--bronze);color:#fff}
 .tc .nm{font-weight:800;font-size:16.5px;letter-spacing:-.01em;padding-right:40px;line-height:1.2}
 .tc .al{font-size:12px;color:var(--text-2);margin-top:-5px}
@@ -165,7 +179,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:now
 .tag{font-size:10.5px;font-weight:800;letter-spacing:.06em;padding:2px 7px;border-radius:5px}
 .tc.j-ikr::before{background:var(--c-ikr);opacity:1}.tc.j-sls::before{background:var(--c-sls);opacity:1}
 .tc.j-ikr .big b{color:var(--c-ikr)}.tc.j-sls .big b{color:var(--c-sls)}.tc.j-sls .prog i{background:var(--c-sls)}
-.kpi.j-ikr{border-top:4px solid var(--c-ikr)}.kpi.j-sls{border-top:4px solid var(--c-sls)}
+
 .kpi .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px}.kpi.j-ikr .dot{background:var(--c-ikr)}.kpi.j-sls .dot{background:var(--c-sls)}
 .kpis.k5{grid-template-columns:repeat(5,minmax(0,1fr))}@media (max-width:1100px){.kpis.k5{grid-template-columns:repeat(2,minmax(0,1fr))}}
 label.btn.dis{opacity:.5;pointer-events:none}
@@ -176,7 +190,7 @@ tr.j-ikr td:first-child{box-shadow:inset 3px 0 0 var(--c-ikr)}tr.j-sls td:first-
 .chip.j-ikr.on{background:var(--c-ikr);border-color:var(--c-ikr);color:#fff}.chip.j-sls.on{background:var(--c-sls);border-color:var(--c-sls);color:#fff}
 .jdots{display:inline-flex;gap:3px;margin-left:6px}.jdots i{width:8px;height:8px;border-radius:50%;display:inline-block}.jdots .j-ikr{background:var(--c-ikr)}.jdots .j-sls{background:var(--c-sls)}
 .tag.ikr{background:var(--info-bg);color:var(--info)}.tag.sls{background:#fdeee7;color:#b4501f}
-@media (prefers-color-scheme:dark){.tag.sls{background:#33201a;color:#f08c5f}}
+html[data-theme=dark] .tag.sls{background:#33201a;color:#f08c5f}
 .empty{padding:30px;text-align:center;color:var(--muted)}
 .loading{padding:60px;text-align:center;color:var(--muted)}
 .chart-box{position:relative;height:250px}
@@ -194,7 +208,7 @@ body.portalmode main{max-width:1180px}
 .p-hero h1{margin:0;font-size:26px;font-weight:800;position:relative}.p-hero p{margin:4px 0 0;color:#d6e8fb;position:relative}
 .p-hero .ctl{position:relative;margin-top:14px}.p-hero label.f{color:#d6e8fb}.p-hero select{background:#fff;color:#0b0b0b;border-color:transparent}
 .ro-note{display:inline-flex;gap:6px;align-items:center;background:rgba(255,255,255,.16);border-radius:20px;padding:3px 10px;font-size:11.5px;font-weight:700;margin-left:8px}
-.back-admin{position:fixed;right:18px;bottom:18px;z-index:40}
+.back-admin{position:fixed;right:72px;bottom:18px;z-index:40}
 .home-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(260px,1fr);gap:16px;margin-bottom:8px}@media (max-width:1000px){.home-grid{grid-template-columns:1fr}}
 .todo a{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);text-decoration:none;color:var(--text)}
 .todo a:last-child{border-bottom:0}.todo a:hover{color:var(--accent)}
@@ -249,7 +263,7 @@ tr.grand td{background:var(--side);color:#fff;font-weight:800}
 @media (max-width:900px){.flowbar{grid-template-columns:repeat(2,1fr)}.flowbar>div::after{display:none}}
 .kanban{display:grid;grid-template-columns:repeat(6,minmax(172px,1fr));gap:10px;overflow-x:auto;align-items:start;padding-bottom:6px}
 .col.c-pay{background:linear-gradient(180deg,#e3f0fd,var(--surface-2) 120px)}.col.c-paid{background:linear-gradient(180deg,#e5f4ea,var(--surface-2) 120px)}
-@media (prefers-color-scheme:dark){.col.c-pay{background:linear-gradient(180deg,#12294a,var(--surface-2) 120px)}.col.c-paid{background:linear-gradient(180deg,#16291b,var(--surface-2) 120px)}}
+html[data-theme=dark] .col.c-pay{background:linear-gradient(180deg,#12294a,var(--surface-2) 120px)}html[data-theme=dark] .col.c-paid{background:linear-gradient(180deg,#16291b,var(--surface-2) 120px)}
 .kc .rp{font-weight:800;font-size:15px;margin:4px 0 2px;font-variant-numeric:tabular-nums}
 .steps3{display:flex;gap:3px;margin-top:6px}.steps3 i{flex:1;height:4px;border-radius:2px;background:var(--line-2)}.steps3 i.on{background:var(--accent)}
 .files3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}@media (max-width:640px){.files3{grid-template-columns:1fr}}
@@ -411,7 +425,7 @@ body.formmode main{max-width:880px;margin:0 auto}
       <div style="height:16px"></div>
       <button class="btn pri" type="submit" style="width:100%;justify-content:center;padding:11px">Masuk</button>
       <div class="sub2" id="loginMsg" style="margin-top:10px;text-align:center"></div>
-      <p class="sub2" style="margin:16px 0 0;text-align:center">Calon mitra? <a href="#daftar">Buka form pendaftaran</a></p>
+      <p class="sub2" style="margin:16px 0 0;text-align:center">Mitra? Gunakan link khusus yang dikirim admin Starlite.</p>
     </form></div>
   </section>
 
@@ -511,6 +525,7 @@ body.formmode main{max-width:880px;margin:0 auto}
 </main>
 </div>
 <div id="modalRoot"></div>
+<button type="button" class="theme-btn" id="themeBtn" title="Ganti mode terang / gelap" aria-label="Ganti mode terang / gelap"></button>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1141,7 +1156,7 @@ function renderHome(){
     <div class="kpi"><div class="k">Dibayar ${esc(perLabel(prev))}</div><div class="v">${rpS(paidPrev)}</div><div class="d">${bPrev.filter(b=>b.status==='Dibayar').length}/${bPrev.length} tagihan · ${openB.length} belum lunas</div></div>`,
    mitra:`<div class="card" style="padding:0;margin-bottom:22px"><div style="padding:16px 18px 10px"><h2>Ringkasan per mitra</h2><p class="sub" style="margin:0">Klik nama mitra untuk melihat Tracking-nya</p></div>
      <div class="tbl-wrap" style="border:0;border-top:1px solid var(--line);border-radius:0 0 12px 12px"><table><thead><tr><th>Mitra</th><th class="num">Tim</th><th class="num">Aktif</th><th class="num">Onboarding</th><th class="num">HC bulan ini</th><th class="num">Capaian rata²</th><th class="num">Estimasi</th><th class="num">Dibayar bln lalu</th></tr></thead><tbody>
-     ${mit.map(x=>`<tr><td style="min-width:170px"><a href="#tracking" data-mf="${esc(x.m)}"><b>${esc(x.m)}</b></a></td><td class="num">${x.n}</td><td class="num">${x.a}</td><td class="num">${x.onb||'–'}</td><td class="num">${nf(x.hc)}</td><td class="num">${pct(x.cap)}</td><td class="num">${rp(x.est)}</td><td class="num">${rp(x.paid)}</td></tr>`).join('')}
+     ${mit.map(x=>`<tr><td style="min-width:170px"><a href="#tracking" data-mf="${esc(x.m)}"><b>${esc(x.m)}</b></a></td><td class="num">${x.n}</td><td class="num">${x.a}</td><td class="num">${x.onb||'–'}</td><td class="num">${nf(x.hc)}</td><td class="num"><span class="cap-bar" style="--kc2:${x.cap>=.8?'#3d9a4f':x.cap>=.4?'#d08a1e':'#c4553a'}"><i><b style="width:${Math.min(100,(x.cap||0)*100)}%"></b></i>${pct(x.cap)}</span></td><td class="num">${rp(x.est)}</td><td class="num">${rp(x.paid)}</td></tr>`).join('')}
      </tbody></table></div></div>`};
 }
 
@@ -1223,7 +1238,7 @@ function renderPortal(per){
     <div class="kpi"><div class="k">Total sudah dibayar</div><div class="v">${rpS(paidAll)}</div><div class="d">${(P.bills||[]).filter(b=>b.status==='Dibayar').length} tagihan lunas</div></div>
   </div>
   <div class="sec-h"><h2>Performa tim ${esc(perLabel(per))}</h2><span class="sub2">Urut dari HC terbanyak</span></div>
-  <div class="lb">${rows.map((r,i)=>{const x=r.x,t=r.t;return `<div class="tc ${i<3&&x.hc>0?'r'+(i+1):''}" data-ptim="${esc(t.id)}" title="Klik untuk lihat pelanggan tim ini"><div class="rk">${i+1}</div>${i===0&&x.hc>0?'<div class="crown">🏆 TERBAIK DI MITRA INI</div>':''}
+  <div class="lb">${rows.map((r,i)=>{const x=r.x,t=r.t;return `<div class="tc ${t.jenis==='Sales'?'j-sls':'j-ikr'} ${i<3&&x.hc>0?'r'+(i+1):''}" data-ptim="${esc(t.id)}" title="Klik untuk lihat pelanggan tim ini"><div class="rk">${i+1}</div>${i===0&&x.hc>0?'<div class="crown">🏆 TERBAIK DI MITRA INI</div>':''}
     <div class="nm">${esc(aName(t))} ${tag(t.jenis)}</div><div class="al">${esc(t.stasiun)} · ${esc(x.wilayah)}</div><div class="mb">${x.rows.map(p=>esc(p.nama)+' '+nf(p.hc)).join(' · ')}</div>
     <div class="big"><b>${nf(x.hc)}</b><span>${esc(lbl(t.jenis))}</span></div><div class="prog ${x.pct>=1?'done':''}"><i style="width:${Math.min(100,x.pct*100)}%"></i></div>
     <div class="tg"><span>${nf(x.hc)} / ${nf(x.target,0)} target</span><b>${pct(x.pct)}</b></div>
@@ -1637,6 +1652,10 @@ function demoApi(action,b){
 
 /* ================== boot ================== */
 if(DEMO)$('#demoBar').classList.remove('hidden');
+function setThemeIcon(){const d=document.documentElement.getAttribute('data-theme')==='dark';$('#themeBtn').textContent=d?'☀':'☾';$('#themeBtn').title=d?'Ganti ke mode terang':'Ganti ke mode gelap'}
+$('#themeBtn').onclick=()=>{const d=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',d);try{localStorage.setItem('stl_theme',d)}catch(e){}setThemeIcon();
+  try{if(S.view==='portal'&&PORTAL&&!$('#v-portal').classList.contains('hidden'))renderPortal($('#ptPer')?.value);else if(S.admin)renderView()}catch(e){}};
+setThemeIcon();
 $$('.dsw').forEach(a=>a.addEventListener('click',e=>{if(a.dataset.dsw!=='portal')return;e.preventDefault();
   if(!DB)DB=demoSeed();const k=DB.akses.find(x=>x.aktif);if(k)location.hash='#m-'+k.token}));
 function markDsw(){const h=location.hash.slice(1);const k=/^m-/.test(h)?'portal':'home';$$('.dsw').forEach(a=>a.classList.toggle('on',a.dataset.dsw===k))}
