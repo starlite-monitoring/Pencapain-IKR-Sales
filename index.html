@@ -1699,7 +1699,7 @@ function demoApi(action,b){
 }
 
 /* ================== boot ================== */
-if(DEMO)$('#demoBar').classList.remove('hidden');
+/* bar mode demo tidak ditampilkan */
 $('#fMLogin').onsubmit=async e=>{e.preventDefault();const bt=e.target.querySelector('button');bt.disabled=true;$('#mlMsg').textContent='';
   try{const r=await api('mitra_login',{username:$('#mlUser').value.trim(),password:$('#mlPw').value});mTokSet(r.token);$('#mlPw').value='';if(location.hash!=='#mitra')location.hash='#mitra';else route()}
   catch(err){$('#mlMsg').textContent=err.message}bt.disabled=false};
