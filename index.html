@@ -54,10 +54,10 @@ aside.side{background:var(--side);color:var(--side-text);padding:18px 12px;posit
 .side a.cta{background:var(--brand);color:#fff;font-weight:700;justify-content:center;margin:2px 0 4px}
 .side a .n{font-size:11px;background:#ffffff1a;border-radius:10px;padding:1px 7px}
 .side a .n.hot{background:var(--brand);color:#fff}
-.brandcard{background:linear-gradient(135deg,rgba(42,155,240,.30),rgba(42,155,240,.06) 60%,rgba(255,255,255,.04));border:1px solid rgba(120,190,255,.22);border-radius:14px;padding:14px 12px 11px;margin:2px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:7px;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 20px rgba(0,0,0,.25)}
-.brandcard img.s{filter:drop-shadow(0 0 1px rgba(255,255,255,.9)) drop-shadow(0 0 8px rgba(80,170,255,.55))}
-.brandcard .row1{display:flex;align-items:center;gap:8px}.brandcard .row1 img.s{height:38px}.brandcard .row1 img.t{height:15px}
-.brandcard .row2{display:flex;align-items:center;gap:6px;font-size:10.5px;color:#9db6d6;font-weight:600}.brandcard .row2 img{height:14px}
+.brandcard{background:none;border:0;border-radius:0;padding:8px 4px 10px;margin:2px 2px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:none}
+.brandcard img.s{filter:none}
+.brandcard .row1{display:flex;align-items:center;gap:10px}.brandcard .row1 img.s{height:46px}.brandcard .row1 img.t{height:20px}
+.brandcard .row2{display:flex;align-items:center;gap:8px;font-size:13px;color:#c5d6ec;font-weight:700}.brandcard .row2 img{height:22px}
 .side .prog-name{color:#fff;font-weight:700;font-size:12.5px;padding:2px 10px 4px;line-height:1.3}.side .prog-name small{display:block;color:var(--side-muted);font-weight:500;font-size:11px}
 .banner{background:var(--grad);border-radius:18px;padding:22px 24px;margin-bottom:20px;color:#fff;position:relative;overflow:hidden;box-shadow:0 10px 30px rgba(10,60,130,.25)}
 .banner .wm{position:absolute;right:-30px;top:-40px;height:230px;opacity:.13;pointer-events:none;filter:brightness(0) invert(1)}
@@ -331,6 +331,7 @@ body.formmode main{max-width:880px;margin:0 auto}
 .wo-p{flex:0 0 auto;min-width:150px;border:1px solid var(--line);border-left:4px solid var(--c-ikr);border-radius:10px;padding:8px 12px;display:grid}.wo-p.j-sls{border-left-color:var(--c-sls)}
 .wo-p b{font-size:20px}.wo-p span{font-weight:600;font-size:13px}.wo-p small{color:var(--text-2);font-size:11.5px}
 #hTbl tr.p1 td{border-bottom:1px dashed var(--line)}#hTbl td.tim-cell{vertical-align:middle;border-left:1px solid var(--line)}
+.perf-ikr{border-top:3px solid var(--c-ikr)}.perf-sls{border-top:3px solid var(--c-sls)}.perf-sls .prog i{background:var(--c-sls)}.perf-sls>h2::before{background:var(--c-sls)}.perf-ikr>h2::before{background:var(--c-ikr)}
 .docrow{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:6px 0;border-top:1px dashed var(--line)}
 .opt{font-weight:500;color:var(--text-3,#8a8a8a);font-size:11px;margin-left:4px}
 .up{position:relative;height:132px;border:1.5px dashed var(--line-2);border-radius:12px;background:var(--surface-2) center/cover no-repeat;cursor:pointer;overflow:hidden;transition:border-color .15s}
@@ -672,9 +673,9 @@ async function sbApi(action,b){
 
 /* ================== state ================== */
 const S={pub:null,admin:null,form:null,pw:DEMO?(sGet('stl_pw')||lGet('stl_pw')):null,view:'home',sort:{k:'rank',d:1},dj:''};
-const CFG0={wo_exclude:'batal, cancel, gagal',mitra:'Ariosy Sadia Reswara\nDapoer Poesat Noesantara Group\nKhatulistiwa Jaringan Nusatech\nDuta Anugrah Damai Sejahtera\nLingkup Total Technology\nSalwa Citra Mandiri\nBerathi\nKasih Rajawali Sejahtera\nDesnarum Jaya Akasha',nama_program:'Starlite FTTH · Pencapaian Mitra',target_ikr:'65',target_sales:'40',label_ikr:'Home Connect',label_sales:'Aktivasi',stasiun:'',pkwt_bulan:'3',tarif_ikr:'0',tarif_sales:'0',file_tagihan:'Surat PKWT dari mitra, BPJS Kesehatan & Ketenagakerjaan, Bukti capture performance (dashboard)',gaji_jabar:'2000000',gaji_jateng:'2000000',gaji_jatim:'2000000',gaji_jabo:'3000000',ins_ikr_akun:'50000',ins_ikr_mitra:'50000',ins_sales:'50000',hari_kerja:'6'};
+const CFG0={wo_exclude:'batal, cancel, gagal',mitra:'ARIOSY SADIA RESWARA\nDAPOER POESAT NOESANTARA GROUP\nKHATULISTIWA JARINGAN NUSATECH\nDUTA ANUGRAH DAMAI SEJAHTERA\nLINGKUP TOTAL TECHNOLOGY\nSALWA CITRA MANDIRI\nBERATHI\nKASIH RAJAWALI SEJAHTERA\nDESNARUM JAYA AKASHA',nama_program:'Starlite FTTH · Pencapaian Mitra',target_ikr:'65',target_sales:'40',label_ikr:'Home Connect',label_sales:'Aktivasi',stasiun:'',pkwt_bulan:'3',tarif_ikr:'0',tarif_sales:'0',file_tagihan:'Surat PKWT dari mitra, BPJS Kesehatan & Ketenagakerjaan, Bukti capture performance (dashboard)',gaji_jabar:'2000000',gaji_jateng:'2000000',gaji_jatim:'2000000',gaji_jabo:'3000000',ins_ikr_akun:'50000',ins_ikr_mitra:'50000',ins_sales:'50000',hari_kerja:'6'};
 const cfg=()=>Object.assign({},CFG0,S.form?.config||{},S.admin?.config||{});
-const mitraList=()=>String(cfg().mitra||'').split(/\n|,/).map(x=>x.trim()).filter(Boolean);
+const mitraList=()=>String(cfg().mitra||'').split(/\n|,/).map(x=>x.trim().toUpperCase()).filter(Boolean);
 /* ===== Program Subsidi Sales & IKR Tier 1 — rumus perhitungan ===== */
 const WIL=[['Jawa Barat','gaji_jabar'],['Jawa Tengah','gaji_jateng'],['Jawa Timur','gaji_jatim'],['Jabodetabek','gaji_jabo']];
 const wilOf=t=>(WIL.find(w=>w[0]===t.wilayah)||WIL[0])[0];
@@ -709,7 +710,7 @@ function derive(){
 }
 async function loadAdmin(){
   if(!S.pw)return false;
-  try{S.admin=await api('admin_data',{pw:S.pw});S.me=S.admin.me||'';derive();setConn(DEMO?'demo':'ok',DEMO?'Mode demo':'Terhubung');sideBadges();fillLists();return true}
+  try{S.admin=await api('admin_data',{pw:S.pw});(S.admin.tims||[]).forEach(t=>t.mitra=String(t.mitra||'').toUpperCase());(S.admin.akses||[]).forEach(a=>a.mitra=String(a.mitra||'').toUpperCase());S.me=S.admin.me||'';derive();setConn(DEMO?'demo':'ok',DEMO?'Mode demo':'Terhubung');sideBadges();fillLists();return true}
   catch(e){toast(e.message);logout(true);return false}
 }
 async function refreshAll(){if(await loadAdmin())renderView()}
@@ -845,12 +846,13 @@ function renderDash(){
     <div class="card"><h2>HC per hari</h2><p class="sub"><span class="lg j-ikr"><i></i>IKR · ${esc(LB.IKR)}</span> <span class="lg j-sls"><i></i>Sales · ${esc(LB.Sales)}</span></p><div class="chart-box"><canvas id="cTrend"></canvas></div></div>
     <div class="card"><h2>HC per mitra</h2><p class="sub">Total dalam periode</p><div class="chart-box"><canvas id="cMitra"></canvas></div></div>
   </div>
-  <div class="card"><h2>Detail performa tim</h2><p class="sub">Klik judul kolom untuk mengurutkan</p>
-   <div class="tbl-wrap"><table><thead><tr>${H.map(h=>`<th class="${h[2]||''}" data-k="${h[0]}" style="cursor:pointer">${esc(h[1])}${s.k===h[0]?(s.d<0?' ↓':' ↑'):''}</th>`).join('')}</tr></thead><tbody>
-   ${tbl.map(r=>`<tr class="${jc(r.t)}"><td><div class="rkc ${r.rank<=3&&r.n>0?'r'+r.rank:''}">${r.rank}</div></td><td><b>${esc(tName(r.t))}</b> ${r.t.status!=='Aktif'?pill(r.t.status,'mute'):''}<div class="sub2">${esc((r.t.anggota||[]).join(' & '))}</div></td><td>${tag(r.t.jenis)}</td><td>${esc(r.t.mitra)}<div class="sub2">${esc(r.t.stasiun)}</div></td>
+  ${JS.map(J=>{const T2=tbl.filter(r=>r.t.jenis===J);if(!T2.length)return '';const rk={};ranked.filter(r=>r.t.jenis===J).forEach((r,k)=>rk[r.t.id]=k+1);
+    return `<div class="card perf-${J==='IKR'?'ikr':'sls'}" style="margin-bottom:16px"><h2>Detail performa tim ${J} <span class="tag ${J==='IKR'?'ikr':'sls'}">${J}</span></h2><p class="sub">${T2.length} tim · ${esc(LB[J])} · peringkat di dalam ${J} · klik judul kolom untuk mengurutkan</p>
+   <div class="tbl-wrap"><table><thead><tr>${H.filter(h=>h[0]!=='jenis').map(h=>`<th class="${h[2]||''}" data-k="${h[0]}" style="cursor:pointer">${esc(h[1])}${s.k===h[0]?(s.d<0?' ↓':' ↑'):''}</th>`).join('')}</tr></thead><tbody>
+   ${T2.map(r=>{const n=rk[r.t.id];return `<tr class="${jc(r.t)}"><td><div class="rkc ${n<=3&&r.n>0?'r'+n:''}">${n}</div></td><td><b>${esc(tName(r.t))}</b> ${r.t.status!=='Aktif'?pill(r.t.status,'mute'):''}<div class="sub2">${esc((r.t.anggota||[]).join(' & '))}</div></td><td>${esc(r.t.mitra)}<div class="sub2">${esc(r.t.stasiun)}</div></td>
      <td class="num"><b style="font-size:15px">${nf(r.n)}</b><div class="sub2">${esc(r.label)}</div></td><td class="num">${nf(r.prev)}</td><td class="num">${nf(r.act)}</td><td class="num">${r.avg==null?'–':nf(r.avg,1)}</td><td class="num">${nf(r.best)}</td>
-     <td class="num">${r.target?`<div class="mini-prog"><div class="prog ${r.p>=1?'done':''}"><i style="width:${Math.min(100,r.p*100)}%"></i></div><b>${pct(r.p)}</b></div>`:'–'}</td></tr>`).join('')}
-   </tbody></table></div></div>`;
+     <td class="num">${r.target?`<div class="mini-prog"><div class="prog ${r.p>=1?'done':''}"><i style="width:${Math.min(100,r.p*100)}%"></i></div><b>${pct(r.p)}</b></div>`:'–'}</td></tr>`}).join('')}
+   </tbody></table></div></div>`}).join('')}`;
   const CI=css('--c-ikr'),CS=css('--c-sls');
   const days=[];const end=new Date(Math.min(new Date(R.b+'T00:00'),new Date()));for(let d=new Date(R.a+'T00:00');d<=end;d.setDate(d.getDate()+1))days.push(ymd(d));
   const dj2=J=>{const id2=new Set(tims.filter(t=>t.jenis===J).map(t=>t.id));return id2.size?sumRange(id2,R).daily:null};
@@ -925,7 +927,7 @@ $('#fReg').addEventListener('submit',async e=>{
   if(!FOTO[1]||!FOTO[2]){toast('Lampirkan foto diri kedua anggota');return}
   if(!fd.setuju){toast('Centang pernyataan persetujuan data');return}
   const b=$('#btnReg');b.disabled=true;b.textContent='Mengirim…';
-  try{const data={};REQ.concat(['nama_tim']).forEach(k=>data[k]=String(fd[k]||'').trim());data.ktp_1=KTP[1];data.ktp_2=KTP[2];data.foto_1=FOTO[1];data.foto_2=FOTO[2];data.pkwt_file_1=PKWT[1]||'';data.pkwt_file_2=PKWT[2]||'';data.bpjs_file_1=BPJS[1]||'';data.bpjs_file_2=BPJS[2]||'';if(PREG){data.token=PREG;data.mitra=PORTAL?.mitra||data.mitra}
+  try{const data={};REQ.concat(['nama_tim']).forEach(k=>data[k]=String(fd[k]||'').trim());data.ktp_1=KTP[1];data.ktp_2=KTP[2];data.foto_1=FOTO[1];data.foto_2=FOTO[2];data.pkwt_file_1=PKWT[1]||'';data.pkwt_file_2=PKWT[2]||'';data.bpjs_file_1=BPJS[1]||'';data.bpjs_file_2=BPJS[2]||'';if(PREG){data.token=PREG;data.mitra=PORTAL?.mitra||data.mitra}data.mitra=String(data.mitra||'').toUpperCase();
     const r=await api('register',{data});
     f.classList.add('hidden');$('#regDone').classList.remove('hidden');
     $('#regDone').innerHTML=`<div class="card regdone"><div class="ic">✓</div><h2 style="font-size:22px;margin:0 0 6px">Pendaftaran berhasil dikirim</h2>
@@ -1202,7 +1204,7 @@ async function openPortalReg(tok){
 function endPortalReg(){PREG=null;$('#pregBar').classList.add('hidden');$('#fReg [name=mitra]').classList.remove('locked');try{fillLists()}catch(e){}}
 async function loadPortal(tok){
   $('#portalBody').innerHTML='<div class="loading">Memuat portal mitra…</div>';
-  try{PORTAL=await api('portal',{token:tok});PORTAL.token=tok;PWO.cache={};renderPortal()}
+  try{PORTAL=await api('portal',{token:tok});PORTAL.token=tok;PORTAL.mitra=String(PORTAL.mitra||'').toUpperCase();PWO.cache={};renderPortal()}
   catch(e){$('#portalBody').innerHTML=`<div class="card empty" style="margin-top:10vh"><div style="font-size:40px">🔒</div><h2>Link tidak valid</h2><p class="sub">${esc(e.message)}<br>Hubungi admin Starlite untuk mendapatkan link monitoring yang baru.</p></div>`}
 }
 function renderPortal(per){
@@ -1533,7 +1535,7 @@ function demoPkwt(nama,mitra,jenis){const svg=`<svg xmlns="http://www.w3.org/200
 function demoFile(title,sub){const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="794" height="1123" viewBox="0 0 794 1123"><rect width="794" height="1123" fill="#fff"/><rect width="794" height="120" fill="#0b5fb8"/><text x="48" y="74" font-family="Arial" font-size="34" font-weight="700" fill="#fff">STARLITE</text><text x="48" y="190" font-family="Arial" font-size="28" font-weight="700" fill="#0b0b0b">${String(title||'Dokumen').replace(/[<&]/g,'')}</text><text x="48" y="232" font-family="Arial" font-size="18" fill="#555">${String(sub||'').replace(/[<&]/g,'')}</text><rect x="48" y="280" width="698" height="2" fill="#ddd"/><text x="48" y="330" font-family="Arial" font-size="16" fill="#888">Contoh dokumen — mode demo</text><text x="397" y="700" font-family="Arial" font-size="80" font-weight="700" fill="#eb6834" fill-opacity=".15" text-anchor="middle" transform="rotate(-30 397 700)">DEMO</text></svg>`;
   try{return URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}))}catch(e){return '#'}}
 function demoSeed(){
-  const mitras=['Ariosy Sadia Reswara','Dapoer Poesat Noesantara Group','Khatulistiwa Jaringan Nusatech','Duta Anugrah Damai Sejahtera','Lingkup Total Technology','Salwa Citra Mandiri','Berathi','Kasih Rajawali Sejahtera','Desnarum Jaya Akasha'];
+  const mitras=['ARIOSY SADIA RESWARA','DAPOER POESAT NOESANTARA GROUP','KHATULISTIWA JARINGAN NUSATECH','DUTA ANUGRAH DAMAI SEJAHTERA','LINGKUP TOTAL TECHNOLOGY','SALWA CITRA MANDIRI','BERATHI','KASIH RAJAWALI SEJAHTERA','DESNARUM JAYA AKASHA'];
   const stas=['Banjaran','Pabuaran','Kepanjen','Wonogiri','Subang','Bekasi','Majalaya'];
   const wilSta={Banjaran:'Jawa Barat',Pabuaran:'Jawa Barat',Subang:'Jawa Barat',Majalaya:'Jawa Barat',Kepanjen:'Jawa Timur',Wonogiri:'Jawa Tengah',Bekasi:'Jabodetabek'};
   const depan=['Asep','Dede','Budi','Cecep','Eko','Fajar','Gilang','Hendra','Indra','Joko','Kiki','Lukman','Maman','Nanang','Oki','Pandu','Rizal','Sandi','Taufik','Ujang','Wawan','Yayan','Zaki','Arif','Bayu','Candra','Dimas','Erik','Ferry','Galih','Heri','Iwan','Jajang','Kurnia','Lutfi','Mulyadi','Nendi','Opik','Purnama','Rahmat','Sutisna','Tatang','Usep','Wahyu','Yoga','Agus','Bambang','Cahya','Dadan','Engkus','Firman','Gugun','Hasan','Ikhsan','Jaka','Komar'];
