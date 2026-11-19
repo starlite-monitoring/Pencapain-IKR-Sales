@@ -330,6 +330,7 @@ body.formmode main{max-width:880px;margin:0 auto}
 .wo-sum{display:flex;gap:10px;overflow-x:auto;padding:4px 18px 14px}
 .wo-p{flex:0 0 auto;min-width:150px;border:1px solid var(--line);border-left:4px solid var(--c-ikr);border-radius:10px;padding:8px 12px;display:grid}.wo-p.j-sls{border-left-color:var(--c-sls)}
 .wo-p b{font-size:20px}.wo-p span{font-weight:600;font-size:13px}.wo-p small{color:var(--text-2);font-size:11.5px}
+#hTbl tr.p1 td{border-bottom:1px dashed var(--line)}#hTbl td.tim-cell{vertical-align:middle;border-left:1px solid var(--line)}
 .docrow{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:6px 0;border-top:1px dashed var(--line)}
 .opt{font-weight:500;color:var(--text-3,#8a8a8a);font-size:11px;margin-left:4px}
 .up{position:relative;height:132px;border:1.5px dashed var(--line-2);border-radius:12px;background:var(--surface-2) center/cover no-repeat;cursor:pointer;overflow:hidden;transition:border-color .15s}
@@ -959,7 +960,7 @@ const TSTEPS=['Daftar','Kontrak','Akun','Aktif','Penagihan','Dibayar'];
 const TLBL={Daftar:'Daftar',Kontrak:'Kontrak mitra',Akun:'Akun & PKWT',Aktif:'Aktif',Penagihan:'Penagihan',Dibayar:'Dibayar'};
 function stageDetail(t,st,per){const b=billOf(t.id,per);const lbl=t.jenis==='Sales'?cfg().label_sales:cfg().label_ikr;
   if(st==='Daftar')return Math.floor((Date.now()-new Date(t.created_at))/864e5)+' hari';
-  if(st==='Kontrak')return (+t.kontrak_langkah||0)+'/7 langkah';
+  if(st==='Kontrak')return 'proses kontrak';
   if(st==='Akun')return 'ID '+[t.id_akun_1,t.id_akun_2].filter(Boolean).length+'/2';
   if(st==='Aktif')return nf(achMonth(t.id,per))+' '+(lbl==='Home Connect'?'HC':lbl);
   if(st==='Penagihan')return b.status==='Diverifikasi'?'slip '+[1,2].filter(i=>b['slip_'+i]).length+'/2':[1,2,3].filter(i=>b['file_'+i]).length+'/3 file';
@@ -1011,7 +1012,7 @@ function kcard(t,per){const st=pStage(t,per);const n7=+t.kontrak_langkah||0;cons
   const b=billOf(t.id,per);const nA=achMonth(t.id,per);const lbl=t.jenis==='Sales'?cfg().label_sales:cfg().label_ikr;const nfiles=b?[1,2,3].filter(i=>b['file_'+i]).length:0;
   return `<div class="kc" data-id="${esc(t.id)}" data-st="${st}"><div class="t"><b>${esc(aName(t))}</b>${tag(t.jenis)}</div>
   <div class="m">${esc(t.nama_1)} & ${esc(t.nama_2)}</div>
-  ${st==='Kontrak'?`<div class="steps7">${KONTRAK7.map((_,i)=>`<i class="${i<n7?'on':''}"></i>`).join('')}</div><div class="sub2" style="margin-top:4px">${n7}/7 · ${esc(KONTRAK7[n7]||'siap buat akun')}</div>`:''}
+
   ${st==='Akun'?`<div class="sub2">${[t.id_akun_1,t.id_akun_2].filter(Boolean).length}/2 ID akun terisi</div>`:''}
   ${st==='Aktif'?`<div class="sub2">${nf(nA)} ${esc(lbl)} periode ini${' · est. '+rp(calcTeam(t,per).total)}${!t.id_akun_1&&!t.id_akun_2?' · '+pill('ID kosong','warn'):''}</div><div style="margin-top:8px"><button class="btn sm pri" data-bill="${esc(t.id)}">Buat tagihan →</button></div>`:''}
   ${st==='Penagihan'?`<div class="rp">${rp(b.nilai)}</div><div class="steps3">${[1,2,3].map(i=>`<i class="${b['file_'+i]?'on':''}"></i>`).join('')}</div><div class="sub2" style="margin-top:4px">${nfiles}/3 file · ${pill(b.status,STK[b.status])}</div>`:''}
@@ -1088,9 +1089,6 @@ function openEdit(id){
     <label class="f">Mitra<input name="mitra" value="${esc(t.mitra)}" list="dlMitra"></label>
     <label class="f">Stasiun<input name="stasiun" value="${esc(t.stasiun)}" list="dlSta"></label>
     <label class="f">Wilayah (gaji pokok)<select name="wilayah">${WIL.map(([w])=>`<option ${wilOf(t)===w?'selected':''}>${w}</option>`).join('')}</select></label></div></div>
-   <div class="msec"><h4>Kontrak kerja sama mitra · jasa konsultasi (<span id="n7">${n7}</span>/7)</h4>
-    ${KONTRAK7.map((s,i)=>`<label class="chk"><input type="checkbox" data-ck="${i}" ${i<n7?'checked':''}><span>${i+1}. ${s}</span></label>`).join('')}
-    </div>
    <div class="msec"><h4>Akun, PKWT &amp; BPJS teknisi</h4>
     <p class="sub2" style="margin:-4px 0 10px">PKWT &amp; BPJS diupload oleh mitra (opsional saat daftar). Bila belum ada, admin bisa upload di sini.</p>
     <div class="grid g2">${[1,2].map(i=>{const u=t['pkwt_file_'+i]&&t['bpjs_file_'+i];return `<div class="fslot ${u?'ok':''}" style="gap:8px"><b>${esc(t['nama_'+i]||'Anggota '+i)} ${i===1?pill('Lead','info'):pill('Tim','mute')}</b>
@@ -1122,7 +1120,6 @@ function openEdit(id){
     const r=new FileReader();r.onload=async()=>{toast('Mengupload…');try{await api('admin_tim_file',{pw:S.pw,id:t.id,field:inp.dataset.pk,name:f.name,data:r.result});toast('Dokumen tersimpan');await refreshAll();openEdit(t.id)}catch(e){toast(e.message,true)}};r.readAsDataURL(f)});
   const pj=F.querySelector('#perpanjang');if(pj)pj.onclick=()=>{const d=new Date(F.pkwt_selesai.value+'T00:00');d.setDate(d.getDate()+1);F.pkwt_mulai.value=ymd(d);autoEnd();toast('Tanggal PKWT diperpanjang — klik Simpan')};
   const save=async st=>{const fields=Object.fromEntries(new FormData(F));if(st)fields.status=st;
-    if(fields.status==='Akun'&&+fields.kontrak_langkah<6){toast('Selesaikan kontrak sampai langkah 6 (TTD) dulu',true);return}
     if(fields.status==='Akun'&&!fields.pkwt_mulai){toast('Isi tanggal mulai PKWT dulu',true);F.pkwt_mulai.focus();return}
     if(fields.status==='Aktif'&&!fields.id_akun_1&&!fields.id_akun_2){toast('Isi minimal 1 IKR/Sales ID agar pencapaian terhitung',true);F.id_akun_1.focus();return}
     F.querySelectorAll('button').forEach(b=>b.disabled=true);
@@ -1347,12 +1344,14 @@ function renderHitung(){
   const hit=R.filter(r=>r.c.pct>=1).length;const wdTot=R[0]?.c.wdTot||workdays(per+'-01',ymd(new Date(+per.slice(0,4),+per.slice(5),0)),+c.hari_kerja===5?5:6);
   const order=[...new Set([...mitraList(),...R.map(r=>r.t.mitra)])].filter(m=>R.some(r=>r.t.mitra===m));
   const row=r=>{const x=r.c,t=r.t,nd=r.b?[1,2,3].filter(i=>r.b['file_'+i]).length:0;
-    return `<tr><td style="min-width:190px"><b>${esc(aName(t))}</b> ${tag(t.jenis)}<div class="sub2">${esc(t.nama_1)} & ${esc(t.nama_2)}</div><div class="sub2">${esc(x.wilayah)} · ${rpS(x.G)}/orang</div></td>
-     <td><div class="hc-bar"><b>${nf(x.hc)}</b><span class="sub2">/ ${nf(x.target,0)}</span></div><div class="prog ${x.pct>=1?'done':''}" style="width:90px;height:6px;margin-top:4px"><i style="width:${Math.min(100,x.pct*100)}%"></i></div></td>
-     <td class="num">${pct(x.pct)}</td><td class="num">${x.wd}/${x.wdTot}</td>
-     <td class="num">${rp(x.gaji)}</td><td class="num">${rp(x.insTek)}</td><td class="num">${x.insMitra?rp(x.insMitra):'–'}</td><td class="num"><b>${rp(x.total)}</b></td>
-     <td>${r.b?pill(r.b.status,STK[r.b.status])+'<div class="sub2" style="margin-top:3px">'+nd+'/3 dokumen</div>'+(+r.b.nilai!==x.total?'<div class="sub2" style="color:var(--warn)">nilai ≠ hitungan</div>':''):pill('Belum ditagih','mute')}</td>
-     <td><div class="row-actions" style="display:flex;gap:6px;justify-content:flex-end"><button class="btn sm" data-why="${esc(t.id)}">Rincian</button>${r.b?`<button class="btn sm" data-ob="${esc(t.id)}">Tagihan</button>`:`<button class="btn sm pri" data-mk="${esc(t.id)}">Buat tagihan</button>`}</div></td></tr>`};
+    return x.rows.map((p,k)=>{const i=p.i;return `<tr class="${k?'p2':'p1'}"><td style="min-width:200px"><b>${esc(p.nama||'–')}</b> ${i===1?pill('Lead','info'):''}<div class="sub2">${esc(aName(t))} ${tag(t.jenis)} · ${esc(x.wilayah)}</div></td>
+     <td class="sub2" style="min-width:150px">${esc(t['bank_'+i]||'–')} · <span class="mono">${esc(t['rek_'+i]||'–')}</span><div>a.n. ${esc(t['an_'+i]||'–')}</div></td>
+     <td><div class="hc-bar"><b>${nf(p.hc)}</b><span class="sub2">HC${t.jenis==='Sales'?' / '+nf(p.target,0):' · tim '+nf(x.hc)+' / '+nf(x.target,0)}</span></div><div class="prog ${p.pct>=1?'done':''}" style="width:90px;height:6px;margin-top:4px"><i style="width:${Math.min(100,p.pct*100)}%"></i></div></td>
+     <td class="num">${pct(p.pct)}</td><td class="num">${x.wd}/${x.wdTot}</td>
+     <td class="num">${rp(p.gaji)}</td><td class="num">${rp(p.ins)}</td><td class="num"><b>${rp(p.total)}</b></td>
+     ${k?'':`<td rowspan="2" class="tim-cell">${r.b?pill(r.b.status==='Ditagih'?'Diajukan':r.b.status,STK[r.b.status])+'<div class="sub2" style="margin-top:3px">'+nd+'/3 dokumen</div>':pill('Belum ditagih','mute')}${x.insMitra?`<div class="sub2" style="margin-top:4px">+ insentif mitra ${rp(x.insMitra)}</div>`:''}</td>
+     <td rowspan="2" class="tim-cell"><div class="row-actions" style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap"><button class="btn sm" data-why="${esc(t.id)}">Rincian</button>${r.b?`<button class="btn sm" data-ob="${esc(t.id)}">Tagihan</button>`:`<button class="btn sm pri" data-mk="${esc(t.id)}">Buat tagihan</button>`}</div></td>`}</tr>`}).join('')};
+  const P=R.flatMap(r=>r.c.rows);const ps=k=>P.reduce((a,p)=>a+(+p[k]||0),0);const hitP=P.filter(p=>p.pct>=1).length;
   $('#hBody').innerHTML=`
   <div class="rumus">
     <div class="rm main"><h4>Gaji pokok prorata (per orang)</h4><div class="f1">Pencapaian ÷ Target × Gaji Pokok</div>
@@ -1360,20 +1359,20 @@ function renderHitung(){
       (${+c.hari_kerja===5?'Senin–Jumat':'Senin–Sabtu'}) sesuai masa PKWT di bulan itu. Hanya HC tercapai & terverifikasi.</div></div>
     <div class="rm"><h4>Gaji pokok per wilayah</h4><div class="ln">${WIL.map(([w,k])=>`<span class="chipv">${w} ${rpS(+c[k])}</span>`).join('')}</div>
       <h4 style="margin-top:10px">Target bulanan</h4><div class="ln"><span class="chipv">IKR ${nf(+c.target_ikr)} HC / tim (2 orang)</span><span class="chipv">Sales ${nf(+c.target_sales)} HC / orang</span></div></div>
-    <div class="rm"><h4>Insentif per HC</h4><div class="ln"><span class="chipv">IKR → akun ${rp(+c.ins_ikr_akun)}</span><span class="chipv">IKR → mitra ${rp(+c.ins_ikr_mitra)}</span><span class="chipv">OTF Sales ${rp(+c.ins_sales)}</span></div>
+    <div class="rm"><h4>Rumus insentif</h4><div class="ln" style="line-height:1.7"><b>IKR · per orang</b> = HC tim × ${rp(+c.ins_ikr_akun)} ÷ 2<br><b>IKR · ke mitra</b> = HC tim × ${rp(+c.ins_ikr_mitra)}<br><b>Sales · per orang</b> = HC sendiri × ${rp(+c.ins_sales)} (OTF)<br><span class="sub2">Tidak diprorata · hanya HC terverifikasi · tanpa batas maksimal</span></div>
       <h4 style="margin-top:10px">Dokumen wajib penagihan</h4><div class="ln">${fileNames().map((f,i)=>(i+1)+'. '+esc(f)).join('<br>')}</div></div>
   </div>
   <div class="kpis" style="grid-template-columns:repeat(5,1fr)">
-    <div class="kpi hero"><div class="k">Total tagihan ${esc(perLabel(per))}</div><div class="v">${rpS(sum('total'))}</div><div class="d">${R.length} tim · ${wdTot} hari kerja</div></div>
-    <div class="kpi"><div class="k">Gaji pokok prorata</div><div class="v">${rpS(sum('gaji'))}</div><div class="d">${R.length*2} orang</div></div>
+    <div class="kpi hero"><div class="k">Total tagihan ${esc(perLabel(per))}</div><div class="v">${rpS(sum('total'))}</div><div class="d">${P.length} orang · ${wdTot} hari kerja</div></div>
+    <div class="kpi"><div class="k">Gaji pokok prorata</div><div class="v">${rpS(sum('gaji'))}</div><div class="d">${P.length} orang</div></div>
     <div class="kpi"><div class="k">Insentif teknisi / sales</div><div class="v">${rpS(sum('insTek'))}</div><div class="d">${nf(sum('hc'))} HC terverifikasi</div></div>
     <div class="kpi"><div class="k">Insentif ke mitra</div><div class="v">${rpS(sum('insMitra'))}</div><div class="d">dari HC tim IKR</div></div>
-    <div class="kpi"><div class="k">Tim capai target</div><div class="v">${hit}<span style="font-size:16px;color:var(--muted)"> / ${R.length}</span></div><div class="d">${R.length-hit} tim gaji pokok prorata</div></div>
+    <div class="kpi"><div class="k">Orang capai target</div><div class="v">${hitP}<span style="font-size:16px;color:var(--muted)"> / ${P.length}</span></div><div class="d">${P.length-hitP} orang gaji pokok prorata</div></div>
   </div>
-  <div class="card" style="padding:0"><div class="tbl-wrap" style="border:0"><table id="hTbl"><thead><tr><th>Tim · wilayah</th><th>HC / target</th><th class="num">Capaian</th><th class="num">Hari kerja</th><th class="num">Gaji pokok</th><th class="num">Insentif<br>tek./sales</th><th class="num">Insentif<br>mitra</th><th class="num">Total</th><th>Status</th><th></th></tr></thead><tbody>
+  <div class="card" style="padding:0"><div class="tbl-wrap" style="border:0"><table id="hTbl"><thead><tr><th>Nama · tim · wilayah</th><th>Rekening</th><th>HC / target</th><th class="num">Capaian</th><th class="num">Hari kerja</th><th class="num">Gaji pokok</th><th class="num">Insentif</th><th class="num">Diterima</th><th>Tagihan tim</th><th></th></tr></thead><tbody>
   ${order.map(m=>{const L=R.filter(r=>r.t.mitra===m);const ss=k=>L.reduce((a,r)=>a+r.c[k],0);
-    return L.map(row).join('')+`<tr class="sub"><td colspan="4">Subtotal ${esc(m)} · ${L.length} tim</td><td class="num">${rp(ss('gaji'))}</td><td class="num">${rp(ss('insTek'))}</td><td class="num">${rp(ss('insMitra'))}</td><td class="num">${rp(ss('total'))}</td><td colspan="2"></td></tr>`}).join('')||'<tr><td colspan="10" class="empty">Tidak ada tim aktif pada periode ini.</td></tr>'}
-  ${R.length?`<tr class="grand"><td colspan="4">TOTAL ${esc(perLabel(per))}</td><td class="num">${rp(sum('gaji'))}</td><td class="num">${rp(sum('insTek'))}</td><td class="num">${rp(sum('insMitra'))}</td><td class="num">${rp(sum('total'))}</td><td colspan="2"></td></tr>`:''}
+    return L.map(row).join('')+`<tr class="sub"><td colspan="5">Subtotal ${esc(m)} · ${L.length*2} orang</td><td class="num">${rp(ss('gaji'))}</td><td class="num">${rp(ss('insTek'))}</td><td class="num">${rp(ss('gaji')+ss('insTek'))}</td><td colspan="2">${ss('insMitra')?'+ insentif mitra '+rp(ss('insMitra'))+' → total '+rp(ss('total')):''}</td></tr>`}).join('')||'<tr><td colspan="10" class="empty">Tidak ada orang aktif pada periode ini.</td></tr>'}
+  ${R.length?`<tr class="grand"><td colspan="5">TOTAL ${esc(perLabel(per))} · ${P.length} orang</td><td class="num">${rp(sum('gaji'))}</td><td class="num">${rp(sum('insTek'))}</td><td class="num">${rp(sum('gaji')+sum('insTek'))}</td><td colspan="2">${sum('insMitra')?'+ insentif mitra '+rp(sum('insMitra'))+' → total tagihan '+rp(sum('total')):''}</td></tr>`:''}
   </tbody></table></div></div>`;
   $$('#hBody [data-why]').forEach(b=>b.onclick=()=>openWhy(b.dataset.why,per));
   $$('#hBody [data-ob]').forEach(b=>b.onclick=()=>openBill(b.dataset.ob,per));
