@@ -242,7 +242,7 @@ tr.grand td{background:var(--side);color:#fff;font-weight:800}
 .trk-r .inf{font-size:12px;color:var(--text-2);line-height:1.5}
 .trk-r .act{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
 .trk-empty{padding:14px 18px;color:var(--muted);font-size:12.5px}
-.stp{display:grid;grid-template-columns:repeat(6,1fr)}
+.stp{display:grid;grid-template-columns:repeat(3,1fr)}
 .stp .s{position:relative;text-align:center;font-size:10.5px;color:var(--muted);font-weight:600;padding:0 2px}
 .stp .s:not(:first-child)::before{content:"";position:absolute;top:11px;right:50%;width:100%;height:3px;background:var(--line-2);z-index:0}
 .stp .s.done::before,.stp .s.cur::before{background:var(--good)}
@@ -261,7 +261,11 @@ tr.grand td{background:var(--side);color:#fff;font-weight:800}
 .flowbar>div:not(:last-child)::after{content:"›";position:absolute;right:-7px;top:50%;transform:translateY(-50%);background:var(--surface);color:var(--muted);font-weight:800;z-index:1;width:14px;text-align:center}
 .flowbar .k{font-size:11px;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
 .flowbar .v{font-size:22px;font-weight:800}.flowbar .st{font-size:11.5px;color:var(--muted)}
-@media (max-width:900px){.flowbar{grid-template-columns:repeat(2,1fr)}.flowbar>div::after{display:none}}
+.flowbar.c3{grid-template-columns:repeat(3,1fr)}.flowbar.c4{grid-template-columns:repeat(4,1fr)}.flowbar>div.on{background:var(--accent-soft)}
+.inv-tims{display:grid;gap:8px;max-height:320px;overflow:auto}
+.inv-t{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:var(--surface)}
+.inv-t.on{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}.inv-t.off{opacity:.55;cursor:not-allowed}.inv-t .num{text-align:right;white-space:nowrap}
+@media (max-width:900px){.flowbar,.flowbar.c3,.flowbar.c4{grid-template-columns:repeat(2,1fr)}.flowbar>div::after{display:none}}
 .kanban{display:grid;grid-template-columns:repeat(6,minmax(172px,1fr));gap:10px;overflow-x:auto;align-items:start;padding-bottom:6px}
 .col.c-pay{background:linear-gradient(180deg,#e3f0fd,var(--surface-2) 120px)}.col.c-paid{background:linear-gradient(180deg,#e5f4ea,var(--surface-2) 120px)}
 html[data-theme=dark] .col.c-pay{background:linear-gradient(180deg,#12294a,var(--surface-2) 120px)}html[data-theme=dark] .col.c-paid{background:linear-gradient(180deg,#16291b,var(--surface-2) 120px)}
@@ -369,7 +373,8 @@ body.formmode main{max-width:880px;margin:0 auto}
   <h6>MITRA</h6>
   <a href="#tracking" data-v="tracking">Tracking Mitra <span id="nPipe"></span></a>
   <a href="#daftar" data-v="daftar">Form Pendaftaran</a>
-  <h6>KEUANGAN</h6>
+  <h6>KEUANGAN · FINANCE</h6>
+  <a href="#tagihan" data-v="tagihan">Penagihan <span id="nInv"></span></a>
   <a href="#hitung" data-v="hitung">Perhitungan Gaji</a>
   <h6>DATA</h6>
   <a href="#input" data-v="input">Detail WO <span id="nUnm"></span></a>
@@ -461,9 +466,9 @@ body.formmode main{max-width:880px;margin:0 auto}
       <h1>Permintaan Akun Tim IKR & Sales</h1>
       <p>Ajukan akun untuk tim Anda — 1 tim terdiri dari 2 orang. Admin Starlite akan memverifikasi data lalu menyetujui dan mengaktifkan akun tim.</p>
       <div class="fsteps three">
-        <div><b>1 · Pendaftaran</b>Mitra mengisi data tim, HP, email, foto KTP &amp; foto diri</div>
-        <div><b>2 · Verifikasi</b>Data dicek &amp; disetujui admin Starlite</div>
-        <div><b>3 · Akun aktif</b>Akun IKR/Sales dibuatkan, tim mulai bekerja</div>
+        <div><b>1 · Mitra submit</b>Mitra mengisi data tim, HP, email, foto KTP &amp; foto diri</div>
+        <div><b>2 · Verifikasi</b>Admin Starlite cek data, isi ID IKR &amp; kata sandi</div>
+        <div><b>3 · Selesai</b>Akun aktif, tim mulai bekerja</div>
       </div>
     </div>
     <div class="card hidden" id="pregBar" style="margin-bottom:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 16px;border-color:var(--brand)"><div style="flex:1;min-width:220px"><b>Tambah tim baru untuk <span id="pregMitra"></span></b><div class="sub2">Setelah dikirim, tim langsung muncul di portal Anda dengan status Daftar.</div></div><a class="btn" id="pregBack" href="#">← Kembali ke portal</a></div>
@@ -490,7 +495,7 @@ body.formmode main{max-width:880px;margin:0 auto}
       </div>
       <div class="card fsec">
         <label style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text-2);cursor:pointer"><input type="checkbox" name="setuju" style="margin-top:2px">
-          Saya menyatakan data, foto KTP, dan foto diri di atas benar, dan menyetujui data dipakai untuk proses kontrak PKWT serta pembuatan akun kerja.</label>
+          Saya menyatakan data, foto KTP, dan foto diri di atas benar, dan menyetujui data dipakai untuk verifikasi dan pembuatan akun kerja.</label>
         <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px"><button type="reset" class="btn">Kosongkan</button><button class="btn brand" type="submit" id="btnReg" style="padding:11px 24px">Kirim permintaan akun</button></div>
       </div>
     </form>
@@ -502,10 +507,9 @@ body.formmode main{max-width:880px;margin:0 auto}
   <!-- ============ PIPELINE (admin) ============ -->
   <section id="v-tracking" class="view hidden">
     <div class="ph">
-      <div><h1>Tracking Mitra</h1><p>Pendaftaran → Verifikasi → Akun aktif → Penagihan → Mitra submit invoice → Dibayar IJE · kontrak (PKWT) &amp; BPJS opsional</p></div>
+      <div><h1>Tracking Pendaftaran Tim</h1><p>Mitra submit → Verifikasi (isi ID IKR, kata sandi &amp; rename) → Selesai · tugas admin Starlite. Penagihan dicek Finance di menu <a href="#tagihan">Penagihan</a>.</p></div>
       <div class="sp"></div>
       <div class="ctl">
-        <label class="f">Periode tagihan<select id="pPer"></select></label>
         <div class="chips" id="pJenis"><span class="chip on" data-j="">Semua</span><span class="chip" data-j="IKR">IKR</span><span class="chip" data-j="Sales">Sales</span></div>
         <label class="f">Mitra<select id="pMitra"></select></label>
         <input id="pQ" placeholder="Cari tim / nama / HP" style="width:190px">
@@ -516,6 +520,23 @@ body.formmode main{max-width:880px;margin:0 auto}
     <div id="pAlert"></div>
     <div style="display:flex;justify-content:flex-end;margin:-4px 0 10px"><label style="display:flex;gap:7px;align-items:center;font-size:12.5px;color:var(--text-2);cursor:pointer"><input type="checkbox" id="pArsip"> Tampilkan tim ditolak / nonaktif</label></div>
     <div id="trk"></div>
+  </section>
+
+  <!-- ============ PENAGIHAN (Finance) ============ -->
+  <section id="v-tagihan" class="view hidden">
+    <div class="ph">
+      <div><h1>Penagihan</h1><p>Mitra submit invoice atas nama mitra (pilih tim yang ditagih) → dicek Finance → dibayar IJE</p></div>
+      <div class="sp"></div>
+      <div class="ctl">
+        <label class="f">Periode<select id="gPer"></select></label>
+        <label class="f">Mitra<select id="gMitra"></select></label>
+        <div class="chips" id="gSt"><span class="chip on" data-s="">Semua</span><span class="chip" data-s="Diajukan">Diajukan</span><span class="chip" data-s="Revisi">Revisi</span><span class="chip" data-s="Dicek">Dicek</span><span class="chip" data-s="Dibayar">Dibayar</span><span class="chip" data-s="Ditolak">Ditolak</span></div>
+        <input id="gQ" placeholder="Cari no. invoice / tim" style="width:180px">
+        <button class="btn" id="gRefresh">Muat ulang</button>
+      </div>
+    </div>
+    <div class="flowbar c4" id="gFlow"></div>
+    <div id="gBody"></div>
   </section>
 
   <!-- ============ PERHITUNGAN ============ -->
@@ -588,7 +609,7 @@ async function api(action,body={}){
   return sbApi(action,body);
 }
 /* ---------- Supabase backend ---------- */
-const TB={tim:'mitra_tim',ach:'mitra_pencapaian',bill:'mitra_tagihan',cfg:'mitra_config'};
+const TB={tim:'mitra_tim',ach:'mitra_pencapaian',bill:'mitra_tagihan',inv:'mitra_invoice',cfg:'mitra_config'};
 const BK={ktp:'mitra-ktp',bill:'mitra-tagihan'};
 const chk=r=>{if(r.error)throw new Error(r.error.message||'Gagal');return r.data};
 const s2=v=>v==null?'':String(v);
@@ -597,19 +618,18 @@ const rnd4=()=>Math.random().toString(36).slice(2,6).toUpperCase();
 async function fetchAll(t,order){let out=[],from=0;for(;;){const d=chk(await sb.from(t).select('*').order(order).range(from,from+999));out=out.concat(d);if(d.length<1000)break;from+=1000}return out}
 async function signMap(bucket,paths){paths=[...new Set(paths.filter(p=>p&&!/^https?:/.test(p)))];if(!paths.length)return{};const m={};
   for(let i=0;i<paths.length;i+=100){const r=await sb.storage.from(bucket).createSignedUrls(paths.slice(i,i+100),3600);if(!r.error)r.data.forEach(x=>{if(x.signedUrl)m[x.path]=x.signedUrl})}return m}
-async function getBill(x){if(x.id)return chk(await sb.from(TB.bill).select('*').eq('id',x.id).maybeSingle());return chk(await sb.from(TB.bill).select('*').eq('tim_id',x.tim_id).eq('periode',x.periode).maybeSingle())}
 async function sbApi(action,b){
   switch(action){
   case 'public':return{ok:true,config:chk(await sb.rpc('mitra_config_publik'))||{}};
   case 'portal':{const r=await sb.rpc('mitra_portal',{p_token:b.token});if(r.error)throw new Error(/tidak valid|nonaktif/i.test(r.error.message)?r.error.message:'Link tidak valid atau sudah dinonaktifkan');
     const d=r.data||{};d.tims=(d.tims||[]).map(t=>{const o={};for(const k in t)o[k]=s2(t[k]);return o});d.ach=(d.ach||[]).map(a=>({tanggal:s2(a.tanggal),id_akun:s2(a.id_akun),jumlah:+a.jumlah||0}));
-    d.bills=(d.bills||[]).map(x=>({...x,periode:s2(x.periode),tgl_bayar:s2(x.tgl_bayar),nilai:+x.nilai||0,jumlah:+x.jumlah||0}));const cf={};Object.entries(d.config||{}).forEach(([k,v])=>cf[k]=s2(v));d.config=cf;return d}
+    d.invoices=(d.invoices||[]).map(x=>({...x,periode:s2(x.periode),tgl_ajukan:s2(x.tgl_ajukan),tgl_bayar:s2(x.tgl_bayar),catatan_finance:s2(x.catatan_finance),catatan:s2(x.catatan),nilai:+x.nilai||0,jumlah:+x.jumlah||0,nilai_bayar:x.nilai_bayar==null?null:+x.nilai_bayar,tim_ids:Array.isArray(x.tim_ids)?x.tim_ids.map(String):[]}));const cf={};Object.entries(d.config||{}).forEach(([k,v])=>cf[k]=s2(v));d.config=cf;return d}
   case 'portal_invoice':{
-    const dir='inv/'+(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+rnd4());const p={tim_id:b.tim_id,periode:b.periode,jumlah:b.jumlah,nilai:b.nilai};
+    const dir='inv/'+(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+rnd4());const p={id:b.id||'',periode:b.periode,tim_ids:b.tim_ids||[],jumlah:b.jumlah,nilai:b.nilai,rincian:b.rincian||null,catatan:b.catatan||''};
     for(const i of [1,2,3]){const f=b.files[i];if(!f)continue;const blob=await (await fetch(f.data)).blob();if(blob.size>10*1024*1024)throw new Error('File maksimal 10 MB');
       const safe=String(f.name||'file').replace(/[^\w.\-]+/g,'_').slice(-60);const path=`${dir}/file_${i}-${safe}`;
       const r=await sb.storage.from(BK.bill).upload(path,blob,{contentType:blob.type||'application/octet-stream',upsert:false});if(r.error)throw new Error('Upload gagal: '+r.error.message);p['file_'+i]=path}
-    return{ok:true,id:chk(await sb.rpc('mitra_ajukan_tagihan',{p_token:b.token,p}))}}
+    const r=await sb.rpc('mitra_ajukan_invoice',{p_token:b.token,p});if(r.error)throw new Error(r.error.message);return{ok:true,id:r.data}}
   case 'register':{
     const d={...b.data};const dir='reg/'+(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+rnd4());
     for(const k of ['ktp_1','ktp_2','foto_1','foto_2']){const blob=await (await fetch(d[k])).blob();const path=`${dir}/${k}.jpg`;
@@ -619,18 +639,18 @@ async function sbApi(action,b){
     return{ok:true,id:chk(await sb.rpc('mitra_daftar',{p:d}))}}
   case 'admin_data':{
     if(!chk(await sb.rpc('mitra_is_admin')))throw new Error('Akun ini belum terdaftar sebagai admin (tabel mitra_admin).');
-    const [tims,ach,bills,cfgRows,akses,adm,usr]=await Promise.all([fetchAll(TB.tim,'created_at'),fetchAll(TB.ach,'tanggal'),fetchAll(TB.bill,'periode'),fetchAll(TB.cfg,'key'),fetchAll('mitra_akses','mitra'),fetchAll('mitra_admin','email'),sb.auth.getUser()]);
+    let invErr='';const [tims,ach,invs,cfgRows,akses,adm,usr]=await Promise.all([fetchAll(TB.tim,'created_at'),fetchAll(TB.ach,'tanggal'),fetchAll(TB.inv,'created_at').catch(e=>{invErr=e.message;return[]}),fetchAll(TB.cfg,'key'),fetchAll('mitra_akses','mitra'),fetchAll('mitra_admin','email'),sb.auth.getUser()]);
     const config={...CFG0};cfgRows.forEach(r=>config[r.key]=s2(r.value));
     const km=await signMap(BK.ktp,tims.flatMap(t=>[t.ktp_1,t.ktp_2,t.foto_1,t.foto_2,t.pkwt_file_1,t.pkwt_file_2,t.bpjs_file_1,t.bpjs_file_2]));
-    const fm=await signMap(BK.bill,bills.flatMap(x=>[x.file_1,x.file_2,x.file_3,x.slip_1,x.slip_2]));
+    const fm=await signMap(BK.bill,invs.flatMap(x=>[x.file_1,x.file_2,x.file_3,x.slip]));
     const T=tims.map(t=>{const o={};for(const k in t)o[k]=s2(t[k]);['ktp_1','ktp_2','foto_1','foto_2','pkwt_file_1','pkwt_file_2','bpjs_file_1','bpjs_file_2'].forEach(k=>{if(o[k])o[k]=km[o[k]]||o[k]});return o});
     const idm={};T.forEach(t=>[t.id_akun_1,t.id_akun_2].forEach(a=>{if(a)idm[a.toUpperCase()]=t.id}));
     const A=ach.map(a=>({tanggal:s2(a.tanggal),id_akun:s2(a.id_akun),jumlah:+a.jumlah||0,sumber:s2(a.sumber),tim_id:idm[s2(a.id_akun).toUpperCase()]||''}));
-    const B=bills.map(x=>{const o={};for(const k in x)o[k]=(k==='rincian'&&x[k]&&typeof x[k]==='object')?JSON.stringify(x[k]):s2(x[k]);['file_1','file_2','file_3','slip_1','slip_2'].forEach(k=>{const v=o[k];if(v)o[k]=fm[v]||v});return o});
-    return{ok:true,config,tims:T,ach:A,bills:B,akses:akses.map(a=>({mitra:a.mitra,token:a.token,aktif:a.aktif!==false,username:a.username||'',has_pass:!!a.pass_hash,kunci:a.kunci_sampai&&new Date(a.kunci_sampai)>new Date()})),admins:adm.map(a=>a.email),me:usr?.data?.user?.email||''}}
+    const IV=invs.map(x=>{const o={};for(const k in x)o[k]=k==='tim_ids'?(Array.isArray(x[k])?x[k].map(String):[]):(k==='rincian'&&x[k]&&typeof x[k]==='object')?JSON.stringify(x[k]):s2(x[k]);['file_1','file_2','file_3','slip'].forEach(k=>{const v=o[k];if(v)o[k]=fm[v]||v});o.nilai=+o.nilai||0;o.jumlah=+o.jumlah||0;return o});
+    return{ok:true,config,tims:T,ach:A,invoices:IV,invErr,akses:akses.map(a=>({mitra:a.mitra,token:a.token,aktif:a.aktif!==false,username:a.username||'',has_pass:!!a.pass_hash,kunci:a.kunci_sampai&&new Date(a.kunci_sampai)>new Date()})),admins:adm.map(a=>a.email),me:usr?.data?.user?.email||''}}
   case 'admin_update':{
     const f={...b.fields};
-    ['id_akun_1','id_akun_2'].forEach(k=>{if(k in f)f[k]=String(f[k]||'').trim().toUpperCase()});
+    ['id_akun_1','id_akun_2'].forEach(k=>{if(k in f)f[k]=String(f[k]||'').trim().toUpperCase()});['pass_akun_1','pass_akun_2','nama_1','nama_2'].forEach(k=>{if(k in f)f[k]=String(f[k]||'').trim()});
     for(const k of ['id_akun_1','id_akun_2']){const v=f[k];if(v&&S.admin.tims.some(x=>x.id!==b.id&&[x.id_akun_1,x.id_akun_2].map(z=>(z||'').toUpperCase()).includes(v)))throw new Error('ID akun '+v+' sudah dipakai tim lain')}
     ['pkwt_mulai','pkwt_selesai'].forEach(k=>{if(k in f)f[k]=f[k]||null});
     if('kontrak_langkah' in f)f.kontrak_langkah=+f.kontrak_langkah||0;
@@ -656,40 +676,26 @@ async function sbApi(action,b){
   case 'admin_ach_delete':{for(const k of b.keys){const[tanggal,id_akun,sumber]=k.split('|');chk(await sb.from(TB.ach).delete().match({tanggal,id_akun,sumber}))}return{ok:true}}
   case 'admin_config':{const rows=Object.entries(b.config).map(([key,value])=>({key,value:String(value)}));chk(await sb.from(TB.cfg).upsert(rows,{onConflict:'key'}));return{ok:true}}
   case 'admin_pw':{if(!b.newPw||b.newPw.length<6)throw new Error('Password minimal 6 karakter');chk(await sb.auth.updateUser({password:b.newPw}));return{ok:true}}
-  case 'admin_bill_save':{
-    const x=b.bill;let o=await getBill(x);const now=new Date().toISOString();
-    if(!o){if(x.id)throw new Error('Tagihan tidak ditemukan');o={id:'INV-'+x.periode.replace('-','')+'-'+rnd4(),tim_id:x.tim_id,periode:x.periode,status:'Ditagih',tgl_tagih:todayStr()}}
-    ['jumlah','tarif','nilai','gaji_1','gaji_2'].forEach(k=>{if(x[k]!=null&&x[k]!=='')o[k]=+x[k]||0});
-    if('catatan' in x)o.catatan=String(x.catatan||'');if(x.rincian)o.rincian=JSON.parse(x.rincian);if('tgl_bayar' in x)o.tgl_bayar=x.tgl_bayar||null;
-    if(x.status&&x.status!==o.status){if(x.status==='Diverifikasi'){const tt=S.admin.tims.find(z=>z.id===o.tim_id)||{};if(!o.file_3)throw new Error('Upload capture performance dulu (PKWT & BPJS opsional)');o.tgl_verifikasi=todayStr()}
-      if(x.status==='Dibayar'){if(!o.slip_1)throw new Error('Upload bukti transfer ke mitra dulu');if(!o.tgl_bayar)o.tgl_bayar=todayStr()}o.status=x.status}
-    o.updated_at=now;chk(await sb.from(TB.bill).upsert(o,{onConflict:'id'}));return{ok:true,id:o.id}}
-  case 'admin_tim_file':{
-    if(!/^(pkwt|bpjs)_file_[12]$/.test(b.field))throw new Error('Kolom file tidak valid');
-    const blob=await (await fetch(b.data)).blob();if(blob.size>5*1024*1024)throw new Error('File maksimal 5 MB');const pdf=blob.type==='application/pdf';
-    const path=`adm/${b.id}/${b.field}-${Date.now()}.${pdf?'pdf':(blob.type.split('/')[1]||'jpg')}`;
-    const r=await sb.storage.from(BK.ktp).upload(path,blob,{contentType:blob.type||'application/pdf',upsert:true});if(r.error)throw new Error('Upload gagal: '+r.error.message);
-    chk(await sb.from(TB.tim).update({[b.field]:path,updated_at:new Date().toISOString()}).eq('id',b.id));return{ok:true}}
-  case 'admin_bill_file':{
-    let o=await getBill(b);let val;
+  case 'admin_inv_save':{const x=b.inv;const o=chk(await sb.from(TB.inv).select('*').eq('id',x.id).maybeSingle());if(!o)throw new Error('Invoice tidak ditemukan');
+    const upd={updated_at:new Date().toISOString()};if('catatan_finance' in x)upd.catatan_finance=String(x.catatan_finance||'');
+    if('nilai_bayar' in x)upd.nilai_bayar=x.nilai_bayar===''||x.nilai_bayar==null?null:Math.max(0,+x.nilai_bayar||0);if('tgl_bayar' in x)upd.tgl_bayar=x.tgl_bayar||null;
+    if(x.status&&x.status!==o.status)invCheck(o,x.status,upd);
+    chk(await sb.from(TB.inv).update(upd).eq('id',o.id));return{ok:true}}
+  case 'admin_inv_file':{const o=chk(await sb.from(TB.inv).select('id,status').eq('id',b.id).maybeSingle());if(!o)throw new Error('Invoice tidak ditemukan');let val;
     if(b.url){if(!/^https?:\/\//.test(b.url))throw new Error('Link harus diawali https://');val=b.url.trim()}
     else{const blob=await (await fetch(b.data)).blob();if(blob.size>10*1024*1024)throw new Error('File maksimal 10 MB');
-      const safe=String(b.name||'file').replace(/[^\w.\-]+/g,'_').slice(-80);val=`${b.periode}/${b.tim_id}/${b.field||b.idx}-${Date.now()}-${safe}`;
+      const safe=String(b.name||'file').replace(/[^\w.\-]+/g,'_').slice(-80);val=`pay/${o.id}/slip-${Date.now()}-${safe}`;
       const r=await sb.storage.from(BK.bill).upload(val,blob,{contentType:blob.type||'application/octet-stream',upsert:true});if(r.error)throw new Error('Upload gagal: '+r.error.message)}
-    if(!o)o={id:'INV-'+b.periode.replace('-','')+'-'+rnd4(),tim_id:b.tim_id,periode:b.periode,status:'Ditagih',tgl_tagih:todayStr()};
-    const fld=b.field||('file_'+b.idx);if(!/^(file_[123]|slip_[12])$/.test(fld))throw new Error('Kolom file tidak valid');
-    o[fld]=val;o.updated_at=new Date().toISOString();chk(await sb.from(TB.bill).upsert(o,{onConflict:'id'}));return{ok:true,id:o.id}}
-  case 'admin_bill_file_del':{
-    const o=await getBill(b);if(!o)throw new Error('Tagihan tidak ditemukan');const fld=b.field;if(!/^(file_[123]|slip_[12])$/.test(fld))throw new Error('Kolom file tidak valid');
-    const path=o[fld];if(path&&!/^https?:\/\//.test(path))await sb.storage.from(BK.bill).remove([path]);
-    const upd={[fld]:null,updated_at:new Date().toISOString()};let st=null;
-    if(fld.startsWith('file_')&&o.status==='Diverifikasi'){upd.status=st='Ditagih';upd.tgl_verifikasi=null}
-    if(fld.startsWith('slip_')&&o.status==='Dibayar'){upd.status=st='Diverifikasi';upd.tgl_bayar=null}
-    chk(await sb.from(TB.bill).update(upd).eq('id',o.id));return{ok:true,status:st}}
+    chk(await sb.from(TB.inv).update({slip:val,updated_at:new Date().toISOString()}).eq('id',o.id));return{ok:true}}
+  case 'admin_inv_file_del':{const o=chk(await sb.from(TB.inv).select('*').eq('id',b.id).maybeSingle());if(!o)throw new Error('Invoice tidak ditemukan');
+    if(o.slip&&!/^https?:\/\//.test(o.slip))await sb.storage.from(BK.bill).remove([o.slip]);
+    const upd={slip:null,updated_at:new Date().toISOString()};if(o.status==='Dibayar'){upd.status='Dicek';upd.tgl_bayar=null}
+    chk(await sb.from(TB.inv).update(upd).eq('id',o.id));return{ok:true}}
+  case 'admin_inv_delete':{const o=chk(await sb.from(TB.inv).select('id,status').eq('id',b.id).maybeSingle());if(!o)throw new Error('Invoice tidak ditemukan');if(o.status==='Dibayar')throw new Error('Invoice yang sudah dibayar tidak bisa dihapus');
+    chk(await sb.from(TB.inv).delete().eq('id',o.id));return{ok:true}}
   case 'admin_akses_save':{const r=b.row;if(!/^[A-Za-z0-9]{16,}$/.test(r.token||''))throw new Error('Token tidak valid');chk(await sb.from('mitra_akses').upsert({mitra:r.mitra,token:r.token,aktif:r.aktif!==false,updated_at:new Date().toISOString()},{onConflict:'mitra'}));return{ok:true}}
   case 'admin_admin_add':{const e=String(b.email||'').trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e))throw new Error('Email tidak valid');chk(await sb.from('mitra_admin').upsert({email:e},{onConflict:'email'}));return{ok:true}}
   case 'admin_admin_del':{if(String(b.email).toLowerCase()===String(S.admin?.me||'').toLowerCase())throw new Error('Tidak bisa menghapus akun sendiri');chk(await sb.from('mitra_admin').delete().eq('email',b.email));return{ok:true}}
-  case 'admin_bill_delete':{const o=await getBill({id:b.id});if(!o)throw new Error('Tagihan tidak ditemukan');if(o.status==='Dibayar')throw new Error('Tagihan yang sudah dibayar tidak bisa dihapus');chk(await sb.from(TB.bill).delete().eq('id',b.id));return{ok:true}}
   }
   throw new Error('Aksi tidak dikenal');
 }
@@ -720,7 +726,7 @@ function calcPure(t,per,ach,c){
 const calcTeam=(t,per)=>calcPure(t,per,S.admin?.ach||[],cfg());
 const tName=t=>t.nama_tim||('Tim '+String((t.anggota&&t.anggota[0])||t.nama_1||'').split(' ')[0]).trim();
 const aName=t=>t.nama_tim||('Tim '+String(t.nama_1||'').split(' ')[0]).trim();
-const VIEWS=['home','tracking','hitung','daftar','input','akses','admins','setting'];
+const VIEWS=['home','tracking','tagihan','hitung','daftar','input','akses','admins','setting'];
 
 function setConn(st,txt){$('#connDot').className='dot '+st;$('#connTxt').textContent=txt}
 /* data dashboard dihitung dari data admin (tidak ada endpoint publik untuk pencapaian) */
@@ -733,12 +739,13 @@ function derive(){
 }
 async function loadAdmin(){
   if(!S.pw)return false;
-  try{S.admin=await api('admin_data',{pw:S.pw});(S.admin.tims||[]).forEach(t=>t.mitra=String(t.mitra||'').toUpperCase());(S.admin.akses||[]).forEach(a=>a.mitra=String(a.mitra||'').toUpperCase());S.me=S.admin.me||'';derive();setConn(DEMO?'demo':'ok',DEMO?'Mode demo':'Terhubung');sideBadges();fillLists();return true}
+  try{S.admin=await api('admin_data',{pw:S.pw});S.loadedAt=Date.now();(S.admin.tims||[]).forEach(t=>t.mitra=String(t.mitra||'').toUpperCase());(S.admin.akses||[]).forEach(a=>a.mitra=String(a.mitra||'').toUpperCase());S.me=S.admin.me||'';derive();setConn(DEMO?'demo':'ok',DEMO?'Mode demo':'Terhubung');sideBadges();fillLists();return true}
   catch(e){toast(e.message);logout(true);return false}
 }
 async function refreshAll(){if(await loadAdmin())renderView()}
 function sideBadges(){const T=S.admin.tims;const n=T.filter(t=>['Daftar','Kontrak','Akun'].includes(t.status)).length;
   $('#nPipe').innerHTML=n?`<span class="n ${T.some(t=>t.status==='Daftar')?'hot':''}">${n}</span>`:'';
+  const ni=(S.admin.invoices||[]).filter(i=>i.status==='Diajukan').length;$('#nInv').innerHTML=ni?`<span class="n hot" title="Invoice menunggu dicek">${ni}</span>`:'';
   const u=new Set(S.admin.ach.filter(a=>!a.tim_id).map(a=>a.id_akun)).size;$('#nUnm').innerHTML=u?`<span class="n hot" title="ID belum terhubung">${u}</span>`:''}
 function logout(silent){S.pw=null;S.admin=null;S.pub=null;sSet('stl_pw',null);lSet('stl_pw',null);if(sb)sb.auth.signOut().catch(()=>{});if(!silent)toast('Anda sudah keluar');route()}
 $('#btnLogout').onclick=()=>logout();
@@ -781,6 +788,7 @@ function renderView(){if(!S.admin)return;const v=S.view;
   if(v==='akses')renderAkses();
   if(v==='admins')renderAdmins();
   if(v==='tracking')renderPipe();
+  if(v==='tagihan'){renderTagihan();if(Date.now()-(S.loadedAt||0)>20000)refreshAll()}
   if(v==='hitung')renderHitung();
   if(v==='input')renderInput();
   if(v==='setting')renderSetting();
@@ -976,185 +984,191 @@ $('#pQ').addEventListener('input',()=>renderPipe());
 $('#pRefresh').onclick=async()=>{await refreshAll();toast('Data dimuat ulang')};
 const regLink=()=>location.href.split('#')[0]+'#daftar';
 const pMonths=()=>{const out=[],d=new Date();d.setDate(1);for(let i=0;i<13;i++){out.push([ymd(d).slice(0,7),BULAN[d.getMonth()]+' '+d.getFullYear()]);d.setMonth(d.getMonth()-1)}return out};
-$('#pPer').innerHTML=pMonths().map(([v,l],i)=>`<option value="${v}" ${i===1?'selected':''}>${l}${i===0?' (berjalan)':''}</option>`).join('');
-$('#pPer').addEventListener('change',()=>renderPipe());
-const billOf=(tid,per)=>(S.admin.bills||[]).find(b=>b.tim_id===tid&&b.periode===per);
+const INV=()=>S.admin?.invoices||[];
+const invOfTeam=(tid,per,L)=>(L||INV()).find(i=>i.periode===per&&i.status!=='Ditolak'&&(i.tim_ids||[]).includes(tid));
+const paidV=b=>+(b.nilai_bayar||b.nilai)||0;
 const achMonth=(tid,per)=>(S.pub?.ach||[]).reduce((a,[t,d,n])=>t===tid&&d.startsWith(per)?a+n:a,0);
 
 const fileNames=()=>{const f=String(cfg().file_tagihan||'').split(',').map(x=>x.trim()).filter(Boolean);while(f.length<3)f.push('File '+(f.length+1));return f.slice(0,3).map((x,i)=>i<2?x+' (opsional)':x+' — wajib')};
 const PAYER='IJE';
-function stageOf(status,b,per){if(status==='Daftar')return 'Daftar';if(status==='Kontrak'||status==='Akun')return 'Verifikasi';if(status==='Ditolak')return 'Ditolak';
-  if(status==='Nonaktif'&&!b)return 'Nonaktif';if(b)return b.status==='Dibayar'?'Dibayar':'Submit';return per<ymd(new Date()).slice(0,7)?'Penagihan':'Aktif'}
-function pStage(t,per){return stageOf(t.status,billOf(t.id,per),per)}
+const IST={Diajukan:'warn',Revisi:'bad',Dicek:'info',Dibayar:'good',Ditolak:'mute'};
+const ILBL={Diajukan:'Diajukan mitra',Revisi:'Perlu revisi',Dicek:'Dicek finance',Dibayar:'Dibayar '+PAYER,Ditolak:'Ditolak'};
+const ipill=s=>pill(ILBL[s]||s,IST[s]||'mute');
+function stageOf(status){return status==='Daftar'?'Daftar':(status==='Kontrak'||status==='Akun')?'Verifikasi':status}
+const pStage=t=>stageOf(t.status);
 $('#pMitra').addEventListener('change',()=>renderPipe());$('#pArsip').addEventListener('change',()=>renderPipe());
-const TSTEPS=['Daftar','Verifikasi','Aktif','Penagihan','Submit','Dibayar'];
-const TLBL={Daftar:'Pendaftaran',Verifikasi:'Verifikasi',Aktif:'Akun aktif',Penagihan:'Penagihan',Submit:'Mitra submit',Dibayar:'Dibayar '+PAYER};
-function stageDetail(t,st,per){const b=billOf(t.id,per);const lbl=t.jenis==='Sales'?cfg().label_sales:cfg().label_ikr;
+const TSTEPS=['Daftar','Verifikasi','Aktif'];
+const TLBL={Daftar:'Mitra submit',Verifikasi:'Verifikasi',Aktif:'Selesai'};
+const accN=t=>[1,2].filter(i=>t['id_akun_'+i]&&t['pass_akun_'+i]).length;
+function stageDetail(t,st){
   if(st==='Daftar')return Math.floor((Date.now()-new Date(t.created_at))/864e5)+' hari';
-  if(st==='Verifikasi')return 'ID akun '+[t.id_akun_1,t.id_akun_2].filter(Boolean).length+'/2';
-  if(st==='Aktif')return nf(achMonth(t.id,per))+' '+(lbl==='Home Connect'?'HC':lbl);
-  if(st==='Penagihan')return 'menunggu invoice';
-  if(st==='Submit')return b.status==='Diverifikasi'?'terverifikasi':(b.file_3?'capture ✓':'cek dokumen');
-  if(st==='Dibayar')return fmtD(b.tgl_bayar).replace(/ \d{4}$/,'');return ''}
-function stepper(t,st,per){const idx=TSTEPS.indexOf(st);
-  return `<div class="stp">${TSTEPS.map((s,i)=>{const cls=idx<0?'':i<idx?'done':i===idx?(s==='Dibayar'?'cur paid':'cur'):'';
-    return `<div class="s ${cls}"><i>${i<idx||(i===idx&&s==='Dibayar')?'✓':i+1}</i>${TLBL[s]}${i===idx?`<span class="dt">${esc(stageDetail(t,st,per))}</span>`:''}</div>`}).join('')}</div>`}
+  if(st==='Verifikasi')return 'akun '+accN(t)+'/2';
+  if(st==='Aktif')return 'akun aktif';return ''}
+function stepper(t,st){const idx=TSTEPS.indexOf(st);
+  return `<div class="stp">${TSTEPS.map((s,i)=>{const fin=s==='Aktif'&&i===idx;const cls=idx<0?'':i<idx?'done':i===idx?(fin?'cur paid':'cur'):'';
+    return `<div class="s ${cls}"><i>${i<idx||fin?'✓':i+1}</i>${TLBL[s]}${i===idx?`<span class="dt">${esc(stageDetail(t,st))}</span>`:''}</div>`}).join('')}</div>`}
+const accLines=t=>[1,2].map(i=>`<div><b>${esc(t['nama_'+i]||'–')}</b> · ${t['id_akun_'+i]?`<span class="mono">${esc(t['id_akun_'+i])}</span>`:'<span style="color:var(--warn)">ID kosong</span>'}${t['pass_akun_'+i]?' · 🔑':''}</div>`).join('');
 function renderPipe(){
-  const per=$('#pPer').value;const c=cfg();
   {const sel=$('#pMitra'),cur=sel.value;const ml=[...new Set([...mitraList(),...S.admin.tims.map(t=>t.mitra)].filter(Boolean))];sel.innerHTML='<option value="">Semua mitra</option>'+ml.map(m=>`<option>${esc(m)}</option>`).join('');if(ml.includes(cur))sel.value=cur}
   const q=$('#pQ').value.toLowerCase(),fm=$('#pMitra').value,arsip=$('#pArsip').checked;
   const T=S.admin.tims.filter(t=>(!pJ||t.jenis===pJ)&&(!fm||t.mitra===fm)&&(!q||Object.values(t).join(' ').toLowerCase().includes(q)));
-  const by=s=>T.filter(t=>pStage(t,per)===s);
-  const exp=T.filter(t=>t.status==='Aktif'&&t.pkwt_selesai&&daysTo(t.pkwt_selesai)<=14);
+  const by=s=>T.filter(t=>pStage(t)===s);
   const noId=T.filter(t=>t.status==='Aktif'&&!t.id_akun_1&&!t.id_akun_2);
-  const sumB=L=>L.reduce((a,t)=>a+(+billOf(t.id,per)?.nilai||0),0);
-  const estA=[...by('Aktif'),...by('Penagihan')].reduce((a,t)=>a+calcTeam(t,per).total,0);
-  $('#flowbar').innerHTML=[['Pendaftaran',by('Daftar').length,'permintaan akun masuk'],['Verifikasi',by('Verifikasi').length,'cek data + isi ID akun'],['Akun aktif',by('Aktif').length,'bekerja · periode berjalan'],
-    ['Penagihan',by('Penagihan').length,'menunggu invoice · est. '+rpS(estA)],['Mitra submit',by('Submit').length,rpS(sumB(by('Submit')))+' diproses'],['Dibayar '+PAYER,by('Dibayar').length,rpS(sumB(by('Dibayar')))+' lunas']]
+  const fb=$('#flowbar');fb.className='flowbar c3';
+  fb.innerHTML=[['1 · Mitra submit',by('Daftar').length,'pendaftaran tim masuk · menunggu admin'],['2 · Verifikasi',by('Verifikasi').length,'cek data · isi ID IKR, kata sandi & rename'],['3 · Selesai',by('Aktif').length,'akun aktif · tim mulai bekerja']]
     .map(x=>`<div><div class="k">${x[0]}</div><div class="v">${x[1]}</div><div class="st">${x[2]}</div></div>`).join('');
-  $('#pAlert').innerHTML=(exp.length?`<div class="alert">⚠ ${exp.length} tim kontrak PKWT berakhir ≤ 14 hari: ${exp.map(t=>esc(aName(t))+' ('+fmtD(t.pkwt_selesai)+')').join(', ')}</div>`:'')+
-    (noId.length?`<div class="alert">⚠ ${noId.length} tim aktif belum punya IKR/Sales ID — pencapaiannya belum terhitung: ${noId.map(t=>esc(aName(t))).join(', ')}</div>`:'')+
-    '';
+  $('#pAlert').innerHTML=noId.length?`<div class="alert">⚠ ${noId.length} tim aktif belum punya IKR/Sales ID — pencapaiannya belum terhitung: ${noId.map(t=>esc(aName(t))).join(', ')}</div>`:'';
   const order=[...new Set([...mitraList(),...T.map(t=>t.mitra)])].filter(m=>!fm||m===fm);
   const ini=m=>m.replace(/^(PT|CV)\.?\s+/i,'').split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
   $('#trk').innerHTML=order.map(m=>{
     const L=T.filter(t=>t.mitra===m);const vis=L.filter(t=>arsip||!['Ditolak','Nonaktif'].includes(t.status))
-      .sort((a,b)=>TSTEPS.indexOf(pStage(a,per))-TSTEPS.indexOf(pStage(b,per))||aName(a).localeCompare(aName(b)));
+      .sort((a,b)=>TSTEPS.indexOf(pStage(a))-TSTEPS.indexOf(pStage(b))||aName(a).localeCompare(aName(b)));
     if((q||pJ)&&!vis.length)return'';
-    const akt=L.filter(t=>t.status==='Aktif').length,paid=L.reduce((a,t)=>{const x=billOf(t.id,per);return a+(x&&x.status==='Dibayar'?+x.nilai||0:0)},0),proc=L.filter(t=>['Daftar','Kontrak','Akun'].includes(t.status)).length;
+    const akt=L.filter(t=>t.status==='Aktif').length,proc=L.filter(t=>['Daftar','Kontrak','Akun'].includes(t.status)).length;
     return `<div class="trk-g"><div class="trk-h"><div class="ini">${esc(ini(m))}</div><div><b>${esc(m)}</b><div class="sub2">${L.length} tim · ${L.length*2} personel</div></div>
-      <div class="stats"><span><b>${proc}</b> onboarding</span><span><b>${akt}</b> aktif</span><span><b>${rpS(paid)}</b> dibayar</span></div></div>
-      ${vis.length?vis.map(t=>{const st=pStage(t,per);const b=billOf(t.id,per);const dt=daysTo(t.pkwt_selesai);const off=['Ditolak','Nonaktif'].includes(t.status);
+      <div class="stats"><span><b>${proc}</b> perlu diproses</span><span><b>${akt}</b> selesai</span></div></div>
+      ${vis.length?vis.map(t=>{const st=pStage(t);const off=['Ditolak','Nonaktif'].includes(t.status);
         return `<div class="trk-r ${off?'off':''}">
           <div class="who"><b>${esc(aName(t))}</b> ${tag(t.jenis)} ${off?pill(t.status,STK[t.status]):''}<div class="sub2">${esc(t.nama_1)} & ${esc(t.nama_2)}</div><div class="sub2">${esc(t.stasiun)} · <span class="mono">${esc(t.id)}</span></div></div>
-          ${stepper(t,off?'':st,per)}
-          <div class="inf">${t.pkwt_selesai?'PKWT s/d '+fmtD(t.pkwt_selesai)+(dt<0?' '+pill('habis','bad'):dt<=14?' '+pill(dt+' hr','warn'):''):'PKWT belum ada'}<br>${['pkwt','bpjs'].map(k=>{const n=[1,2].filter(i=>t[k+'_file_'+i]).length;return `<span style="color:${n?'var(--good)':'var(--text-2)'}">📄 ${k.toUpperCase()} ${n}/2</span>`}).join(' · ')}<br>
-            ${b?'Tagihan <b>'+rp(b.nilai)+'</b>':t.status==='Aktif'?'Est. '+rp(calcTeam(t,per).total):''}</div>
-          <div class="act"><button class="btn sm" data-edit="${esc(t.id)}">✎ Edit</button>
-            ${st==='Aktif'?`<button class="btn sm pri" data-bill="${esc(t.id)}">Tagih →</button>`:''}
-            ${st==='Penagihan'?`<button class="btn sm pri" data-bill="${esc(t.id)}">${b.status==='Diverifikasi'?'Upload bukti bayar':'Cek invoice'}</button>`:''}
-            ${st==='Dibayar'?`<button class="btn sm" data-bill="${esc(t.id)}">Bukti bayar</button>`:''}</div></div>`}).join(''):'<div class="trk-empty">Belum ada tim terdaftar dari mitra ini.</div>'}</div>`}).join('')||'<div class="card empty">Tidak ada tim yang cocok.</div>';
+          ${stepper(t,off?'':st)}
+          <div class="inf">${st==='Daftar'?'Data tim dari mitra sudah masuk.<br>Klik <b>Verifikasi</b> untuk memproses.':accLines(t)}</div>
+          <div class="act">${st==='Daftar'?`<button class="btn sm pri" data-edit="${esc(t.id)}">Verifikasi →</button>`:st==='Verifikasi'?`<button class="btn sm pri" data-edit="${esc(t.id)}">Lanjut verifikasi →</button>`:`<button class="btn sm" data-edit="${esc(t.id)}">✎ Edit</button>`}</div></div>`}).join(''):'<div class="trk-empty">Belum ada tim terdaftar dari mitra ini.</div>'}</div>`}).join('')||'<div class="card empty">Tidak ada tim yang cocok.</div>';
   $$('#trk [data-edit]').forEach(b=>b.onclick=()=>openEdit(b.dataset.edit));
-  $$('#trk [data-bill]').forEach(b=>b.onclick=()=>openBill(b.dataset.bill,per));
-}
-function kcard(t,per){const st=pStage(t,per);const n7=+t.kontrak_langkah||0;const age=Math.floor((Date.now()-new Date(t.updated_at||t.created_at))/864e5);const dt=daysTo(t.pkwt_selesai);
-  const b=billOf(t.id,per);const nA=achMonth(t.id,per);const lbl=t.jenis==='Sales'?cfg().label_sales:cfg().label_ikr;const nfiles=b?[1,2,3].filter(i=>b['file_'+i]).length:0;
-  return `<div class="kc" data-id="${esc(t.id)}" data-st="${st}"><div class="t"><b>${esc(aName(t))}</b>${tag(t.jenis)}</div>
-  <div class="m">${esc(t.nama_1)} & ${esc(t.nama_2)}</div>
-
-  ${st==='Akun'?`<div class="sub2">${[t.id_akun_1,t.id_akun_2].filter(Boolean).length}/2 ID akun terisi</div>`:''}
-  ${st==='Aktif'?`<div class="sub2">${nf(nA)} ${esc(lbl)} periode ini${' · est. '+rp(calcTeam(t,per).total)}${!t.id_akun_1&&!t.id_akun_2?' · '+pill('ID kosong','warn'):''}</div><div style="margin-top:8px"><button class="btn sm pri" data-bill="${esc(t.id)}">Buat tagihan →</button></div>`:''}
-  ${st==='Penagihan'?`<div class="rp">${rp(b.nilai)}</div><div class="steps3">${[1,2,3].map(i=>`<i class="${b['file_'+i]?'on':''}"></i>`).join('')}</div><div class="sub2" style="margin-top:4px">${nfiles}/3 file · ${pill(b.status,STK[b.status])}</div>`:''}
-  ${st==='Dibayar'?`<div class="rp" style="color:var(--good)">${rp(b.nilai)}</div><div class="sub2">✓ dibayar ${fmtD(b.tgl_bayar)}</div>`:''}
-  <div class="f"><span>${esc(t.mitra)} · ${esc(t.stasiun)}</span><span>${t.status==='Aktif'&&t.pkwt_selesai&&['Aktif','Penagihan','Dibayar'].includes(st)?(dt<0?pill('PKWT habis','bad'):dt<=14?pill('PKWT '+dt+' hr','warn'):'PKWT s/d '+fmtD(t.pkwt_selesai)):age+' hari'}</span></div></div>`}
-function openBill(tid,per){
-  const t=S.admin.tims.find(x=>x.id===tid);if(!t)return;const b=billOf(tid,per);const c=cfg();
-  const X=calcTeam(t,per),nA=X.hc,jml=b?+b.jumlah:X.hc,lbl=t.jenis==='Sales'?c.label_sales:c.label_ikr;
-  const st=b?b.status:'Baru';const FN=fileNames();const perL=BULAN[+per.slice(5)-1]+' '+per.slice(0,4);
-  const pkReg=hasDoc(t,'pkwt'),bpReg=hasDoc(t,'bpjs');const nfiles=b?[1,2,3].filter(i=>b['file_'+i]||(i===1&&pkReg)||(i===2&&bpReg)).length:0;const nslip=b&&b.slip_1?1:0;
-  const next=!b?['Ditagih','Buat tagihan']:b.status==='Ditagih'?['Diverifikasi','Verifikasi tagihan →']:b.status==='Diverifikasi'?['Dibayar','Tandai sudah dibayar →']:null;
-  const m=modal(`<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h2 style="margin:0">Tagihan ${esc(aName(t))} ${tag(t.jenis)}</h2><div class="sub2">Periode ${esc(perL)} · ${esc(t.nama_1)} & ${esc(t.nama_2)} · ${esc(t.mitra)}${b?' · <span class="mono">'+esc(b.id)+'</span>':''}</div></div>${b?pill(b.status,STK[b.status]):pill('Belum ditagih','mute')}</div>
-  <div style="display:flex;gap:6px;margin:14px 0 0;flex-wrap:wrap">${['Ditagih','Diverifikasi','Dibayar'].map((s,i)=>`<span class="pill ${b&&['Ditagih','Diverifikasi','Dibayar'].indexOf(b.status)>=i?'p-good':'p-mute'}">${i+1}. ${s==='Ditagih'?'Diajukan':s}${b&&b['tgl_'+['tagih','verifikasi','bayar'][i]]?' · '+fmtD(b['tgl_'+['tagih','verifikasi','bayar'][i]]):''}</span>`).join('')}</div>
-  <form id="fBill">
-   <div class="msec"><h4>Rincian perhitungan · Program Subsidi Tier 1</h4>
-    <div class="tbl-wrap" style="margin-bottom:10px">${calcTable(X,t)}</div>
-    <details style="margin-bottom:10px"><summary style="cursor:pointer;font-size:12.5px;font-weight:700;color:var(--accent)">Lihat cara menghitung</summary><div style="margin-top:8px">${whyText(X,t)}</div></details>
-    ${b&&+b.nilai!==X.total?`<div class="alert" style="margin:0 0 10px">Nilai tagihan (${rp(b.nilai)}) berbeda dari hasil perhitungan terbaru (${rp(X.total)}) — klik “Pakai hasil perhitungan” bila data pencapaian sudah final.</div>`:''}
-    <div class="fg" style="grid-template-columns:repeat(3,minmax(0,1fr));align-items:end">
-     <label class="f">Jumlah ${esc(lbl)} (HC)<input name="jumlah" type="number" min="0" value="${jml}"></label>
-     <label class="f">Nilai tagihan (Rp)<input name="nilai" type="number" min="0" value="${b?+b.nilai:X.total}"><span class="sub2" style="font-weight:500" id="nilaiTxt">${rp(b?+b.nilai:X.total)}</span></label>
-     <div><button type="button" class="btn" id="useCalc" ${b&&b.status==='Dibayar'?'disabled':''}>↻ Pakai hasil perhitungan</button></div></div>
-    <input type="hidden" name="tarif" value="0"></div>
-   <div class="msec"><h4>Dokumen invoice (${nfiles}/3) · capture performance wajib, PKWT &amp; BPJS opsional</h4><div class="files3">${[1,2,3].map(i=>{const u=b&&b['file_'+i];return `<div class="fslot ${u?'ok':''}"><b>${i}. ${esc(FN[i-1])}</b>
-     ${u?`<a href="${esc(u)}" target="_blank" rel="noopener">Buka file ↗</a>`:(i===1&&pkReg)||(i===2&&bpReg)?(()=>{const dk=i===1?'pkwt':'bpjs';return `<span style="color:var(--good);font-weight:600">✓ ${dk.toUpperCase()} dari pendaftaran</span>${[1,2].filter(k=>t[dk+'_file_'+k]).map(k=>`<a href="${esc(t[dk+'_file_'+k])}" target="_blank" rel="noopener">${dk.toUpperCase()} ${esc(t['nama_'+k])} ↗</a>`).join('')}`})():'<span class="sub2">Belum ada</span>'}
-     <div style="display:flex;gap:6px;flex-wrap:wrap"><label class="btn sm">${u?'✎ Ganti':'Upload'}<input type="file" hidden data-up="${i}" accept=".pdf,image/*,.xlsx,.xls,.doc,.docx"></label><button type="button" class="btn sm" data-lnk="${i}">Link</button>${u?`<button type="button" class="btn sm bad" data-fdel="file_${i}">🗑 Hapus</button>`:''}${i===3?`<button type="button" class="btn sm pri" id="autoCap" title="Buat gambar capture performance dari data dashboard">⚡ Buat otomatis</button>`:''}</div></div>`}).join('')}</div>
-    <p class="sub2" style="margin:8px 0 0">File tersimpan di penyimpanan privat. <b>Hapus</b> dokumen yang salah → tagihan kembali ke status <i>Diajukan</i> agar mitra bisa upload ulang dari linknya.</p></div>
-   <div class="msec"><h4>Pembayaran oleh ${PAYER} ke mitra · bukti transfer (${nslip}/1)</h4>
-    <div class="fslot ${b&&b.slip_1?'ok':''}" style="gap:8px"><b>${esc(t.mitra)}</b><div class="sub2">Pembayaran sesuai invoice yang diajukan mitra lewat portal.</div>
-      <label class="f" style="max-width:320px">Nilai ditransfer (Rp)<input name="gaji_1" type="number" min="0" step="1000" value="${esc(b?.gaji_1||'')}" placeholder="${b?esc(String(Math.round(+b.nilai||0))):''}" ${!b?'disabled':''}></label>
-      ${b&&b.slip_1?`<a href="${esc(b.slip_1)}" target="_blank" rel="noopener">📄 Lihat bukti transfer ↗</a>`:'<span class="sub2">Bukti transfer belum diupload</span>'}
-      ${b?`<div style="display:flex;gap:6px;flex-wrap:wrap"><label class="btn sm">${b.slip_1?'✎ Ganti bukti':'Upload bukti transfer'}<input type="file" hidden data-slip="1" accept=".pdf,image/*"></label><button type="button" class="btn sm" data-sliplnk="1">Link</button>${b.slip_1?`<button type="button" class="btn sm bad" data-fdel="slip_1">🗑 Hapus</button>`:''}</div>`:'<span class="sub2">Buat tagihan dulu</span>'}</div>
-    <div class="fg" style="margin-top:12px"><label class="f">Tanggal dibayar<input type="date" name="tgl_bayar" value="${esc(b?.tgl_bayar||'')}"></label><label class="f">Catatan<input name="catatan" value="${esc(b?.catatan||'')}" placeholder="mis. transfer BRI, no. ref"></label></div></div>
-   <div class="foot">${b&&b.status!=='Dibayar'?`<button type="button" class="btn bad" id="delBill">Hapus tagihan</button>`:''}<button type="button" class="btn" id="toTim">Data tim</button><span style="flex:1"></span>
-    <button type="button" class="btn" data-close>Tutup</button>${b?`<button class="btn" type="submit">Simpan</button>`:''}${next?`<button type="button" class="btn pri" data-next="${next[0]}" ${next[0]==='Diverifikasi'&&!(b&&b.file_3)?'disabled title="Upload capture performance dulu"':next[0]==='Dibayar'&&nslip<1?'disabled title="Upload bukti transfer dulu"':''}>${next[1]}</button>`:''}</div>
-  </form>`,true);
-  m.querySelector('[data-close]').onclick=()=>$('#modalRoot').innerHTML='';
-  const F=m.querySelector('#fBill');
-  let useSnap=!b;
-  F.nilai.oninput=()=>m.querySelector('#nilaiTxt').textContent=rp(F.nilai.value);
-  m.querySelector('#useCalc').onclick=()=>{F.jumlah.value=X.hc;F.nilai.value=X.total;m.querySelector('#nilaiTxt').textContent=rp(X.total);if(F.gaji_1&&!F.gaji_1.disabled){F.gaji_1.value=X.rows[0].total;F.gaji_2.value=X.rows[1].total}useSnap=true;toast('Nilai & gaji diisi dari perhitungan — klik Simpan')};
-  m.querySelector('#toTim').onclick=()=>openEdit(tid);
-  const busy=v=>F.querySelectorAll('button,input').forEach(x=>x.disabled=v);
-  const save=async status=>{const f=Object.fromEntries(new FormData(F));const bill={id:b?.id,tim_id:tid,periode:per,jumlah:f.jumlah,tarif:0,nilai:f.nilai,catatan:f.catatan,tgl_bayar:f.tgl_bayar,gaji_1:b?f.gaji_1:X.rows[0].total,gaji_2:b?f.gaji_2:X.rows[1].total};if(useSnap)bill.rincian=calcSnap(X);
-    if(status==='Dibayar'&&!bill.tgl_bayar)bill.tgl_bayar=ymd(new Date());if(status)bill.status=status;
-    busy(true);try{await api('admin_bill_save',{pw:S.pw,bill});toast(status?'Tagihan → '+status:'Tersimpan');await refreshAll();openBill(tid,per)}catch(e){toast(e.message,true);busy(false)}};
-  F.onsubmit=e=>{e.preventDefault();save()};
-  const nb=m.querySelector('[data-next]');if(nb)nb.onclick=()=>save(nb.dataset.next);
-  const sendFile=async body=>{busy(true);try{await api('admin_bill_file',{pw:S.pw,tim_id:tid,periode:per,...body});toast('File tersimpan');await refreshAll();openBill(tid,per)}catch(e){toast(e.message,true);busy(false)}};
-  F.querySelectorAll('[data-up]').forEach(inp=>inp.onchange=()=>{const f=inp.files[0];if(!f)return;if(f.size>10*1024*1024){toast('File maksimal 10 MB');return}
-    const r=new FileReader();r.onload=()=>{toast('Mengupload…');sendFile({idx:+inp.dataset.up,name:f.name,data:r.result})};r.readAsDataURL(f)});
-  F.querySelectorAll('[data-lnk]').forEach(btn=>btn.onclick=()=>{const box=document.createElement('div');box.style.cssText='display:flex;gap:6px';box.innerHTML='<input placeholder="https://drive.google.com/…" style="flex:1;min-width:0"><button type="button" class="btn sm pri">OK</button>';btn.parentElement.after(box);
-    box.querySelector('button').onclick=()=>{const v=box.querySelector('input').value.trim();if(!/^https?:\/\//.test(v)){toast('Link harus diawali https://');return}sendFile({idx:+btn.dataset.lnk,url:v})}});
-  const ac=m.querySelector('#autoCap');if(ac)ac.onclick=()=>{toast('Membuat capture performance…');sendFile({idx:3,name:'capture-performance-'+per+'.png',data:capturePerformance(t,per)})};
-  F.querySelectorAll('[data-slip]').forEach(inp=>inp.onchange=()=>{const f=inp.files[0];if(!f)return;if(f.size>10*1024*1024){toast('File maksimal 10 MB');return}
-    const r=new FileReader();r.onload=()=>{toast('Mengupload slip…');sendFile({field:'slip_'+inp.dataset.slip,name:f.name,data:r.result})};r.readAsDataURL(f)});
-  F.querySelectorAll('[data-sliplnk]').forEach(btn=>btn.onclick=()=>{const box=document.createElement('div');box.style.cssText='display:flex;gap:6px';box.innerHTML='<input placeholder="https://drive.google.com/…" style="flex:1;min-width:0"><button type="button" class="btn sm pri">OK</button>';btn.parentElement.after(box);
-    box.querySelector('button').onclick=()=>{const v=box.querySelector('input').value.trim();if(!/^https?:\/\//.test(v)){toast('Link harus diawali https://');return}sendFile({field:'slip_'+btn.dataset.sliplnk,url:v})}});
-  F.querySelectorAll('[data-fdel]').forEach(bt=>bt.onclick=async()=>{if(!bt.dataset.c){bt.dataset.c=1;bt.textContent='Klik lagi untuk hapus';return}
-    busy(true);try{const r=await api('admin_bill_file_del',{pw:S.pw,tim_id:tid,periode:per,field:bt.dataset.fdel});toast(r.status?'File dihapus · status kembali '+(r.status==='Ditagih'?'Diajukan':r.status):'File dihapus');await refreshAll();openBill(tid,per)}catch(e){toast(e.message,true);busy(false)}});
-  const del=m.querySelector('#delBill');if(del)del.onclick=async()=>{if(!del.dataset.c){del.dataset.c=1;del.textContent='Klik lagi untuk hapus';return}busy(true);try{await api('admin_bill_delete',{pw:S.pw,id:b.id});toast('Tagihan dihapus');$('#modalRoot').innerHTML='';await refreshAll()}catch(e){toast(e.message,true);busy(false)}};
 }
 function openEdit(id){
-  const t=S.admin.tims.find(x=>x.id===id);if(!t)return;const c=cfg();const n7=+t.kontrak_langkah||0;
-  const nxt={Daftar:['Akun','Verifikasi data →'],Kontrak:['Aktif','Aktifkan akun →'],Akun:['Aktif','Aktifkan akun →']}[t.status];
-  const m=modal(`<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h2 style="margin:0">${esc(aName(t))} ${tag(t.jenis)}</h2><div class="sub2"><span class="mono">${esc(t.id)}</span> · daftar ${fmtD(t.created_at)}</div></div>${pill(t.status,STK[t.status])}</div>
-  <div style="display:flex;gap:6px;margin:14px 0 0;flex-wrap:wrap">${[['Daftar','Pendaftaran'],['Verifikasi','Verifikasi'],['Aktif','Akun aktif']].map(([s,l],i)=>`<span class="pill ${['Daftar','Verifikasi','Aktif'].indexOf(t.status==='Kontrak'||t.status==='Akun'?'Verifikasi':t.status)>=i?'p-good':'p-mute'}">${i+1}. ${l}</span>`).join('')}</div>
+  const t=S.admin.tims.find(x=>x.id===id);if(!t)return;
+  const nxt={Daftar:['Akun','Mulai verifikasi →'],Kontrak:['Aktif','✓ Selesai · aktifkan akun'],Akun:['Aktif','✓ Selesai · aktifkan akun']}[t.status];
+  const lid=t.jenis==='Sales'?'ID Sales':'ID IKR';const sv=stageOf(t.status);
+  const ren=n=>{n=String(n||'').trim();if(!n)return'';if(/^IJE_/i.test(n))return n.toUpperCase();return 'IJE_'+n.split(/\s+/)[0].toUpperCase()};
+  const IV=INV().filter(i=>(i.tim_ids||[]).includes(t.id)).sort((a,b)=>b.periode.localeCompare(a.periode));
+  const m=modal(`<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h2 style="margin:0">${esc(aName(t))} ${tag(t.jenis)}</h2><div class="sub2">${esc(t.mitra)} · <span class="mono">${esc(t.id)}</span> · masuk ${fmtD(t.created_at)}</div></div>${pill(t.status==='Daftar'?'Mitra submit':sv==='Verifikasi'?'Verifikasi':t.status==='Aktif'?'Selesai':t.status,STK[t.status])}</div>
+  <div style="display:flex;gap:6px;margin:14px 0 0;flex-wrap:wrap">${TSTEPS.map((s,i)=>`<span class="pill ${TSTEPS.indexOf(sv)>=i?'p-good':'p-mute'}">${i+1}. ${TLBL[s]}</span>`).join('')}</div>
   <form id="fEdit">
-   <input type="hidden" name="status" value="${esc(t.status)}"><input type="hidden" name="kontrak_langkah" value="${n7}">
+   <input type="hidden" name="status" value="${esc(t.status)}">
+   <div class="msec"><h4>Verifikasi akun · diisi admin Starlite</h4>
+    <p class="sub2" style="margin:-4px 0 10px">Isi <b>${lid}</b> &amp; <b>kata sandi</b> tiap anggota. Nama boleh di-rename sesuai format akun, mis. <b class="mono">IJE_RIDHO</b>. ${lid} harus sama dengan kolom "Nama IKR" di Detail WO agar HC terhitung.</p>
+    <div class="grid g2">${[1,2].map(i=>`<div class="fslot ${t['id_akun_'+i]&&t['pass_akun_'+i]?'ok':''}" style="gap:8px"><b>Anggota ${i} ${i===1?pill('Lead','info'):pill('Tim','mute')}</b>
+     <label class="f">Nama<div style="display:flex;gap:6px"><input name="nama_${i}" value="${esc(t['nama_'+i])}" style="flex:1;min-width:0"><button type="button" class="btn sm" data-ren="${i}" title="Rename ke format IJE_NAMA">IJE_</button></div></label>
+     <label class="f">${lid}<input name="id_akun_${i}" value="${esc(t['id_akun_'+i])}" class="mono" placeholder="${esc(ren(t['nama_'+i])||'mis. IJE_RIDHO')}" autocomplete="off"></label>
+     <label class="f">Kata sandi<div style="display:flex;gap:6px"><input name="pass_akun_${i}" value="${esc(t['pass_akun_'+i])}" class="mono" style="flex:1;min-width:0" autocomplete="off" spellcheck="false"><button type="button" class="btn sm" data-gpw="${i}" title="Buat kata sandi acak">🎲</button></div></label></div>`).join('')}</div></div>
    <div class="msec"><h4>Data tim</h4><div class="fg">
     <label class="f">Nama tim<input name="nama_tim" value="${esc(t.nama_tim)}" placeholder="${esc(aName(t))}"></label>
     <label class="f">Jenis<select name="jenis"><option ${t.jenis==='IKR'?'selected':''}>IKR</option><option ${t.jenis==='Sales'?'selected':''}>Sales</option></select></label>
     <label class="f">Mitra<input name="mitra" value="${esc(t.mitra)}" list="dlMitra"></label>
     <label class="f">Stasiun<input name="stasiun" value="${esc(t.stasiun)}" list="dlSta"></label>
     <label class="f">Wilayah (gaji pokok)<select name="wilayah">${WIL.map(([w])=>`<option ${wilOf(t)===w?'selected':''}>${w}</option>`).join('')}</select></label></div></div>
-   <div class="msec"><h4>Akun, PKWT &amp; BPJS teknisi</h4>
-    <p class="sub2" style="margin:-4px 0 10px">PKWT &amp; BPJS diupload oleh mitra (opsional saat daftar). Bila belum ada, admin bisa upload di sini.</p>
-    <div class="grid g2">${[1,2].map(i=>{const u=t['pkwt_file_'+i]&&t['bpjs_file_'+i];return `<div class="fslot ${u?'ok':''}" style="gap:8px"><b>${esc(t['nama_'+i]||'Anggota '+i)} ${i===1?pill('Lead','info'):pill('Tim','mute')}</b>
-     <label class="f">${t.jenis==='Sales'?'Sales ID / nama Sales':'Nama IKR / IKR ID'} — sesuai kolom "Nama IKR" di Detail WO<input name="id_akun_${i}" value="${esc(t['id_akun_'+i])}" class="mono" placeholder="${esc(t['nama_'+i]||'mis. Nanda Agung Gumilang')}"></label>
-     ${['pkwt','bpjs'].map(dk=>{const v=t[dk+'_file_'+i];const N=dk.toUpperCase();return `<div class="docrow">${v?`<a href="${esc(v)}" target="_blank" rel="noopener">📄 Lihat ${N} ↗</a>`:`<span class="sub2">${N} belum diupload mitra</span>`}<label class="btn sm">${v?'Ganti':'Upload'} ${N}<input type="file" hidden data-pk="${dk}_file_${i}" accept=".pdf,image/*"></label></div>`}).join('')}</div>`}).join('')}</div>
-    <div class="fg" style="margin-top:12px"><label class="f">PKWT mulai<input type="date" name="pkwt_mulai" value="${esc(t.pkwt_mulai)}"></label><label class="f">PKWT selesai (otomatis +${esc(c.pkwt_bulan)} bulan)<input type="date" name="pkwt_selesai" value="${esc(t.pkwt_selesai)}"></label></div></div>
-   <div class="msec"><h4>Anggota</h4>
-    <div class="grid g2">${[1,2].map(i=>`<div class="member"><h4>Anggota ${i} ${i===1?pill('Lead','info'):pill('Tim','mute')}</h4>
-     <label class="f">Nama<input name="nama_${i}" value="${esc(t['nama_'+i])}"></label>
+   <div class="msec"><h4>Kontak &amp; dokumen dari mitra</h4>
+    <div class="grid g2">${[1,2].map(i=>{const lk=(u,l)=>u&&u!=='#'?`<a href="${esc(u)}" target="_blank" rel="noopener">${l} ↗</a>`:'';const docs=[lk(t['ktp_'+i],'Foto KTP'),lk(t['foto_'+i],'Foto diri'),lk(t['pkwt_file_'+i],'PKWT'),lk(t['bpjs_file_'+i],'BPJS')].filter(Boolean);
+     return `<div class="member"><h4>${esc(t['nama_'+i]||'Anggota '+i)}</h4>
      <div class="fg"><label class="f">HP<input name="hp_${i}" value="${esc(t['hp_'+i])}"></label><label class="f">Email<input name="email_${i}" value="${esc(t['email_'+i])}"></label></div>
-     <div style="display:flex;gap:14px;flex-wrap:wrap">${t['ktp_'+i]&&t['ktp_'+i]!=='#'?`<a href="${esc(t['ktp_'+i])}" target="_blank" rel="noopener">Lihat foto KTP ↗</a>`:'<span class="sub2">'+(DEMO?'KTP (demo)':'KTP tidak ada')+'</span>'}${t['foto_'+i]&&t['foto_'+i]!=='#'?`<a href="${esc(t['foto_'+i])}" target="_blank" rel="noopener">Lihat foto diri ↗</a>`:'<span class="sub2">'+(DEMO?'Foto diri (demo)':'Foto diri tidak ada')+'</span>'}</div></div>`).join('')}</div></div>
-   ${(S.admin.bills||[]).some(x=>x.tim_id===t.id)?`<div class="msec"><h4>Riwayat tagihan</h4><div class="tbl-wrap"><table><thead><tr><th>Periode</th><th class="num">Jumlah</th><th class="num">Nilai</th><th>Status</th><th>Dibayar</th><th></th></tr></thead><tbody>${S.admin.bills.filter(x=>x.tim_id===t.id).sort((a,b)=>b.periode.localeCompare(a.periode)).map(x=>`<tr><td>${esc(BULAN[+x.periode.slice(5)-1]+' '+x.periode.slice(0,4))}</td><td class="num">${nf(x.jumlah)}</td><td class="num">${rp(x.nilai)}</td><td>${pill(x.status,STK[x.status])}</td><td>${x.tgl_bayar?fmtD(x.tgl_bayar):'–'}</td><td><button type="button" class="btn sm" data-ob="${esc(x.periode)}">Buka</button></td></tr>`).join('')}</tbody></table></div></div>`:''}
+     <div style="display:flex;gap:14px;flex-wrap:wrap">${docs.join('')||'<span class="sub2">'+(DEMO?'Dokumen (demo)':'Belum ada dokumen')+'</span>'}</div></div>`}).join('')}</div></div>
+   ${IV.length?`<div class="msec"><h4>Riwayat invoice</h4><div class="tbl-wrap"><table><thead><tr><th>Periode</th><th>No. invoice</th><th class="num">Tim</th><th class="num">Nilai invoice</th><th>Status</th><th></th></tr></thead><tbody>${IV.map(x=>`<tr><td>${esc(perLabel(x.periode))}</td><td class="mono">${esc(x.id)}</td><td class="num">${(x.tim_ids||[]).length}</td><td class="num">${rp(x.nilai)}</td><td>${ipill(x.status)}</td><td><button type="button" class="btn sm" data-oi="${esc(x.id)}">Buka</button></td></tr>`).join('')}</tbody></table></div></div>`:''}
    <div class="msec"><h4>Catatan</h4><textarea name="catatan" rows="2" style="width:100%">${esc(t.catatan)}</textarea></div>
    <div class="foot">
-    ${['Ditolak','Nonaktif'].includes(t.status)?`<button type="button" class="btn" data-st="Daftar">Pulihkan ke Daftar</button>`:`<button type="button" class="btn bad" data-st="${t.status==='Aktif'?'Nonaktif':'Ditolak'}">${t.status==='Aktif'?'Nonaktifkan':'Tolak'}</button>`}
-    ${t.status==='Aktif'&&t.pkwt_selesai?`<button type="button" class="btn" id="perpanjang">Perpanjang PKWT</button>`:''}
+    ${['Ditolak','Nonaktif'].includes(t.status)?`<button type="button" class="btn" data-st="Daftar">Pulihkan ke Mitra submit</button>`:`<button type="button" class="btn bad" data-st="${t.status==='Aktif'?'Nonaktif':'Ditolak'}">${t.status==='Aktif'?'Nonaktifkan':'Tolak'}</button>`}
     <span style="flex:1"></span><button type="button" class="btn" data-close>Batal</button><button class="btn" type="submit">Simpan</button>
     ${nxt?`<button type="button" class="btn pri" data-st="${nxt[0]}">${nxt[1]}</button>`:''}
    </div></form>`,true);
   m.querySelector('[data-close]').onclick=()=>$('#modalRoot').innerHTML='';
   const F=m.querySelector('#fEdit');
-  F.querySelectorAll('[data-ck]').forEach(cb=>cb.onchange=()=>{const i=+cb.dataset.ck;const n=cb.checked?i+1:i;F.kontrak_langkah.value=n;
-    F.querySelectorAll('[data-ck]').forEach(x=>x.checked=+x.dataset.ck<n);$('#n7').textContent=n});
-  const autoEnd=()=>{if(F.pkwt_mulai.value){const d=new Date(F.pkwt_mulai.value+'T00:00');d.setMonth(d.getMonth()+(+c.pkwt_bulan||3));d.setDate(d.getDate()-1);F.pkwt_selesai.value=ymd(d)}};
-  F.pkwt_mulai.onchange=autoEnd;
-  F.querySelectorAll('[data-pk]').forEach(inp=>inp.onchange=()=>{const f=inp.files[0];if(!f)return;if(f.size>5*1024*1024){toast('File maksimal 5 MB',true);return}
-    if(!/pdf|image/.test(f.type)){toast('File harus PDF atau foto',true);return}
-    const r=new FileReader();r.onload=async()=>{toast('Mengupload…');try{await api('admin_tim_file',{pw:S.pw,id:t.id,field:inp.dataset.pk,name:f.name,data:r.result});toast('Dokumen tersimpan');await refreshAll();openEdit(t.id)}catch(e){toast(e.message,true)}};r.readAsDataURL(f)});
-  const pj=F.querySelector('#perpanjang');if(pj)pj.onclick=()=>{const d=new Date(F.pkwt_selesai.value+'T00:00');d.setDate(d.getDate()+1);F.pkwt_mulai.value=ymd(d);autoEnd();toast('Tanggal PKWT diperpanjang — klik Simpan')};
+  F.querySelectorAll('[data-ren]').forEach(b=>b.onclick=()=>{const i=b.dataset.ren;const v=ren(F['nama_'+i].value);if(!v){toast('Isi nama dulu');return}F['nama_'+i].value=v;if(!F['id_akun_'+i].value)F['id_akun_'+i].value=v;toast('Nama di-rename → '+v+' · klik Simpan')});
+  F.querySelectorAll('[data-gpw]').forEach(b=>b.onclick=()=>{F['pass_akun_'+b.dataset.gpw].value=genPw()});
   const save=async st=>{const fields=Object.fromEntries(new FormData(F));if(st)fields.status=st;
-    if(fields.status==='Akun'&&!fields.pkwt_mulai){toast('Isi tanggal mulai PKWT dulu',true);F.pkwt_mulai.focus();return}
-    if(fields.status==='Aktif'&&!fields.id_akun_1&&!fields.id_akun_2){toast('Isi minimal 1 IKR/Sales ID agar pencapaian terhitung',true);F.id_akun_1.focus();return}
+    ['nama_1','nama_2','id_akun_1','id_akun_2','pass_akun_1','pass_akun_2'].forEach(k=>fields[k]=String(fields[k]||'').trim());
+    if(fields.status==='Aktif'&&st){for(const i of [1,2]){if(!fields['id_akun_'+i]){toast(`Isi ${lid} anggota ${i} dulu`,true);F['id_akun_'+i].focus();return}if(!fields['pass_akun_'+i]){toast(`Isi kata sandi anggota ${i} dulu`,true);F['pass_akun_'+i].focus();return}}}
+    if(!fields.nama_1||!fields.nama_2){toast('Nama anggota tidak boleh kosong',true);return}
     F.querySelectorAll('button').forEach(b=>b.disabled=true);
-    try{await api('admin_update',{pw:S.pw,id,fields});toast(st?'Status → '+st:'Tersimpan');$('#modalRoot').innerHTML='';await refreshAll()}
+    try{await api('admin_update',{pw:S.pw,id,fields});toast(st==='Aktif'?'Verifikasi selesai · akun aktif':st==='Akun'?'Masuk tahap verifikasi':st?'Status → '+st:'Tersimpan');$('#modalRoot').innerHTML='';await refreshAll()}
     catch(err){toast(err.message,true);F.querySelectorAll('button').forEach(b=>b.disabled=false)}};
   F.onsubmit=e=>{e.preventDefault();save()};
   F.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>save(b.dataset.st));
-  F.querySelectorAll('[data-ob]').forEach(b=>b.onclick=()=>openBill(id,b.dataset.ob));
+  F.querySelectorAll('[data-oi]').forEach(b=>b.onclick=()=>openInvAdmin(b.dataset.oi));
+}
+
+/* ================== PENAGIHAN (Finance) ================== */
+let gSt='';
+const ISORT={Diajukan:0,Revisi:1,Dicek:2,Dibayar:3,Ditolak:4};
+const invTeams=o=>(o.tim_ids||[]).map(id=>S.admin.tims.find(x=>x.id===id)).filter(Boolean);
+const invSys=o=>invTeams(o).reduce((s,t)=>s+calcTeam(t,o.periode).total,0);
+function renderTagihan(){
+  const gp=$('#gPer');if(!gp.options.length)gp.innerHTML='<option value="">Semua periode</option>'+pMonths().map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
+  {const sel=$('#gMitra'),cur=sel.value;const ml=[...new Set([...mitraList(),...S.admin.tims.map(t=>t.mitra)].filter(Boolean))];sel.innerHTML='<option value="">Semua mitra</option>'+ml.map(m=>`<option>${esc(m)}</option>`).join('');if(ml.includes(cur))sel.value=cur}
+  const per=gp.value,fm=$('#gMitra').value,q=$('#gQ').value.toLowerCase();
+  const base=INV().filter(i=>(!per||i.periode===per)&&(!fm||i.mitra===fm)&&(!q||[i.id,i.mitra,...invTeams(i).map(t=>aName(t)+' '+t.nama_1+' '+t.nama_2)].join(' ').toLowerCase().includes(q)));
+  const L=base.filter(i=>!gSt||i.status===gSt).sort((a,b)=>ISORT[a.status]-ISORT[b.status]||String(b.tgl_ajukan).localeCompare(String(a.tgl_ajukan)));
+  const of=s=>base.filter(i=>i.status===s),sm=A=>A.reduce((s,i)=>s+(+i.nilai||0),0);
+  $$('#gSt .chip').forEach(x=>x.classList.toggle('on',x.dataset.s===gSt));
+  $('#gFlow').innerHTML=[['Diajukan','Diajukan mitra',rpS(sm(of('Diajukan')))+' menunggu dicek'],['Revisi','Perlu revisi','menunggu mitra upload ulang'],['Dicek','Dicek finance',rpS(sm(of('Dicek')))+' siap dibayar'],['Dibayar','Dibayar '+PAYER,rpS(of('Dibayar').reduce((s,i)=>s+paidV(i),0))+' lunas']]
+    .map(([s,k,d])=>`<div data-gs="${s}" style="cursor:pointer" class="${gSt===s?'on':''}"><div class="k">${k}</div><div class="v">${of(s).length}</div><div class="st">${d}</div></div>`).join('');
+  let pend='';if(per){const act=S.admin.tims.filter(t=>t.status==='Aktif'&&(!fm||t.mitra===fm)&&!invOfTeam(t.id,per));
+    if(act.length){const g={};act.forEach(t=>(g[t.mitra]=g[t.mitra]||[]).push(aName(t)));pend=`<div class="note" style="margin-bottom:14px">ℹ ${act.length} tim aktif belum masuk invoice ${esc(perLabel(per))}: ${Object.entries(g).map(([m,n])=>`<b>${esc(m)}</b> (${n.map(esc).join(', ')})`).join(' · ')}</div>`}}
+  $('#gBody').innerHTML=(S.admin.invErr?`<div class="alert">⚠ Tabel invoice belum ada di database. Jalankan ulang <b>supabase-schema.sql</b> di Supabase SQL Editor. (${esc(S.admin.invErr)})</div>`:'')+pend+
+   `<div class="card" style="padding:0"><div class="tbl-wrap" style="border:0"><table><thead><tr><th>No. invoice</th><th>Mitra</th><th>Periode</th><th>Tim ditagih</th><th class="num">HC</th><th class="num">Nilai diajukan</th><th class="num">Hitungan sistem</th><th>Dokumen</th><th>Status</th><th>Diajukan</th><th></th></tr></thead><tbody>
+   ${L.map(o=>{const ts=invTeams(o);const sys=invSys(o);const d=Math.round(+o.nilai-sys);const nd=[1,2,3].filter(i=>o['file_'+i]).length;
+     return `<tr><td class="mono"><b>${esc(o.id)}</b></td><td style="min-width:160px"><b>${esc(o.mitra)}</b></td><td>${esc(perLabel(o.periode))}</td>
+      <td style="min-width:180px">${ts.map(t=>`<div>${esc(aName(t))} ${tag(t.jenis)}</div>`).join('')||'–'}</td><td class="num">${nf(o.jumlah)}</td><td class="num"><b>${rp(o.nilai)}</b></td>
+      <td class="num">${rp(sys)}${d?`<div class="sub2" style="color:var(--warn)">selisih ${d>0?'+':''}${rp(d).replace('Rp ','Rp ')}</div>`:'<div class="sub2" style="color:var(--good)">✓ sesuai</div>'}</td>
+      <td>${nd}/3${o.file_3?'':' '+pill('capture kosong','bad')}</td><td>${ipill(o.status)}</td><td>${fmtD(o.tgl_ajukan)}</td>
+      <td><button class="btn sm ${['Diajukan','Dicek'].includes(o.status)?'pri':''}" data-oi="${esc(o.id)}">${o.status==='Diajukan'?'Cek →':o.status==='Dicek'?'Bayar →':'Buka'}</button></td></tr>`}).join('')||`<tr><td colspan="11" class="empty">${base.length?'Tidak ada invoice dengan status ini.':'Belum ada invoice yang diajukan mitra.'}</td></tr>`}
+   </tbody></table></div></div>`;
+  $$('#gFlow [data-gs]').forEach(x=>x.onclick=()=>{gSt=gSt===x.dataset.gs?'':x.dataset.gs;renderTagihan()});
+  $$('#gBody [data-oi]').forEach(b=>b.onclick=()=>openInvAdmin(b.dataset.oi));
+}
+['#gPer','#gMitra'].forEach(x=>$(x).addEventListener('change',()=>renderTagihan()));$('#gQ').addEventListener('input',()=>renderTagihan());
+$('#gSt').onclick=e=>{const c=e.target.closest('.chip');if(!c)return;gSt=c.dataset.s;renderTagihan()};
+$('#gRefresh').onclick=async()=>{await refreshAll();toast('Data dimuat ulang')};
+function invCheck(o,st,upd){const today=ymd(new Date());
+  if(st==='Dicek'){if(!['Diajukan','Revisi'].includes(o.status))throw new Error('Invoice harus berstatus Diajukan');if(!o.file_3)throw new Error('Capture performance belum ada — minta revisi ke mitra');upd.tgl_cek=today}
+  else if(st==='Revisi'){if(o.status!=='Diajukan')throw new Error('Hanya invoice berstatus Diajukan yang bisa diminta revisi');if(!String(upd.catatan_finance??o.catatan_finance??'').trim())throw new Error('Isi catatan finance: apa yang perlu direvisi mitra')}
+  else if(st==='Dibayar'){if(o.status!=='Dicek')throw new Error('Invoice harus dicek finance dulu');if(!o.slip)throw new Error('Upload bukti transfer dulu');if(!(upd.tgl_bayar||o.tgl_bayar))upd.tgl_bayar=today}
+  else if(st==='Diajukan'){if(o.status!=='Dicek')throw new Error('Status tidak bisa dikembalikan');upd.tgl_cek=null}
+  else if(st==='Ditolak'){if(o.status==='Dibayar')throw new Error('Invoice yang sudah dibayar tidak bisa ditolak')}
+  else throw new Error('Status tidak valid');
+  upd.status=st}
+function openInvAdmin(id){
+  const o=INV().find(i=>i.id===id);if(!o){toast('Invoice tidak ditemukan',true);return}const FN=fileNames();
+  const R=invTeams(o).map(t=>({t,x:calcTeam(t,o.periode)}));const sys=R.reduce((s,r)=>s+r.x.total,0);
+  let snap={};try{const rr=typeof o.rincian==='string'?JSON.parse(o.rincian||'null'):o.rincian;(Array.isArray(rr)?rr:[]).forEach(r=>snap[r.tim_id]=r)}catch(e){}
+  const nd=[1,2,3].filter(i=>o['file_'+i]).length;const lv={Diajukan:0,Revisi:0,Dicek:1,Dibayar:2,Ditolak:-1}[o.status];
+  const canPay=['Dicek','Dibayar'].includes(o.status);
+  const m=modal(`<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h2 style="margin:0">Invoice <span class="mono">${esc(o.id)}</span></h2><div class="sub2">Atas nama <b>${esc(o.mitra)}</b> · ${esc(perLabel(o.periode))} · ${R.length} tim</div></div>${ipill(o.status)}</div>
+  <div style="display:flex;gap:6px;margin:14px 0 0;flex-wrap:wrap">${[['Diajukan mitra',o.tgl_ajukan],['Dicek finance',o.tgl_cek],['Dibayar '+PAYER,o.tgl_bayar]].map(([l,d],i)=>`<span class="pill ${lv>=i?'p-good':'p-mute'}">${i+1}. ${l}${lv>=i&&d?' · '+fmtD(d):''}</span>`).join('')}</div>
+  ${o.status==='Revisi'?`<div class="alert" style="margin:12px 0 0">Menunggu mitra upload ulang dokumen · catatan: ${esc(o.catatan_finance)}</div>`:''}
+  <form id="fInvA">
+   <div class="msec"><h4>Tim yang ditagih (${R.length}) · hitungan sistem Program Subsidi Tier 1</h4>
+    <div class="tbl-wrap"><table class="calc-tbl"><thead><tr><th>Tim</th><th>Anggota · ID</th><th class="num">HC</th><th class="num">Capaian</th><th class="num">Gaji pokok</th><th class="num">Insentif</th><th class="num">Ins. mitra</th><th class="num">Total sistem</th><th class="num">Diajukan</th></tr></thead><tbody>
+    ${R.map(({t,x})=>{const s=snap[t.id];return `<tr><td><a href="javascript:void 0" data-why="${esc(t.id)}" title="Lihat rincian perhitungan"><b>${esc(aName(t))}</b></a> ${tag(t.jenis)}</td><td>${x.rows.map(p=>esc(p.nama)+' <span class="mono sub2">'+esc(p.id||'–')+'</span>').join('<br>')}</td><td class="num">${nf(x.hc)}</td><td class="num">${pct(x.pct)}</td><td class="num">${rp(x.gaji)}</td><td class="num">${rp(x.insTek)}</td><td class="num">${rp(x.insMitra)}</td><td class="num"><b>${rp(x.total)}</b></td><td class="num">${s?rp(s.total):'–'}</td></tr>`}).join('')}
+    <tr class="sub"><td colspan="7">Total hitungan sistem · klik nama tim untuk rincian</td><td class="num">${rp(sys)}</td><td class="num">${rp(o.nilai)}</td></tr></tbody></table></div>
+    ${Math.round(+o.nilai)!==Math.round(sys)?`<div class="alert" style="margin:10px 0 0">Nilai diajukan mitra (${rp(o.nilai)}) berbeda ${rp(Math.abs(+o.nilai-sys))} dari hitungan sistem (${rp(sys)}) — cek data HC sebelum menandai sudah dicek.</div>`:'<div class="note" style="margin:10px 0 0">✓ Nilai diajukan sesuai hitungan sistem.</div>'}</div>
+   <div class="msec"><h4>Dokumen invoice dari mitra (${nd}/3)</h4><div class="files3">${[1,2,3].map(i=>{const u=o['file_'+i];return `<div class="fslot ${u?'ok':''}"><b>${i}. ${esc(FN[i-1])}</b>${u?`<a href="${esc(u)}" target="_blank" rel="noopener">Buka file ↗</a>`:`<span class="sub2" ${i===3?'style="color:var(--bad)"':''}>${i===3?'Belum ada — wajib':'Tidak dilampirkan'}</span>`}</div>`}).join('')}</div>
+    ${o.catatan?`<p class="sub2" style="margin:8px 0 0">Catatan mitra: ${esc(o.catatan)}</p>`:''}</div>
+   <div class="msec"><h4>Catatan finance <span class="sub2" style="font-weight:500">· terlihat oleh mitra</span></h4><textarea name="catatan_finance" rows="2" style="width:100%" placeholder="mis. capture performance belum sesuai, mohon upload ulang">${esc(o.catatan_finance)}</textarea></div>
+   <div class="msec"><h4>Pembayaran ${PAYER} ke mitra</h4>
+    ${canPay?`<div class="fg"><label class="f">Nilai dibayar (Rp)<input name="nilai_bayar" type="number" min="0" step="1000" value="${esc(o.nilai_bayar||'')}" placeholder="${esc(String(Math.round(+o.nilai||0)))}"></label><label class="f">Tanggal dibayar<input type="date" name="tgl_bayar" value="${esc(o.tgl_bayar||'')}"></label></div>
+    <div class="fslot ${o.slip?'ok':''}" style="gap:8px;margin-top:10px"><b>Bukti transfer</b>${o.slip?`<a href="${esc(o.slip)}" target="_blank" rel="noopener">📄 Lihat bukti transfer ↗</a>`:'<span class="sub2">Belum diupload</span>'}
+     <div style="display:flex;gap:6px;flex-wrap:wrap"><label class="btn sm">${o.slip?'✎ Ganti':'Upload bukti transfer'}<input type="file" hidden id="slipUp" accept=".pdf,image/*"></label><button type="button" class="btn sm" id="slipLnk">Link</button>${o.slip?'<button type="button" class="btn sm bad" id="slipDel">🗑 Hapus</button>':''}</div></div>`
+    :'<p class="sub2" style="margin:0">Pembayaran bisa diisi setelah invoice ditandai <b>Dicek finance</b>.</p>'}</div>
+   <div class="foot">${o.status!=='Dibayar'?'<button type="button" class="btn bad" id="invDel">Hapus</button>':''}${['Diajukan','Revisi'].includes(o.status)?'<button type="button" class="btn bad" data-ist="Ditolak">Tolak invoice</button>':''}${o.status==='Dicek'?'<button type="button" class="btn" data-ist="Diajukan">↺ Batalkan cek</button>':''}
+    <span style="flex:1"></span><button type="button" class="btn" data-close>Tutup</button><button class="btn" type="submit">Simpan</button>
+    ${o.status==='Diajukan'?'<button type="button" class="btn" data-ist="Revisi">Minta revisi</button>':''}
+    ${['Diajukan','Revisi'].includes(o.status)?`<button type="button" class="btn pri" data-ist="Dicek" ${o.file_3?'':'disabled title="Capture performance belum ada"'}>✓ Sudah dicek</button>`:''}
+    ${o.status==='Dicek'?`<button type="button" class="btn pri" data-ist="Dibayar" ${o.slip?'':'disabled title="Upload bukti transfer dulu"'}>Tandai dibayar ${PAYER} →</button>`:''}</div>
+  </form>`,true);
+  m.querySelector('[data-close]').onclick=()=>$('#modalRoot').innerHTML='';
+  const F=m.querySelector('#fInvA');const busy=v=>F.querySelectorAll('button,input,textarea').forEach(x=>x.disabled=v);
+  const reopen=async msg=>{toast(msg);await refreshAll();if(INV().some(i=>i.id===id))openInvAdmin(id);else $('#modalRoot').innerHTML=''};
+  const save=async st=>{const f=Object.fromEntries(new FormData(F));const inv={id,catatan_finance:f.catatan_finance||''};if(canPay){inv.nilai_bayar=f.nilai_bayar;inv.tgl_bayar=f.tgl_bayar}if(st)inv.status=st;
+    if(st==='Ditolak'){const b=F.querySelector('[data-ist=Ditolak]');if(!b.dataset.c){b.dataset.c=1;b.textContent='Klik lagi untuk menolak';return}}
+    busy(true);try{await api('admin_inv_save',{pw:S.pw,inv});await reopen(st?'Invoice → '+(ILBL[st]||st):'Tersimpan')}catch(e){toast(e.message,true);busy(false)}};
+  F.onsubmit=e=>{e.preventDefault();save()};
+  F.querySelectorAll('[data-ist]').forEach(b=>b.onclick=()=>save(b.dataset.ist));
+  F.querySelectorAll('[data-why]').forEach(b=>b.onclick=()=>openWhy(b.dataset.why,o.periode));
+  const send=async body=>{busy(true);try{await api('admin_inv_file',{pw:S.pw,id,...body});await reopen('Bukti transfer tersimpan')}catch(e){toast(e.message,true);busy(false)}};
+  const su=m.querySelector('#slipUp');if(su)su.onchange=()=>{const f=su.files[0];if(!f)return;if(f.size>10*1024*1024){toast('File maksimal 10 MB',true);return}const r=new FileReader();r.onload=()=>{toast('Mengupload…');send({name:f.name,data:r.result})};r.readAsDataURL(f)};
+  const sl=m.querySelector('#slipLnk');if(sl)sl.onclick=()=>{const box=document.createElement('div');box.style.cssText='display:flex;gap:6px';box.innerHTML='<input placeholder="https://drive.google.com/…" style="flex:1;min-width:0"><button type="button" class="btn sm pri">OK</button>';sl.parentElement.after(box);
+    box.querySelector('button').onclick=()=>{const v=box.querySelector('input').value.trim();if(!/^https?:\/\//.test(v)){toast('Link harus diawali https://');return}send({url:v})}};
+  const sd=m.querySelector('#slipDel');if(sd)sd.onclick=async()=>{if(!sd.dataset.c){sd.dataset.c=1;sd.textContent='Klik lagi untuk hapus';return}busy(true);try{await api('admin_inv_file_del',{pw:S.pw,id});await reopen('Bukti transfer dihapus')}catch(e){toast(e.message,true);busy(false)}};
+  const dl=m.querySelector('#invDel');if(dl)dl.onclick=async()=>{if(!dl.dataset.c){dl.dataset.c=1;dl.textContent='Klik lagi untuk hapus';return}busy(true);try{await api('admin_inv_delete',{pw:S.pw,id});$('#modalRoot').innerHTML='';toast('Invoice dihapus');await refreshAll()}catch(e){toast(e.message,true);busy(false)}};
 }
 
 /* ================== INPUT PENCAPAIAN ================== */
@@ -1164,20 +1178,20 @@ function renderHome(){
   const aktif=T.filter(t=>t.status==='Aktif'),onb=T.filter(t=>['Daftar','Kontrak','Akun'].includes(t.status));
   const hcM=x=>S.admin.ach.filter(a=>a.tim_id&&a.tanggal.startsWith(x)).reduce((s,a)=>s+a.jumlah,0);
   const calcs=aktif.map(t=>({t,x:calcTeam(t,per)}));const est=calcs.reduce((s,r)=>s+r.x.total,0);
-  const B=S.admin.bills||[];const bPrev=B.filter(b=>b.periode===prev);
-  const paidPrev=bPrev.filter(b=>b.status==='Dibayar').reduce((s,b)=>s+(+b.nilai||0),0),openB=B.filter(b=>b.status!=='Dibayar');
-  const exp=aktif.filter(t=>t.pkwt_selesai&&daysTo(t.pkwt_selesai)<=14),noId=aktif.filter(t=>!t.id_akun_1&&!t.id_akun_2);
-  const unm=new Set(S.admin.ach.filter(a=>!a.tim_id).map(a=>a.id_akun)).size,needSlip=B.filter(b=>b.status==='Diverifikasi').length,noBill=aktif.filter(t=>!billOf(t.id,prev)).length;
+  const B=INV();const bPrev=B.filter(b=>b.periode===prev&&b.status!=='Ditolak');
+  const paidPrev=bPrev.filter(b=>b.status==='Dibayar').reduce((s,b)=>s+paidV(b),0),openB=B.filter(b=>['Diajukan','Revisi','Dicek'].includes(b.status));
+  const noId=aktif.filter(t=>!t.id_akun_1&&!t.id_akun_2);
+  const unm=new Set(S.admin.ach.filter(a=>!a.tim_id).map(a=>a.id_akun)).size,needPay=B.filter(b=>b.status==='Dicek').length,noBill=aktif.filter(t=>!invOfTeam(t.id,prev)).length;
   const mit=[...new Set([...mitraList(),...T.map(t=>t.mitra)])].map(m=>{const L=T.filter(t=>t.mitra===m),A=L.filter(t=>t.status==='Aktif');const cs=calcs.filter(r=>r.t.mitra===m);
     return{m,n:L.length,a:A.length,onb:L.filter(t=>['Daftar','Kontrak','Akun'].includes(t.status)).length,hc:cs.reduce((s,r)=>s+r.x.hc,0),cap:cs.length?cs.reduce((s,r)=>s+r.x.pct,0)/cs.length:null,est:cs.reduce((s,r)=>s+r.x.total,0),
-      paid:B.filter(b=>b.periode===prev&&b.status==='Dibayar'&&L.some(t=>t.id===b.tim_id)).reduce((s,b)=>s+(+b.nilai||0),0)}});
-  const todo=[[onb.filter(t=>t.status==='Daftar').length,'pendaftaran baru menunggu diproses','#tracking'],[exp.length,'tim PKWT berakhir ≤ 14 hari','#tracking'],[noId.length,'tim aktif belum punya IKR/Sales ID','#tracking'],
-    [unm,'ID pencapaian belum terhubung ke tim','#input'],[noBill,'tim belum ditagih untuk '+perLabel(prev),'#hitung'],[B.filter(b=>b.status==='Ditagih').length,'tagihan diajukan mitra menunggu verifikasi','#tracking'],[needSlip,'tagihan menunggu slip gaji & pembayaran','#tracking']].filter(x=>x[0]>0);
+      paid:B.filter(b=>b.periode===prev&&b.status==='Dibayar'&&b.mitra===m).reduce((s,b)=>s+paidV(b),0)}});
+  const todo=[[onb.filter(t=>t.status==='Daftar').length,'pendaftaran tim baru menunggu verifikasi','#tracking'],[onb.filter(t=>t.status!=='Daftar').length,'tim sedang diverifikasi (ID IKR & kata sandi)','#tracking'],[noId.length,'tim aktif belum punya IKR/Sales ID','#tracking'],
+    [unm,'ID pencapaian belum terhubung ke tim','#input'],[B.filter(b=>b.status==='Diajukan').length,'invoice diajukan mitra menunggu dicek Finance','#tagihan'],[needPay,'invoice sudah dicek, menunggu pembayaran '+PAYER,'#tagihan'],[noBill,'tim aktif belum masuk invoice '+perLabel(prev),'#tagihan']].filter(x=>x[0]>0);
   return{kpis:`
     <div class="kpi hero"><div class="k">Tim aktif</div><div class="v">${aktif.length}</div><div class="d">${aktif.length*2} personel · ${mit.filter(x=>x.a).length} mitra</div></div>
     <div class="kpi"><div class="k">HC bulan ini</div><div class="v">${nf(hcM(per))}</div><div class="d">${nf(hcM(prev))} bulan lalu</div></div>
     <div class="kpi"><div class="k">Estimasi tagihan bulan ini</div><div class="v">${rpS(est)}</div><div class="d">rumus Program Subsidi Tier 1</div></div>
-    <div class="kpi"><div class="k">Dibayar ${esc(perLabel(prev))}</div><div class="v">${rpS(paidPrev)}</div><div class="d">${bPrev.filter(b=>b.status==='Dibayar').length}/${bPrev.length} tagihan · ${openB.length} belum lunas</div></div>`,
+    <div class="kpi"><div class="k">Dibayar ${esc(perLabel(prev))}</div><div class="v">${rpS(paidPrev)}</div><div class="d">${bPrev.filter(b=>b.status==='Dibayar').length}/${bPrev.length} invoice · ${openB.length} belum lunas</div></div>`,
    mitra:`<div class="card" style="padding:0;margin-bottom:22px"><div style="padding:16px 18px 10px"><h2>Ringkasan per mitra</h2><p class="sub" style="margin:0">Klik nama mitra untuk melihat Tracking-nya</p></div>
      <div class="tbl-wrap" style="border:0;border-top:1px solid var(--line);border-radius:0 0 12px 12px"><table><thead><tr><th>Mitra</th><th class="num">Tim</th><th class="num">Aktif</th><th class="num">Onboarding</th><th class="num">HC bulan ini</th><th class="num">Capaian rata²</th><th class="num">Estimasi</th><th class="num">Dibayar bln lalu</th></tr></thead><tbody>
      ${mit.map(x=>`<tr><td style="min-width:170px"><a href="#tracking" data-mf="${esc(x.m)}"><b>${esc(x.m)}</b></a></td><td class="num">${x.n}</td><td class="num">${x.a}</td><td class="num">${x.onb||'–'}</td><td class="num">${nf(x.hc)}</td><td class="num"><span class="cap-bar" style="--kc2:${x.cap>=.8?'#3d9a4f':x.cap>=.4?'#d08a1e':'#c4553a'}"><i><b style="width:${Math.min(100,(x.cap||0)*100)}%"></b></i>${pct(x.cap)}</span></td><td class="num">${rp(x.est)}</td><td class="num">${rp(x.paid)}</td></tr>`).join('')}
@@ -1197,10 +1211,10 @@ function renderPanduan(){
    <div class="pg">
    ${st(1,'Masuk ke portal',`<p>Buka link <b class="mono">${esc(location.href.split('#')[0])}#mitra</b> di HP atau laptop, isi <b>username</b> &amp; <b>password</b> dari admin Starlite, lalu klik <b>Masuk</b>.</p><ul><li>Login tersimpan di perangkat sampai klik <b>Keluar</b>.</li><li>5× salah password → akun terkunci 10 menit.</li></ul>`,'login','Halaman login')}
    ${st(2,'Beranda &amp; performa tim',`<p>Pilih <b>periode</b> (bulan). Kotak di atas menampilkan HC terverifikasi, rata-rata capaian target, estimasi nilai bulan ini, dan total yang sudah dibayar.</p><ul><li>Kartu tim diurutkan dari HC terbanyak.</li><li>Target IKR 65 HC/tim/bulan · Sales 40 HC/orang/bulan.</li></ul>`,'beranda','Beranda portal')}
-   ${st(3,'Daftarkan tim baru',`<p>Klik tombol <b>+</b> di pojok kanan atas → <b>Daftarkan tim baru</b>.</p><ul><li>1 tim = 2 orang: nama, HP, email.</li><li>Foto KTP &amp; foto diri <b>wajib</b> · PKWT &amp; BPJS opsional (boleh menyusul).</li><li>Setelah dikirim, tim tampil dengan status <b>Daftar</b> dan diproses admin.</li></ul>`,'plus','Menu tombol plus')}
+   ${st(3,'Minta akun tim baru',`<p>Klik tombol <b>+</b> di pojok kanan atas → <b>Minta akun tim baru</b>.</p><ul><li>1 tim = 2 orang: nama, HP, email.</li><li>Foto KTP &amp; foto diri <b>wajib</b> · PKWT &amp; BPJS opsional.</li><li>Status: <b>Mitra submit</b> → <b>Verifikasi</b> (admin mengisi ID IKR &amp; kata sandi) → <b>Selesai</b>. Akun tim tampil di bagian Status pendaftaran tim.</li></ul>`,'plus','Menu tombol plus')}
    ${st(4,'Detail WO &amp; pelanggan',`<p>Bagian <b>Detail WO &amp; pelanggan</b> menampilkan setiap WO: tanggal, nama &amp; ID pelanggan, teknisi, sales, status, SLA, dan apakah dihitung HC.</p><ul><li>Filter per tim / status, cari pelanggan, dan unduh CSV.</li></ul>`,'wo','Detail WO')}
-   ${st(5,'Ajukan tagihan',`<p>Klik <b>+</b> → <b>Ajukan tagihan</b> (submit invoice), pilih tim &amp; periode, cek estimasi, lalu lampirkan dokumen:</p><ol><li>Capture performance — <b>wajib</b> (bisa dibuat otomatis)</li><li>Surat PKWT/kontrak dari mitra — opsional</li><li>BPJS Kesehatan &amp; Ketenagakerjaan — opsional</li></ol><p>Dokumen salah? <b>Upload ulang</b> selama status masih <b>Diajukan</b>.</p>`,'ajukan','Form ajukan tagihan')}
-   ${st(6,'Pantau status &amp; pembayaran',`<p>Tabel <b>Tagihan &amp; pembayaran</b> menunjukkan status setiap tagihan:</p><ul><li><b>Diajukan</b> — invoice masuk, menunggu verifikasi admin.</li><li><b>Diverifikasi</b> — invoice disetujui.</li><li><b>Dibayar</b> — sudah ditransfer oleh IJE ke mitra, tanggal bayar tercatat.</li></ul>`,'tagihan','Status tagihan')}
+   ${st(5,'Ajukan tagihan',`<p>Klik <b>+</b> → <b>Ajukan tagihan</b>. Satu invoice atas nama mitra: pilih periode, <b>centang tim yang ditagih</b>, cek estimasi, lalu lampirkan dokumen:</p><ol><li>Capture performance — <b>wajib</b> (bisa dibuat otomatis)</li><li>Surat PKWT/kontrak dari mitra — opsional</li><li>BPJS Kesehatan &amp; Ketenagakerjaan — opsional</li></ol><p>Dokumen salah atau diminta revisi Finance? Klik <b>Upload ulang</b>.</p>`,'ajukan','Form ajukan tagihan')}
+   ${st(6,'Pantau status &amp; pembayaran',`<p>Tabel <b>Tagihan &amp; pembayaran</b> menunjukkan status setiap tagihan:</p><ul><li><b>Diajukan mitra</b> — invoice masuk, menunggu dicek Finance.</li><li><b>Perlu revisi</b> — baca catatan Finance lalu upload ulang.</li><li><b>Dicek finance</b> — invoice disetujui, menunggu pembayaran.</li><li><b>Dibayar IJE</b> — sudah ditransfer ke mitra, tanggal &amp; nilai bayar tercatat.</li></ul>`,'tagihan','Status tagihan')}
    <div class="card" style="text-align:center;padding:22px"><b>Butuh bantuan?</b><div class="sub2" style="margin-top:4px">Lupa password, akun terkunci, atau data tidak sesuai — hubungi admin Vendor Management Starlite.</div><div style="margin-top:12px"><a class="btn pri" href="#mitra">Masuk ke portal</a></div></div>
    </div>`}
 const edaranText=(m,u,pw)=>{const tgl=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
@@ -1218,9 +1232,9 @@ Password : ${pw||'(dikirim terpisah oleh admin)'}
 *Cara pakai*
 1. Buka link di HP/laptop, isi username & password, klik *Masuk*.
 2. Beranda: pilih periode untuk melihat HC terverifikasi, capaian target, estimasi & pembayaran.
-3. Daftarkan tim baru: klik tombol *+* → *Daftarkan tim baru* (1 tim = 2 orang; KTP & foto diri wajib, PKWT & BPJS opsional).
-4. Submit invoice: klik *+* → *Ajukan tagihan*, lampirkan capture performance (wajib); PKWT & BPJS opsional.
-5. Pantau status: Pendaftaran → Verifikasi → Akun aktif → Penagihan → Mitra submit → Dibayar IJE.
+3. Minta akun tim baru: klik tombol *+* → *Minta akun tim baru* (1 tim = 2 orang; KTP & foto diri wajib, PKWT & BPJS opsional). Admin Starlite memverifikasi & mengisi ID IKR + kata sandi.
+4. Submit invoice: klik *+* → *Ajukan tagihan*, 1 invoice atas nama mitra — pilih periode & centang tim yang ditagih, lampirkan capture performance (wajib).
+5. Pantau status: pendaftaran tim (Mitra submit → Verifikasi → Selesai) dan invoice (Diajukan → Dicek finance → Dibayar IJE).
 
 Panduan bergambar: ${panduanUrl()}
 
@@ -1300,24 +1314,21 @@ async function loadPortal(tok,base){
   catch(e){if(base==='#mitra'){mTokSet('');PORTAL=null;$('#mlMsg').textContent='Sesi berakhir: '+e.message+' Silakan login lagi.';route();return}$('#portalBody').innerHTML=`<div class="card empty" style="margin-top:10vh"><div style="font-size:40px">🔒</div><h2>Link tidak valid</h2><p class="sub">${esc(e.message)}<br>Hubungi admin Starlite untuk mendapatkan link monitoring yang baru.</p></div>`}
 }
 function renderPortal(per){
-  const P=PORTAL;const c=Object.assign({},CFG0,P.config||{});const ach=P.ach||[];const T=(P.tims||[]).map(t=>({...t}));
+  const P=PORTAL;const c=Object.assign({},CFG0,P.config||{});const ach=P.ach||[];const T=(P.tims||[]).map(t=>({...t}));const IV=P.invoices||[];
   const months=pMonths();per=per||$('#ptPer')?.value||months[0][0];
-  const billP=(tid,x)=>(P.bills||[]).find(b=>b.tim_id===tid&&b.periode===x);
-  const PST=TSTEPS,PLB=TLBL;
-  const stageP=t=>stageOf(t.status,billP(t.id,per),per);
   const act=T.filter(t=>['Aktif','Nonaktif'].includes(t.status));
-  const rows=act.map(t=>({t,x:calcPure(t,per,ach,c),b:billP(t.id,per)})).filter(r=>r.t.status==='Aktif'||r.x.hc>0||r.b).sort((a,b)=>b.x.hc-a.x.hc);
+  const rows=act.map(t=>({t,x:calcPure(t,per,ach,c),b:invOfTeam(t.id,per,IV)})).filter(r=>r.t.status==='Aktif'||r.x.hc>0||r.b).sort((a,b)=>b.x.hc-a.x.hc);
   const lbl=j=>j==='Sales'?c.label_sales:c.label_ikr;
   const daily={};const ids=new Set(act.flatMap(t=>[t.id_akun_1,t.id_akun_2]).filter(Boolean).map(v=>v.toUpperCase()));ach.forEach(a=>{if(ids.has(String(a.id_akun).toUpperCase())&&a.tanggal.startsWith(per))daily[a.tanggal]=(daily[a.tanggal]||0)+(+a.jumlah||0)});
-  const paidAll=(P.bills||[]).filter(b=>b.status==='Dibayar').reduce((s,b)=>s+(+b.nilai||0),0);
+  const paidL=IV.filter(b=>b.status==='Dibayar');const paidAll=paidL.reduce((s,b)=>s+paidV(b),0);
   const hc=rows.reduce((s,r)=>s+r.x.hc,0),est=rows.reduce((s,r)=>s+r.x.total,0),cap=rows.length?rows.reduce((s,r)=>s+r.x.pct,0)/rows.length:null;
-  const stp=t=>{const st=stageP(t);const off=['Ditolak','Nonaktif'].includes(st);const idx=off?-1:PST.indexOf(st);
-    return `<div class="stp">${PST.map((s,i)=>{const cls=idx<0?'':i<idx?'done':i===idx?(s==='Dibayar'?'cur paid':'cur'):'';return `<div class="s ${cls}"><i>${i<idx||(i===idx&&s==='Dibayar')?'✓':i+1}</i>${PLB[s]}</div>`}).join('')}</div>`};
-  const bl=st=>st==='Ditagih'?'Diajukan':st;
+  const tn=id=>{const t=T.find(x=>x.id===id);return t?aName(t):'–'};
+  const accP=t=>{const st=pStage(t);if(st==='Daftar')return '<span class="sub2">Menunggu verifikasi admin Starlite</span>';if(st==='Verifikasi')return '<span class="sub2">Sedang diverifikasi admin — akun dibuatkan</span>';
+    return [1,2].map(i=>t['id_akun_'+i]?`<div><b>${esc(t['nama_'+i])}</b> · ID <span class="mono">${esc(t['id_akun_'+i])}</span>${t['pass_akun_'+i]?` · sandi <span class="mono" data-pwv="${esc(t['pass_akun_'+i])}">••••••</span> <button type="button" class="btn sm" data-shpw style="padding:1px 7px;font-size:11px">lihat</button>`:''}</div>`:'').join('')||'<span class="sub2">Akun belum diisi admin</span>'};
   $('#portalBody').innerHTML=`
   <div style="position:relative">
     <div class="p-plus">${P.base==='#mitra'?'<button type="button" class="btn sm p-out" id="pOut">Keluar</button>':''}<button type="button" class="plus-btn" id="pPlus" title="Tambah" aria-label="Tambah">+</button>
-      <div class="plus-menu hidden" id="pPlusMenu"><a href="${P.base}/daftar"><b>👥 Minta akun tim baru</b><small>1 tim = 2 orang · diverifikasi &amp; disetujui admin</small></a><button type="button" id="pInvBtn"><b>🧾 Ajukan tagihan</b><small>Submit invoice · capture performance wajib</small></button></div></div>
+      <div class="plus-menu hidden" id="pPlusMenu"><a href="${P.base}/daftar"><b>👥 Minta akun tim baru</b><small>1 tim = 2 orang · diverifikasi &amp; disetujui admin</small></a><button type="button" id="pInvBtn"><b>🧾 Ajukan tagihan</b><small>1 invoice atas nama mitra · pilih tim yang ditagih</small></button></div></div>
   <div class="p-hero"><img class="wm" src="${LOGO.star}" alt="">
     <div class="chip"><img class="s" src="${LOGO.star}" alt=""><img class="t" src="${LOGO.text}" alt="STARLITE"><span>×</span><img class="w" src="${LOGO.weave}" alt="weave"></div>
     <h1>${esc(P.mitra)}</h1><p>Portal mitra · monitoring, pendaftaran tim & pengajuan tagihan</p>
@@ -1326,22 +1337,24 @@ function renderPortal(per){
     <div class="kpi hero"><div class="k">HC terverifikasi · ${esc(perLabel(per))}</div><div class="v">${nf(hc)}</div><div class="d">${rows.length} tim · ${rows.length*2} personel</div></div>
     <div class="kpi"><div class="k">Rata-rata capaian target</div><div class="v">${pct(cap)}</div><div class="d">IKR ${nf(+c.target_ikr)} HC/tim · Sales ${nf(+c.target_sales)} HC/orang</div></div>
     <div class="kpi"><div class="k">Estimasi nilai ${esc(perLabel(per))}</div><div class="v">${rpS(est)}</div><div class="d">gaji pokok prorata + insentif</div></div>
-    <div class="kpi"><div class="k">Total sudah dibayar</div><div class="v">${rpS(paidAll)}</div><div class="d">${(P.bills||[]).filter(b=>b.status==='Dibayar').length} tagihan lunas</div></div>
+    <div class="kpi"><div class="k">Total sudah dibayar</div><div class="v">${rpS(paidAll)}</div><div class="d">${paidL.length} invoice lunas</div></div>
   </div>
   <div class="sec-h"><h2>Performa tim ${esc(perLabel(per))}</h2><span class="sub2">Urut dari HC terbanyak</span></div>
   <div class="lb">${rows.map((r,i)=>{const x=r.x,t=r.t;return `<div class="tc ${t.jenis==='Sales'?'j-sls':'j-ikr'} ${i<3&&x.hc>0?'r'+(i+1):''}" data-ptim="${esc(t.id)}" title="Klik untuk lihat pelanggan tim ini"><div class="rk">${i+1}</div>${i===0&&x.hc>0?'<div class="crown">🏆 TERBAIK DI MITRA INI</div>':''}
     <div class="nm">${esc(aName(t))} ${tag(t.jenis)}</div><div class="al">${esc(t.stasiun)} · ${esc(x.wilayah)}</div><div class="mb">${x.rows.map(p=>esc(p.nama)+' '+nf(p.hc)).join(' · ')}</div>
     <div class="big"><b>${nf(x.hc)}</b><span>${esc(lbl(t.jenis))}</span></div><div class="prog ${x.pct>=1?'done':''}"><i style="width:${Math.min(100,x.pct*100)}%"></i></div>
     <div class="tg"><span>${nf(x.hc)} / ${nf(x.target,0)} target</span><b>${pct(x.pct)}</b></div>
-    <div class="mini"><div><b>${x.wd}/${x.wdTot}</b>hari kerja</div><div><b>${rpS(x.gaji)}</b>gaji pokok</div><div><b>${rpS(x.insTek+x.insMitra)}</b>insentif</div><div><b>${r.b?bl(r.b.status):'–'}</b>tagihan</div></div></div>`}).join('')||'<div class="card empty" style="grid-column:1/-1">Belum ada tim aktif pada periode ini.</div>'}</div>
+    <div class="mini"><div><b>${x.wd}/${x.wdTot}</b>hari kerja</div><div><b>${rpS(x.gaji)}</b>gaji pokok</div><div><b>${rpS(x.insTek+x.insMitra)}</b>insentif</div><div><b>${r.b?esc(ILBL[r.b.status]):'–'}</b>invoice</div></div></div>`}).join('')||'<div class="card empty" style="grid-column:1/-1">Belum ada tim aktif pada periode ini.</div>'}</div>
   <div class="card" style="margin-bottom:16px"><h2>HC per hari</h2><p class="sub">Semua tim ${esc(P.mitra)} · ${esc(perLabel(per))}</p><div class="chart-box"><canvas id="cPortal"></canvas></div></div>
   <div class="card" style="margin-bottom:16px;padding:0" id="pWo"></div>
-  <div class="trk-g"><div class="trk-h"><div class="ini">${esc(P.mitra.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase())}</div><div><b>Status tim</b><div class="sub2">Pendaftaran → Verifikasi → Akun aktif → Penagihan → Mitra submit → Dibayar IJE</div></div><div class="sp" style="flex:1"></div><a class="btn sm" href="${P.base}/daftar">+ Daftarkan tim</a></div>
-   ${T.filter(t=>!['Ditolak'].includes(t.status)).map(t=>`<div class="trk-r" style="grid-template-columns:minmax(190px,1fr) minmax(400px,2.8fr) minmax(150px,.9fr)"><div class="who"><b>${esc(aName(t))}</b> ${tag(t.jenis)} ${t.status==='Nonaktif'?pill('Nonaktif','mute'):''}<div class="sub2">${esc(t.nama_1)} & ${esc(t.nama_2)}</div></div>${stp(t)}
-     <div class="inf">${t.pkwt_selesai?'PKWT s/d '+fmtD(t.pkwt_selesai):'Tanggal PKWT belum diisi'}<br>${['pkwt','bpjs'].map(k=>{const n=[1,2].filter(i=>t[k+'_file_'+i]).length;return `<span style="color:${n?'var(--good)':'var(--text-2)'}">📄 ${k.toUpperCase()} ${n}/2</span>`}).join(' · ')}</div></div>`).join('')||'<div class="trk-empty">Belum ada tim.</div>'}</div>
-  <div class="card" style="padding:0"><div style="padding:16px 18px 10px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap"><div style="flex:1"><h2>Tagihan & pembayaran</h2><p class="sub" style="margin:0">Ajukan tagihan per tim per bulan · admin memverifikasi lalu membayar</p></div><button type="button" class="btn pri" id="pInvBtn2">+ Ajukan tagihan</button></div>
-   <div class="tbl-wrap" style="border:0;border-top:1px solid var(--line);border-radius:0 0 12px 12px"><table><thead><tr><th>Periode</th><th>Tim</th><th class="num">HC</th><th class="num">Nilai</th><th>Dokumen</th><th>Status</th><th>Dibayar</th></tr></thead><tbody>
-   ${(P.bills||[]).slice().sort((a,b)=>b.periode.localeCompare(a.periode)).map(b=>{const t=T.find(x=>x.id===b.tim_id)||{};return `<tr><td>${esc(perLabel(b.periode))}</td><td><b>${esc(aName(t))}</b></td><td class="num">${nf(b.jumlah)}</td><td class="num"><b>${rp(b.nilai)}</b></td><td>${b.dok}/3</td><td>${pill(bl(b.status),STK[b.status])}${b.status==='Ditagih'?` <button type="button" class="btn sm" data-pinv="${esc(b.tim_id)}|${esc(b.periode)}">⬆ Upload ulang</button>`:''}</td><td>${b.tgl_bayar?fmtD(b.tgl_bayar):'–'}</td></tr>`}).join('')||'<tr><td colspan="7" class="empty">Belum ada tagihan.</td></tr>'}
+  <div class="trk-g"><div class="trk-h"><div class="ini">${esc(P.mitra.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase())}</div><div><b>Status pendaftaran tim</b><div class="sub2">Mitra submit → Verifikasi admin → Selesai (akun aktif)</div></div><div class="sp" style="flex:1"></div><a class="btn sm" href="${P.base}/daftar">+ Minta akun tim</a></div>
+   ${T.filter(t=>!['Ditolak'].includes(t.status)).map(t=>{const st=pStage(t);const off=st==='Nonaktif';return `<div class="trk-r" style="grid-template-columns:minmax(190px,1fr) minmax(300px,1.6fr) minmax(220px,1.4fr)"><div class="who"><b>${esc(aName(t))}</b> ${tag(t.jenis)} ${off?pill('Nonaktif','mute'):''}<div class="sub2">${esc(t.nama_1)} & ${esc(t.nama_2)}</div></div>${stepper(t,off?'':st)}
+     <div class="inf">${accP(t)}</div></div>`}).join('')||'<div class="trk-empty">Belum ada tim.</div>'}</div>
+  <div class="card" style="padding:0"><div style="padding:16px 18px 10px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap"><div style="flex:1"><h2>Tagihan & pembayaran</h2><p class="sub" style="margin:0">1 invoice atas nama ${esc(P.mitra)} · pilih tim yang ditagih · dicek Finance lalu dibayar ${PAYER}</p></div><button type="button" class="btn pri" id="pInvBtn2">+ Ajukan tagihan</button></div>
+   <div class="tbl-wrap" style="border:0;border-top:1px solid var(--line);border-radius:0 0 12px 12px"><table><thead><tr><th>No. invoice</th><th>Periode</th><th>Tim ditagih</th><th class="num">HC</th><th class="num">Nilai</th><th>Dokumen</th><th>Status</th><th>Dibayar</th></tr></thead><tbody>
+   ${IV.slice().sort((a,b)=>b.periode.localeCompare(a.periode)||String(b.tgl_ajukan).localeCompare(String(a.tgl_ajukan))).map(b=>`<tr><td class="mono" style="white-space:nowrap"><b>${esc(b.id)}</b></td><td>${esc(perLabel(b.periode))}</td><td>${(b.tim_ids||[]).map(id=>esc(tn(id))).join('<br>')}</td><td class="num">${nf(b.jumlah)}</td><td class="num"><b>${rp(b.nilai)}</b></td><td>${[b.f1,b.f2,b.f3].filter(Boolean).length}/3</td>
+     <td>${ipill(b.status)}${b.catatan_finance&&['Revisi','Ditolak','Diajukan'].includes(b.status)?`<div class="sub2" style="margin-top:3px;max-width:240px;color:${b.status==='Revisi'?'var(--bad)':'var(--text-2)'}">Finance: ${esc(b.catatan_finance)}</div>`:''}${['Diajukan','Revisi'].includes(b.status)?` <button type="button" class="btn sm ${b.status==='Revisi'?'pri':''}" data-pinv="${esc(b.id)}" style="margin-top:4px">⬆ Upload ulang</button>`:''}</td>
+     <td>${b.tgl_bayar?fmtD(b.tgl_bayar)+(b.nilai_bayar?'<div class="sub2">'+rp(b.nilai_bayar)+'</div>':''):'–'}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">Belum ada tagihan.</td></tr>'}
    </tbody></table></div></div>
   <div class="foot-note">Data per ${new Date(P.updated||Date.now()).toLocaleString('id-ID')} · Portal ini hanya menampilkan tim ${esc(P.mitra)}. Pertanyaan? Hubungi admin Starlite.</div>
   ${S.admin?'<a class="btn dark back-admin" href="#akses" style="background:var(--side);color:#fff">← Kembali ke admin</a>':''}`;
@@ -1349,7 +1362,8 @@ function renderPortal(per){
   const pm=$('#pPlusMenu');$('#pPlus').onclick=e=>{e.stopPropagation();pm.classList.toggle('hidden')};document.addEventListener('click',()=>pm.classList.add('hidden'),{once:true});
   $('#pInvBtn').onclick=()=>openInvoice();const po=$('#pOut');if(po)po.onclick=()=>{mTokSet('');PORTAL=null;$('#mlMsg').textContent='';$('#fMLogin').reset();location.hash='#mitra';route()};$('#pInvBtn2').onclick=()=>openInvoice();
   $$('#portalBody [data-ptim]').forEach(x=>x.onclick=()=>{PWO.tim=x.dataset.ptim;PWO.q='';renderPortalWO(per,act);$('#pWo').scrollIntoView({behavior:'smooth',block:'start'})});
-  $$('#portalBody [data-pinv]').forEach(x=>x.onclick=()=>{const [a,b]=x.dataset.pinv.split('|');openInvoice(a,b)});
+  $$('#portalBody [data-pinv]').forEach(x=>x.onclick=()=>openInvoice(x.dataset.pinv));
+  $$('#portalBody [data-shpw]').forEach(x=>x.onclick=()=>{const s=x.previousElementSibling;const on=s.textContent!==s.dataset.pwv;s.textContent=on?s.dataset.pwv:'••••••';x.textContent=on?'sembunyikan':'lihat'});
   const R={a:per+'-01',b:ymd(new Date(+per.slice(0,4),+per.slice(5),0)),months:1};lineChart('cPortal',R,daily,'HC');
   renderPortalWO(per,act);
 }
@@ -1389,36 +1403,71 @@ function renderPortalWO(per,act){
     const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');const u=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv'}));
     const el=document.createElement('a');el.href=u;el.download=`detail-wo-${P.mitra.replace(/\W+/g,'-')}-${per}.csv`;document.body.appendChild(el);el.click();el.remove()};
 }
-function openInvoice(tid,per0){
-  const P=PORTAL;const c=Object.assign({},CFG0,P.config||{});const T=(P.tims||[]).filter(t=>['Aktif','Nonaktif'].includes(t.status));
-  if(!T.length){toast('Belum ada tim aktif yang bisa ditagihkan',true);return}
-  const months=pMonths();per0=per0||months[1][0];tid=tid||(T.find(t=>{const b=(P.bills||[]).find(x=>x.tim_id===t.id&&x.periode===per0);return !b||b.status==='Ditagih'})||T[0]).id;const FN=fileNames();const F={1:null,2:null,3:null};
-  const m=modal(`<h2 style="margin:0">Ajukan tagihan</h2><div class="sub2">${esc(P.mitra)} · submit invoice · capture performance wajib, PKWT & BPJS opsional</div>
-   <form id="fInv"><div class="msec"><div class="fg"><label class="f">Tim<select name="tim">${T.map(t=>`<option value="${esc(t.id)}" ${t.id===tid?'selected':''}>${esc(aName(t))} · ${esc(t.jenis)}</option>`).join('')}</select></label>
-    <label class="f">Periode<select name="per">${months.map(([v,l],i)=>`<option value="${v}" ${v===per0?'selected':''}>${l}${i===0?' (berjalan)':''}</option>`).join('')}</select></label></div>
-    <div id="invCalc" style="margin-top:12px"></div></div>
-   <div class="msec"><h4>Dokumen invoice</h4><div class="files3" id="invFiles"></div><p class="sub2" style="margin:8px 0 0">PDF atau foto, maks 10 MB per file.</p></div>
-   <div class="foot"><span style="flex:1"></span><button type="button" class="btn" data-close>Batal</button><button class="btn pri" type="submit" id="invSend">Kirim pengajuan</button></div></form>`,true);
+function openInvoice(invId){
+  const P=PORTAL;const c=Object.assign({},CFG0,P.config||{});const IV=P.invoices||[];const T=(P.tims||[]).filter(t=>['Aktif','Nonaktif'].includes(t.status));
+  const ex=invId?IV.find(i=>i.id===invId):null;
+  if(!ex&&!T.length){toast('Belum ada tim aktif yang bisa ditagihkan',true);return}
+  const months=pMonths();const FN=fileNames();const F={1:null,2:null,3:null};
+  let per=ex?ex.periode:months[1][0];const sel=new Set(ex?ex.tim_ids:[]);let init=!ex;
+  const m=modal(`<h2 style="margin:0">${ex?'Upload ulang dokumen · <span class="mono">'+esc(ex.id)+'</span>':'Ajukan tagihan (invoice)'}</h2><div class="sub2">${esc(P.mitra)} · 1 invoice atas nama mitra · pilih tim yang ditagih · capture performance wajib</div>
+   ${ex&&ex.catatan_finance?`<div class="alert" style="margin:12px 0 0">Catatan Finance: ${esc(ex.catatan_finance)}</div>`:''}
+   <form id="fInv"><div class="msec"><div class="fg"><label class="f">Atas nama mitra<input value="${esc(P.mitra)}" disabled></label>
+    <label class="f">Periode<select name="per" ${ex?'disabled':''}>${months.map(([v,l],i)=>`<option value="${v}" ${v===per?'selected':''}>${l}${i===0?' (berjalan)':''}</option>`).join('')}</select></label></div>
+    <div style="display:flex;align-items:center;gap:10px;margin:16px 0 8px"><h4 style="margin:0;flex:1">Tim yang ditagih</h4>${ex?'':'<button type="button" class="btn sm" id="invAll">Pilih semua</button><button type="button" class="btn sm" id="invNone">Kosongkan</button>'}</div>
+    <div class="inv-tims" id="invTims"></div><div id="invSum" style="margin-top:12px"></div></div>
+   <div class="msec"><h4>Dokumen invoice</h4><div class="files3" id="invFiles"></div><p class="sub2" style="margin:8px 0 0">PDF atau foto, maks 10 MB per file.</p>
+    <label class="f" style="margin-top:10px">Catatan untuk Finance (opsional)<input name="cat" value="${esc(ex?.catatan||'')}" placeholder="mis. no. invoice internal mitra"></label></div>
+   <div class="foot"><span style="flex:1"></span><button type="button" class="btn" data-close>Batal</button><button class="btn pri" type="submit" id="invSend">${ex?'Kirim ulang':'Kirim pengajuan'}</button></div></form>`,true);
   m.querySelector('[data-close]').onclick=()=>$('#modalRoot').innerHTML='';
-  const fm=m.querySelector('#fInv');const cur=()=>{const t=T.find(x=>x.id===fm.tim.value),per=fm.per.value;return{t,per,x:calcPure(t,per,P.ach||[],c),b:(P.bills||[]).find(b=>b.tim_id===t.id&&b.periode===per)}};
-  const draw=()=>{const {t,per,x,b}=cur();const lock=b&&b.status!=='Ditagih';const pk=hasDoc(t,'pkwt'),bp=hasDoc(t,'bpjs');
-    m.querySelector('#invCalc').innerHTML=`<div class="kpis" style="margin:0"><div class="kpi hero"><div class="k">HC ${esc(perLabel(per))}</div><div class="v">${nf(x.hc)}</div><div class="d">target ${nf(x.target,1)} · ${pct(x.pct)}</div></div><div class="kpi"><div class="k">Gaji pokok prorata</div><div class="v">${rpS(x.gaji)}</div><div class="d">${x.wd}/${x.wdTot} hari kerja</div></div><div class="kpi"><div class="k">Insentif</div><div class="v">${rpS(x.insTek+x.insMitra)}</div></div><div class="kpi"><div class="k">Estimasi tagihan</div><div class="v">${rpS(x.total)}</div><div class="d">diverifikasi admin</div></div></div>
-     ${lock?`<div class="alert" style="margin:10px 0 0">Tagihan periode ini sudah <b>${esc(b.status)}</b> — tidak bisa diubah lagi.</div>`:b?`<div class="note" style="margin:10px 0 0">Tagihan periode ini sudah diajukan (${b.dok}/3 dokumen). Dokumen tidak bisa diedit/dihapus dari sini — cukup <b>upload ulang</b> dokumen yang ingin diganti/dilengkapi.</div>`:''}`;
-    m.querySelector('#invFiles').innerHTML=[1,2,3].map(i=>{const has=F[i];const up=b&&b['f'+i];const pre=(i===1&&pk)||(i===2&&bp);return `<div class="fslot ${has||pre||up?'ok':''}"><b>${i}. ${esc(FN[i-1])}</b>
-      ${has?`<span style="color:var(--good);font-weight:600">✓ ${esc(has.name)} <span class="sub2">(akan dikirim)</span></span>`:up?'<span style="color:var(--good);font-weight:600">✓ Sudah diupload</span><span class="sub2">Upload ulang untuk mengganti</span>':pre?'<span style="color:var(--good);font-weight:600">✓ Sudah ada dari pendaftaran</span><span class="sub2">Boleh upload ulang bila ada versi baru</span>':'<span class="sub2">Belum ada</span>'}
-      ${lock?'':`<div style="display:flex;gap:6px;flex-wrap:wrap"><label class="btn sm">${has||up?'⬆ Upload ulang':'Upload'}<input type="file" hidden data-if="${i}" accept=".pdf,image/*"></label>${i===3?'<button type="button" class="btn sm pri" id="invCap">⚡ Buat otomatis dari dashboard</button>':''}</div>`}</div>`}).join('');
-    m.querySelector('#invSend').disabled=!!lock;
+  const fm=m.querySelector('#fInv');
+  const calc=()=>T.map(t=>({t,x:calcPure(t,per,P.ach||[],c),inv:IV.find(i=>i.periode===per&&i.status!=='Ditolak'&&i.id!==ex?.id&&(i.tim_ids||[]).includes(t.id))}));
+  const picked=()=>calc().filter(r=>sel.has(r.t.id));
+  const drawS=()=>{const R=picked();const hc=R.reduce((s,r)=>s+r.x.hc,0),tot=R.reduce((s,r)=>s+r.x.total,0);
+    m.querySelector('#invSum').innerHTML=`<div class="kpis" style="margin:0;grid-template-columns:repeat(3,1fr)"><div class="kpi hero"><div class="k">Tim ditagih</div><div class="v">${R.length}</div><div class="d">${R.length*2} personel</div></div><div class="kpi"><div class="k">HC ${esc(perLabel(per))}</div><div class="v">${nf(hc)}</div><div class="d">terverifikasi</div></div><div class="kpi"><div class="k">Estimasi nilai invoice</div><div class="v">${rpS(tot)}</div><div class="d">dicek Finance</div></div></div>`};
+  const drawT=()=>{const R=calc();if(init){R.forEach(r=>{if(!r.inv&&(r.t.status==='Aktif'||r.x.hc>0))sel.add(r.t.id)});init=false}R.forEach(r=>{if(r.inv)sel.delete(r.t.id)});
+    m.querySelector('#invTims').innerHTML=R.map(r=>{const dis=!!r.inv||!!ex;const on=sel.has(r.t.id);if(ex&&!on)return'';
+      return `<label class="inv-t ${on?'on':''} ${r.inv?'off':''}"><input type="checkbox" data-tid="${esc(r.t.id)}" ${on?'checked':''} ${dis?'disabled':''}><div><b>${esc(aName(r.t))}</b> ${tag(r.t.jenis)}<div class="sub2">${esc(r.t.nama_1)} & ${esc(r.t.nama_2)}${r.inv?' · sudah ditagih di '+esc(r.inv.id):''}</div></div><div class="num"><b>${nf(r.x.hc)} HC</b><div class="sub2">${rp(r.x.total)}</div></div></label>`}).join('');
+    m.querySelectorAll('[data-tid]').forEach(cb=>cb.onchange=()=>{cb.checked?sel.add(cb.dataset.tid):sel.delete(cb.dataset.tid);cb.closest('.inv-t').classList.toggle('on',cb.checked);F[3]=F[3]&&F[3].auto?null:F[3];drawS();drawF()});drawS()};
+  const drawF=()=>{
+    m.querySelector('#invFiles').innerHTML=[1,2,3].map(i=>{const has=F[i];const up=ex&&ex['f'+i];return `<div class="fslot ${has||up?'ok':''}"><b>${i}. ${esc(FN[i-1])}</b>
+      ${has?`<span style="color:var(--good);font-weight:600">✓ ${esc(has.name)} <span class="sub2">(akan dikirim)</span></span>`:up?'<span style="color:var(--good);font-weight:600">✓ Sudah diupload</span><span class="sub2">Upload ulang untuk mengganti</span>':'<span class="sub2">Belum ada</span>'}
+      <div style="display:flex;gap:6px;flex-wrap:wrap"><label class="btn sm">${has||up?'⬆ Upload ulang':'Upload'}<input type="file" hidden data-if="${i}" accept=".pdf,image/*"></label>${i===3?'<button type="button" class="btn sm pri" id="invCap">⚡ Buat otomatis dari dashboard</button>':''}</div></div>`}).join('');
     m.querySelectorAll('[data-if]').forEach(inp=>inp.onchange=()=>{const f=inp.files[0];if(!f)return;if(f.size>10*1024*1024){toast('File maksimal 10 MB',true);return}
-      const r=new FileReader();r.onload=()=>{F[+inp.dataset.if]={name:f.name,data:r.result};draw()};r.readAsDataURL(f)});
-    const cp=m.querySelector('#invCap');if(cp)cp.onclick=()=>{const {t,per,x}=cur();F[3]={name:'capture-performance-'+per+'.png',data:capturePerformance({...t,mitra:P.mitra},per,x,P.ach||[])};toast('Capture performance dibuat dari dashboard');draw()}};
-  fm.tim.onchange=()=>{F[1]=F[2]=F[3]=null;draw()};fm.per.onchange=()=>{F[3]=null;draw()};draw();
-  fm.onsubmit=async e=>{e.preventDefault();const {t,per,x,b}=cur();const pk=hasDoc(t,'pkwt'),bp=hasDoc(t,'bpjs');const old=b?b.dok:0;
-    if(!b){if(!F[3]){toast('Lampirkan / buat capture performance (wajib)',true);return}}
-    else if(!F[1]&&!F[2]&&!F[3]){toast('Pilih dokumen yang ingin dikirim',true);return}
+      const r=new FileReader();r.onload=()=>{F[+inp.dataset.if]={name:f.name,data:r.result};drawF()};r.readAsDataURL(f)});
+    const cp=m.querySelector('#invCap');if(cp)cp.onclick=()=>{const R=picked();if(!R.length){toast('Pilih tim dulu',true);return}F[3]={name:'capture-performance-'+per+'.png',data:captureMulti(P.mitra,per,R,P.ach||[]),auto:1};toast('Capture performance dibuat untuk '+R.length+' tim');drawF()}};
+  const ab=m.querySelector('#invAll');if(ab)ab.onclick=()=>{calc().forEach(r=>{if(!r.inv)sel.add(r.t.id)});drawT();drawF()};
+  const nb=m.querySelector('#invNone');if(nb)nb.onclick=()=>{sel.clear();drawT();drawF()};
+  fm.per.onchange=()=>{per=fm.per.value;sel.clear();init=true;F[3]=null;drawT();drawF()};drawT();drawF();
+  fm.onsubmit=async e=>{e.preventDefault();const R=picked();
+    if(!ex){if(!R.length){toast('Pilih minimal 1 tim yang ditagih',true);return}if(!F[3]){toast('Lampirkan / buat capture performance (wajib)',true);return}}
+    else if(!F[1]&&!F[2]&&!F[3]&&(fm.cat.value||'')===(ex.catatan||'')){toast('Pilih dokumen yang ingin dikirim ulang',true);return}
     const bt=m.querySelector('#invSend');bt.disabled=true;bt.textContent='Mengirim…';
-    try{const r=await api('portal_invoice',{token:P.token,tim_id:t.id,periode:per,jumlah:x.hc,nilai:x.total,files:{1:F[1],2:F[2],3:F[3]}});
-      $('#modalRoot').innerHTML='';toast('Tagihan terkirim · '+r.id);await loadPortal(P.token)}catch(err){toast(err.message,true);bt.disabled=false;bt.textContent='Kirim pengajuan'}};
+    const hc=R.reduce((s,r)=>s+r.x.hc,0),tot=R.reduce((s,r)=>s+r.x.total,0);
+    try{const r=await api('portal_invoice',{token:P.token,id:ex?.id||'',periode:per,tim_ids:R.map(r=>r.t.id),jumlah:hc,nilai:tot,catatan:fm.cat.value||'',
+        rincian:R.map(r=>({tim_id:r.t.id,nama:aName(r.t),jenis:r.t.jenis,hc:r.x.hc,gaji:r.x.gaji,insTek:r.x.insTek,insMitra:r.x.insMitra,total:r.x.total})),files:{1:F[1],2:F[2],3:F[3]}});
+      $('#modalRoot').innerHTML='';toast((ex?'Dokumen terkirim ulang · ':'Invoice terkirim · ')+r.id);await loadPortal(P.token,P.base)}catch(err){toast(err.message,true);bt.disabled=false;bt.textContent=ex?'Kirim ulang':'Kirim pengajuan'}};
 }
+/* capture performance untuk 1 invoice berisi beberapa tim */
+function captureMulti(mitra,per,R,ach){const W=1200,rowH=40,H=420+R.length*rowH+250;const cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
+  const grd=g.createLinearGradient(0,0,W,0);grd.addColorStop(0,'#0a3a78');grd.addColorStop(1,'#2a9bf0');g.fillStyle='#fff';g.fillRect(0,0,W,H);g.fillStyle=grd;g.fillRect(0,0,W,130);
+  const star=document.querySelector('.brandcard img.s');try{if(star&&star.complete)g.drawImage(star,40,30,70,70)}catch(e){}
+  g.fillStyle='#fff';g.font='800 34px Plus Jakarta Sans, Arial';g.fillText('STARLITE · Capture Performance',130,62);g.font='500 18px Plus Jakarta Sans, Arial';g.fillText(`${mitra} · ${perLabel(per)} · ${R.length} tim`,130,96);
+  const hc=R.reduce((s,r)=>s+r.x.hc,0),tot=R.reduce((s,r)=>s+r.x.total,0),cap=R.length?R.reduce((s,r)=>s+r.x.pct,0)/R.length:0;
+  const box=(bx,lbl,val,sub)=>{g.fillStyle='#f0f4fa';g.fillRect(bx,160,260,100);g.fillStyle='#52514e';g.font='600 15px Arial';g.fillText(lbl,bx+18,188);g.fillStyle='#0b0b0b';g.font='800 32px Arial';g.fillText(val,bx+18,230);g.fillStyle='#85837d';g.font='500 13px Arial';g.fillText(sub,bx+18,250)};
+  box(40,'Tim ditagih',String(R.length),(R.length*2)+' personel');box(320,'HC terverifikasi',nf(hc),'dari data pencapaian');box(600,'Capaian rata-rata',pct(cap),'terhadap target');box(880,'Total invoice',rpS(tot),'gaji + insentif');
+  const cols=[[40,'Tim'],[300,'Anggota (ID)'],[720,'HC'],[800,'Target'],[890,'Capaian'],[1000,'Total']];let y=300;
+  g.fillStyle='#0a3a78';g.fillRect(40,y,1120,34);g.fillStyle='#fff';g.font='700 14px Arial';cols.forEach(([x,l])=>g.fillText(l,x+10,y+22));y+=34;
+  R.forEach((r,i)=>{const t=r.t,x=r.x;g.fillStyle=i%2?'#f6f8fb':'#fff';g.fillRect(40,y,1120,rowH);g.fillStyle='#0b0b0b';g.font='700 14px Arial';g.fillText((aName(t)+' · '+t.jenis).slice(0,30),50,y+25);
+    g.font='500 13px Arial';g.fillStyle='#52514e';g.fillText(`${t.nama_1} (${t.id_akun_1||'-'}) & ${t.nama_2} (${t.id_akun_2||'-'})`.slice(0,58),310,y+25);
+    g.fillStyle='#0b0b0b';g.font='700 14px Arial';g.fillText(nf(x.hc),730,y+25);g.font='500 14px Arial';g.fillText(nf(x.target,1),810,y+25);g.fillText(pct(x.pct),900,y+25);g.font='700 14px Arial';g.fillText(rp(x.total),1010,y+25);y+=rowH});
+  g.fillStyle='#e8eef7';g.fillRect(40,y,1120,36);g.fillStyle='#0b0b0b';g.font='800 15px Arial';g.fillText('TOTAL',50,y+24);g.fillText(nf(hc),730,y+24);g.fillText(rp(tot),1010,y+24);y+=36;
+  const days=[];const end=ymd(new Date(+per.slice(0,4),+per.slice(5),0));for(let d=new Date(per+'-01T00:00');ymd(d)<=end;d.setDate(d.getDate()+1))days.push(ymd(d));
+  const ids=R.flatMap(r=>[r.t.id_akun_1,r.t.id_akun_2]).filter(Boolean).map(v=>v.toUpperCase());const dv=days.map(d=>ach.reduce((a,q)=>ids.includes(String(q.id_akun).toUpperCase())&&q.tanggal===d?a+(+q.jumlah||0):a,0));
+  const mx=Math.max(1,...dv),cx=40,cy=H-50,cw=1120,ch=150,bw=cw/days.length;g.strokeStyle='#e2e1dc';g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+cw,cy);g.stroke();
+  g.fillStyle='#52514e';g.font='700 15px Arial';g.fillText('HC per hari (semua tim di invoice ini)',cx,cy-ch-12);
+  dv.forEach((v,i)=>{const h=v/mx*ch;g.fillStyle='#1a7fe0';g.fillRect(cx+i*bw+2,cy-h,Math.max(2,bw-4),h);if(i%3===0||i===dv.length-1){g.fillStyle='#85837d';g.font='11px Arial';g.fillText(String(i+1),cx+i*bw+bw/2-4,cy+16)}});
+  g.fillStyle='#85837d';g.font='12px Arial';g.fillText('Dibuat otomatis dari Portal Mitra Starlite · '+new Date().toLocaleString('id-ID'),40,H-12);
+  return cv.toDataURL('image/png')}
 
 /* ================== PERHITUNGAN ================== */
 let hJ='';
@@ -1428,8 +1477,8 @@ $('#hJenis').onclick=e=>{const c=e.target.closest('.chip');if(!c)return;hJ=c.dat
 const perLabel=per=>BULAN[+per.slice(5)-1]+' '+per.slice(0,4);
 function hitungRows(per){
   const q=$('#hQ').value.toLowerCase(),fm=$('#hMitra').value;
-  return S.admin.tims.filter(t=>(['Aktif','Nonaktif'].includes(t.status)||billOf(t.id,per))&&(!hJ||t.jenis===hJ)&&(!fm||t.mitra===fm)&&(!q||[aName(t),t.nama_1,t.nama_2,t.mitra].join(' ').toLowerCase().includes(q)))
-    .map(t=>({t,c:calcTeam(t,per),b:billOf(t.id,per)})).filter(r=>r.c.f>0||r.c.hc>0||r.b);
+  return S.admin.tims.filter(t=>(['Aktif','Nonaktif'].includes(t.status)||invOfTeam(t.id,per))&&(!hJ||t.jenis===hJ)&&(!fm||t.mitra===fm)&&(!q||[aName(t),t.nama_1,t.nama_2,t.mitra].join(' ').toLowerCase().includes(q)))
+    .map(t=>({t,c:calcTeam(t,per),b:invOfTeam(t.id,per)})).filter(r=>r.c.f>0||r.c.hc>0||r.b);
 }
 function renderHitung(){
   const per=$('#hPer').value,c=cfg();
@@ -1437,19 +1486,19 @@ function renderHitung(){
   const R=hitungRows(per);const sum=k=>R.reduce((a,r)=>a+r.c[k],0);
   const hit=R.filter(r=>r.c.pct>=1).length;const wdTot=R[0]?.c.wdTot||workdays(per+'-01',ymd(new Date(+per.slice(0,4),+per.slice(5),0)),+c.hari_kerja===5?5:6);
   const order=[...new Set([...mitraList(),...R.map(r=>r.t.mitra)])].filter(m=>R.some(r=>r.t.mitra===m));
-  const row=r=>{const x=r.c,t=r.t,nd=r.b?[1,2,3].filter(i=>r.b['file_'+i]).length:0;
+  const row=r=>{const x=r.c,t=r.t;
     return x.rows.map((p,k)=>{const i=p.i;return `<tr class="${k?'p2':'p1'}"><td style="min-width:200px"><b>${esc(p.nama||'–')}</b> ${i===1?pill('Lead','info'):''}<div class="sub2">${esc(aName(t))} ${tag(t.jenis)} · ${esc(x.wilayah)}</div></td>
      <td><div class="hc-bar"><b>${nf(p.hc)}</b><span class="sub2">HC${t.jenis==='Sales'?' / '+nf(p.target,0):' · tim '+nf(x.hc)+' / '+nf(x.target,0)}</span></div><div class="prog ${p.pct>=1?'done':''}" style="width:90px;height:6px;margin-top:4px"><i style="width:${Math.min(100,p.pct*100)}%"></i></div></td>
      <td class="num">${pct(p.pct)}</td><td class="num">${x.wd}/${x.wdTot}</td>
      <td class="num">${rp(p.gaji)}</td><td class="num">${rp(p.ins)}</td><td class="num"><b>${rp(p.total)}</b></td>
-     ${k?'':`<td rowspan="2" class="tim-cell">${r.b?pill(r.b.status==='Ditagih'?'Diajukan':r.b.status,STK[r.b.status])+'<div class="sub2" style="margin-top:3px">'+nd+'/3 dokumen</div>':pill('Belum ditagih','mute')}${x.insMitra?`<div class="sub2" style="margin-top:4px">+ insentif mitra ${rp(x.insMitra)}</div>`:''}</td>
-     <td rowspan="2" class="tim-cell"><div class="row-actions" style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap"><button class="btn sm" data-why="${esc(t.id)}">Rincian</button>${r.b?`<button class="btn sm" data-ob="${esc(t.id)}">Tagihan</button>`:`<button class="btn sm pri" data-mk="${esc(t.id)}">Buat tagihan</button>`}</div></td>`}</tr>`}).join('')};
+     ${k?'':`<td rowspan="2" class="tim-cell">${r.b?ipill(r.b.status)+'<div class="sub2 mono" style="margin-top:3px">'+esc(r.b.id)+'</div>':pill('Belum diajukan','mute')}${x.insMitra?`<div class="sub2" style="margin-top:4px">+ insentif mitra ${rp(x.insMitra)}</div>`:''}</td>
+     <td rowspan="2" class="tim-cell"><div class="row-actions" style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap"><button class="btn sm" data-why="${esc(t.id)}">Rincian</button>${r.b?`<button class="btn sm" data-oi="${esc(r.b.id)}">Invoice</button>`:''}</div></td>`}</tr>`}).join('')};
   const P=R.flatMap(r=>r.c.rows);const ps=k=>P.reduce((a,p)=>a+(+p[k]||0),0);const hitP=P.filter(p=>p.pct>=1).length;
   $('#hBody').innerHTML=`
   <div class="rumus">
     <div class="rm main"><h4>Gaji pokok prorata (per orang)</h4><div class="f1">Pencapaian ÷ Target × Gaji Pokok</div>
       <div class="ln">Maksimal 100% (capai/lebih dari target = gaji pokok penuh). Target & gaji pokok ikut <b>prorata hari kerja</b>
-      (${+c.hari_kerja===5?'Senin–Jumat':'Senin–Sabtu'}) sesuai masa PKWT di bulan itu. Hanya HC tercapai & terverifikasi.</div></div>
+      (${+c.hari_kerja===5?'Senin–Jumat':'Senin–Sabtu'}) sesuai hari kerja di bulan itu. Hanya HC tercapai & terverifikasi.</div></div>
     <div class="rm"><h4>Gaji pokok per wilayah</h4><div class="ln">${WIL.map(([w,k])=>`<span class="chipv">${w} ${rpS(+c[k])}</span>`).join('')}</div>
       <h4 style="margin-top:10px">Target bulanan</h4><div class="ln"><span class="chipv">IKR ${nf(+c.target_ikr)} HC / tim (2 orang)</span><span class="chipv">Sales ${nf(+c.target_sales)} HC / orang</span></div></div>
     <div class="rm"><h4>Rumus insentif</h4><div class="ln" style="line-height:1.7"><b>IKR · per orang</b> = HC tim × ${rp(+c.ins_ikr_akun)} ÷ 2<br><b>IKR · ke mitra</b> = HC tim × ${rp(+c.ins_ikr_mitra)}<br><b>Sales · per orang</b> = HC sendiri × ${rp(+c.ins_sales)} (OTF)<br><span class="sub2">Tidak diprorata · hanya HC terverifikasi · tanpa batas maksimal</span></div>
@@ -1462,14 +1511,13 @@ function renderHitung(){
     <div class="kpi"><div class="k">Insentif ke mitra</div><div class="v">${rpS(sum('insMitra'))}</div><div class="d">dari HC tim IKR</div></div>
     <div class="kpi"><div class="k">Orang capai target</div><div class="v">${hitP}<span style="font-size:16px;color:var(--muted)"> / ${P.length}</span></div><div class="d">${P.length-hitP} orang gaji pokok prorata</div></div>
   </div>
-  <div class="card" style="padding:0"><div class="tbl-wrap" style="border:0"><table id="hTbl"><thead><tr><th>Nama · tim · wilayah</th><th>HC / target</th><th class="num">Capaian</th><th class="num">Hari kerja</th><th class="num">Gaji pokok</th><th class="num">Insentif</th><th class="num">Diterima</th><th>Tagihan tim</th><th></th></tr></thead><tbody>
+  <div class="card" style="padding:0"><div class="tbl-wrap" style="border:0"><table id="hTbl"><thead><tr><th>Nama · tim · wilayah</th><th>HC / target</th><th class="num">Capaian</th><th class="num">Hari kerja</th><th class="num">Gaji pokok</th><th class="num">Insentif</th><th class="num">Diterima</th><th>Invoice</th><th></th></tr></thead><tbody>
   ${order.map(m=>{const L=R.filter(r=>r.t.mitra===m);const ss=k=>L.reduce((a,r)=>a+r.c[k],0);
     return L.map(row).join('')+`<tr class="sub"><td colspan="4">Subtotal ${esc(m)} · ${L.length*2} orang</td><td class="num">${rp(ss('gaji'))}</td><td class="num">${rp(ss('insTek'))}</td><td class="num">${rp(ss('gaji')+ss('insTek'))}</td><td colspan="2">${ss('insMitra')?'+ insentif mitra '+rp(ss('insMitra'))+' → total '+rp(ss('total')):''}</td></tr>`}).join('')||'<tr><td colspan="9" class="empty">Tidak ada orang aktif pada periode ini.</td></tr>'}
   ${R.length?`<tr class="grand"><td colspan="4">TOTAL ${esc(perLabel(per))} · ${P.length} orang</td><td class="num">${rp(sum('gaji'))}</td><td class="num">${rp(sum('insTek'))}</td><td class="num">${rp(sum('gaji')+sum('insTek'))}</td><td colspan="2">${sum('insMitra')?'+ insentif mitra '+rp(sum('insMitra'))+' → total tagihan '+rp(sum('total')):''}</td></tr>`:''}
   </tbody></table></div></div>`;
   $$('#hBody [data-why]').forEach(b=>b.onclick=()=>openWhy(b.dataset.why,per));
-  $$('#hBody [data-ob]').forEach(b=>b.onclick=()=>openBill(b.dataset.ob,per));
-  $$('#hBody [data-mk]').forEach(b=>b.onclick=async()=>{b.disabled=true;await billFromCalc(b.dataset.mk,per);b.disabled=false});
+  $$('#hBody [data-oi]').forEach(b=>b.onclick=()=>openInvAdmin(b.dataset.oi));
 }
 function calcTable(x,t){return `<table class="calc-tbl"><thead><tr><th>Anggota</th><th>${t.jenis==='Sales'?'Sales ID':'IKR ID'}</th><th class="num">HC</th><th class="num">Target</th><th class="num">Capaian</th><th class="num">Gaji pokok</th><th class="num">Insentif</th><th class="num">Diterima</th></tr></thead><tbody>
   ${x.rows.map(r=>`<tr><td>${esc(r.nama)}</td><td class="mono">${esc(r.id||'–')}</td><td class="num">${nf(r.hc)}</td><td class="num">${nf(r.target,1)}</td><td class="num">${pct(r.pct)}</td><td class="num">${rp(r.gaji)}</td><td class="num">${rp(r.ins)}</td><td class="num"><b>${rp(r.total)}</b></td></tr>`).join('')}
@@ -1483,18 +1531,16 @@ function whyText(x,t){const c=cfg();const f=x.f,ft=`${x.wd}/${x.wdTot}`;
   else x.rows.forEach(r=>lines.push(`${esc(r.nama)}: target ${nf(+c.target_sales)} × ${nf(f*100,1)}% = ${nf(r.target,1)} HC, tercapai <b>${nf(r.hc)}</b> → ${pct(r.pct)} → gaji pokok <b>${rp(r.gaji)}</b>; insentif OTF ${nf(r.hc)} × ${rp(+c.ins_sales)} = <b>${rp(r.ins)}</b>.`));
   lines.push(`<b>Total tagihan = ${rp(x.gaji)} (gaji) + ${rp(x.insTek)} (insentif ${t.jenis==='Sales'?'sales':'teknisi'})${x.insMitra?' + '+rp(x.insMitra)+' (insentif mitra)':''} = ${rp(x.total)}</b>`);
   return '<div class="why">'+lines.map(l=>'• '+l).join('<br>')+'</div>'}
-function openWhy(tid,per){const t=S.admin.tims.find(x=>x.id===tid);const x=calcTeam(t,per);const b=billOf(tid,per);
+function openWhy(tid,per){const t=S.admin.tims.find(x=>x.id===tid);const x=calcTeam(t,per);const b=invOfTeam(tid,per);
   const m=modal(`<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h2 style="margin:0">Rincian perhitungan · ${esc(aName(t))} ${tag(t.jenis)}</h2><div class="sub2">${esc(t.mitra)} · ${esc(perLabel(per))}</div></div><div style="font-size:22px;font-weight:800">${rp(x.total)}</div></div>
    <div class="msec"><h4>Per anggota</h4><div class="tbl-wrap">${calcTable(x,t)}</div></div>
    <div class="msec"><h4>Cara menghitung</h4>${whyText(x,t)}</div>
-   <div class="foot"><button class="btn" data-close>Tutup</button>${b?`<button class="btn pri" id="wOpen">Buka tagihan</button>`:`<button class="btn pri" id="wMk">Buat tagihan dari perhitungan</button>`}</div>`,true);
-  const o=m.querySelector('#wOpen');if(o)o.onclick=()=>openBill(tid,per);const k=m.querySelector('#wMk');if(k)k.onclick=()=>billFromCalc(tid,per)}
+   <div class="foot"><button class="btn" data-close>Tutup</button>${b?`<button class="btn pri" id="wOpen">Buka invoice ${esc(b.id)}</button>`:''}</div>`,true);
+  m.querySelector('[data-close]').onclick=()=>$('#modalRoot').innerHTML='';const o=m.querySelector('#wOpen');if(o)o.onclick=()=>openInvAdmin(b.id)}
 const calcSnap=(x)=>JSON.stringify({wilayah:x.wilayah,G:x.G,wd:x.wd,wdTot:x.wdTot,hc:x.hc,target:Math.round(x.target*10)/10,pct:Math.round(x.pct*1000)/1000,gaji:x.gaji,insTek:x.insTek,insMitra:x.insMitra,total:x.total,rows:x.rows.map(r=>({nama:r.nama,id:r.id,hc:r.hc,gaji:r.gaji,ins:r.ins,total:r.total})),at:new Date().toISOString()});
-async function billFromCalc(tid,per){const t=S.admin.tims.find(x=>x.id===tid);const x=calcTeam(t,per);
-  try{await api('admin_bill_save',{pw:S.pw,bill:{tim_id:tid,periode:per,jumlah:x.hc,tarif:0,nilai:x.total,gaji_1:x.rows[0].total,gaji_2:x.rows[1].total,rincian:calcSnap(x)}});toast('Tagihan dibuat dari perhitungan: '+rp(x.total));await refreshAll();openBill(tid,per)}catch(e){toast(e.message,true)}}
 $('#hCopy').onclick=()=>{const per=$('#hPer').value;const R=hitungRows(per);
   const head=['Mitra','Tim','Jenis','Wilayah','Anggota','ID akun','HC','Target','Capaian %','Hari kerja','Gaji pokok','Insentif','Diterima','Insentif mitra (tim)','Total tim','Status tagihan'];
-  const lines=[head.join('\t')];R.forEach(r=>r.c.rows.forEach((p,k)=>lines.push([r.t.mitra,aName(r.t),r.t.jenis,r.c.wilayah,p.nama,p.id,p.hc,Math.round(p.target*10)/10,Math.round(p.pct*100),r.c.wd+'/'+r.c.wdTot,p.gaji,p.ins,p.total,k?'':r.c.insMitra,k?'':r.c.total,k?'':(r.b?.status||'Belum ditagih')].join('\t'))));
+  const lines=[head.join('\t')];R.forEach(r=>r.c.rows.forEach((p,k)=>lines.push([r.t.mitra,aName(r.t),r.t.jenis,r.c.wilayah,p.nama,p.id,p.hc,Math.round(p.target*10)/10,Math.round(p.pct*100),r.c.wd+'/'+r.c.wdTot,p.gaji,p.ins,p.total,k?'':r.c.insMitra,k?'':r.c.total,k?'':(r.b?(ILBL[r.b.status]+' '+r.b.id):'Belum diajukan')].join('\t'))));
   copy(lines.join('\n'),'Tabel perhitungan disalin — tempel di Excel')};
 /* capture performance otomatis (dokumen wajib no. 3) */
 function capturePerformance(t,per,x0,ach0){const x=x0||calcTeam(t,per);const c=cfg();const W=1200,H=720;const cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
@@ -1700,6 +1746,7 @@ function demoApi(action,b){
   return new Promise((res,rej)=>setTimeout(()=>{try{res(run())}catch(e){rej(e)}},150));
   function map(){const m={};DB.tims.forEach(t=>[t.id_akun_1,t.id_akun_2].forEach(a=>{if(a)m[a.toUpperCase()]=t.id}));return m}
   function run(){
+    DB.inv=DB.inv||[];
     if(action==='public')return{ok:true,config:{mitra:DB.config.mitra,nama_program:DB.config.nama_program,stasiun:DB.config.stasiun,pkwt_bulan:DB.config.pkwt_bulan}};
     if(action==='portal_wo'){const a=DB.akses.find(x=>x.token===b.token&&x.aktif);if(!a)throw new Error('Link tidak valid atau sudah dinonaktifkan');
       const keys=new Set(DB.tims.filter(t=>t.mitra===a.mitra&&['Aktif','Nonaktif'].includes(t.status)).flatMap(t=>[t.id_akun_1,t.id_akun_2,t.nama_1,t.nama_2]).filter(Boolean).map(k=>k.trim().toUpperCase()));
@@ -1708,26 +1755,30 @@ function demoApi(action,b){
     if(action==='portal'){const a=DB.akses.find(x=>x.token===b.token&&x.aktif);if(!a)throw new Error('Link tidak valid atau sudah dinonaktifkan');const T=DB.tims.filter(t=>t.mitra===a.mitra);
       const ids=new Set(T.flatMap(t=>[t.id_akun_1,t.id_akun_2]).filter(Boolean).map(v=>v.toUpperCase()));
       return{mitra:a.mitra,config:DB.config,updated:new Date().toISOString(),
-        tims:T.map(t=>({id:t.id,status:t.status,jenis:t.jenis,stasiun:t.stasiun,wilayah:t.wilayah,nama_tim:t.nama_tim,nama_1:t.nama_1,nama_2:t.nama_2,id_akun_1:t.id_akun_1,id_akun_2:t.id_akun_2,kontrak_langkah:t.kontrak_langkah,pkwt_mulai:t.pkwt_mulai,pkwt_selesai:t.pkwt_selesai,pkwt_file_1:t.pkwt_file_1?'1':'',pkwt_file_2:t.pkwt_file_2?'1':'',bpjs_file_1:t.bpjs_file_1?'1':'',bpjs_file_2:t.bpjs_file_2?'1':'',created_at:t.created_at})),
+        tims:T.map(t=>({id:t.id,status:t.status,jenis:t.jenis,stasiun:t.stasiun,wilayah:t.wilayah,nama_tim:t.nama_tim,nama_1:t.nama_1,nama_2:t.nama_2,id_akun_1:t.id_akun_1,id_akun_2:t.id_akun_2,pass_akun_1:t.status==='Aktif'?t.pass_akun_1||'':'',pass_akun_2:t.status==='Aktif'?t.pass_akun_2||'':'',kontrak_langkah:t.kontrak_langkah,pkwt_mulai:t.pkwt_mulai,pkwt_selesai:t.pkwt_selesai,pkwt_file_1:t.pkwt_file_1?'1':'',pkwt_file_2:t.pkwt_file_2?'1':'',bpjs_file_1:t.bpjs_file_1?'1':'',bpjs_file_2:t.bpjs_file_2?'1':'',created_at:t.created_at})),
         ach:DB.ach.filter(x=>ids.has(x.id_akun.toUpperCase())).map(x=>({tanggal:x.tanggal,id_akun:x.id_akun,jumlah:x.jumlah})),
-        bills:DB.bills.filter(x=>T.some(t=>t.id===x.tim_id)).map(x=>({tim_id:x.tim_id,periode:x.periode,status:x.status,nilai:+x.nilai||0,jumlah:+x.jumlah||0,tgl_bayar:x.tgl_bayar,f1:!!x.file_1,f2:!!x.file_2,f3:!!x.file_3,dok:[1,2,3].filter(i=>x['file_'+i]||(i===1&&T.some(t=>t.id===x.tim_id&&hasDoc(t,'pkwt')))||(i===2&&T.some(t=>t.id===x.tim_id&&hasDoc(t,'bpjs')))).length}))}}
-    if(action==='portal_invoice'){const a=DB.akses.find(x=>x.token===b.token&&x.aktif);if(!a)throw new Error('Link mitra tidak valid atau sudah dinonaktifkan');
-      const t=DB.tims.find(x=>x.id===b.tim_id&&x.mitra===a.mitra);if(!t)throw new Error('Tim tidak ditemukan');if(!['Aktif','Nonaktif'].includes(t.status))throw new Error('Tim belum aktif');
-      let o=DB.bills.find(x=>x.tim_id===t.id&&x.periode===b.periode);if(o&&o.status!=='Ditagih')throw new Error('Tagihan periode ini sudah diproses admin ('+o.status+').');
-      if(!o){o={id:'INV-'+b.periode.replace('-','')+'-'+Math.random().toString(36).slice(2,6).toUpperCase(),tim_id:t.id,periode:b.periode,status:'Ditagih',file_1:'',file_2:'',file_3:'',slip_1:'',slip_2:'',gaji_1:'',gaji_2:'',catatan:'Diajukan mitra lewat portal'};DB.bills.push(o)}
-      [1,2,3].forEach(i=>{const f=b.files[i];if(f)o['file_'+i]=d2u(f.data)});o.jumlah=String(b.jumlah);o.nilai=String(b.nilai);o.tgl_tagih=ymd(new Date());o.updated_at=new Date().toISOString();return{ok:true,id:o.id}}
+        invoices:DB.inv.filter(x=>x.mitra===a.mitra).map(x=>({id:x.id,periode:x.periode,tim_ids:[...x.tim_ids],status:x.status,jumlah:+x.jumlah||0,nilai:+x.nilai||0,nilai_bayar:x.nilai_bayar?+x.nilai_bayar:null,catatan:x.catatan||'',catatan_finance:x.catatan_finance||'',tgl_ajukan:x.tgl_ajukan,tgl_bayar:x.tgl_bayar||'',f1:!!x.file_1,f2:!!x.file_2,f3:!!x.file_3}))}}
+    if(action==='portal_invoice'){const a=DB.akses.find(x=>x.token===b.token&&x.aktif);if(!a)throw new Error('Link mitra tidak valid atau sudah dinonaktifkan');const today=ymd(new Date());
+      const fl=f=>f?d2u(f.data):'';
+      if(b.id){const o=DB.inv.find(x=>x.id===b.id&&x.mitra===a.mitra);if(!o)throw new Error('Invoice tidak ditemukan');if(!['Diajukan','Revisi'].includes(o.status))throw new Error('Invoice sudah diproses finance ('+o.status+').');
+        [1,2,3].forEach(i=>{if(b.files[i])o['file_'+i]=fl(b.files[i])});o.catatan=b.catatan||o.catatan;o.status='Diajukan';o.tgl_ajukan=today;return{ok:true,id:o.id}}
+      if(!/^\d{4}-\d{2}$/.test(b.periode||''))throw new Error('Periode tidak valid');const ids=[...new Set(b.tim_ids||[])];if(!ids.length)throw new Error('Pilih minimal 1 tim');
+      if(ids.some(id=>!DB.tims.some(t=>t.id===id&&t.mitra===a.mitra&&['Aktif','Nonaktif'].includes(t.status))))throw new Error('Ada tim yang tidak valid / belum aktif');
+      const dup=DB.inv.filter(x=>x.mitra===a.mitra&&x.periode===b.periode&&x.status!=='Ditolak'&&x.tim_ids.some(id=>ids.includes(id)));if(dup.length)throw new Error('Sebagian tim sudah ditagihkan untuk periode ini ('+dup.map(x=>x.id).join(', ')+')');
+      if(!b.files[3])throw new Error('Lampirkan capture performance (wajib)');
+      const o={id:'INV-'+b.periode.replace('-','')+'-'+Math.random().toString(36).slice(2,6).toUpperCase(),mitra:a.mitra,periode:b.periode,tim_ids:ids,rincian:JSON.stringify(b.rincian||[]),jumlah:+b.jumlah||0,nilai:+b.nilai||0,status:'Diajukan',
+        file_1:fl(b.files[1]),file_2:fl(b.files[2]),file_3:fl(b.files[3]),slip:'',nilai_bayar:'',catatan:b.catatan||'',catatan_finance:'',tgl_ajukan:today,tgl_cek:'',tgl_bayar:'',created_at:new Date().toISOString()};DB.inv.push(o);return{ok:true,id:o.id}}
     if(action==='register'){const d={...b.data};if(d.token){const a=DB.akses.find(x=>x.token===d.token&&x.aktif);if(!a)throw new Error('Link mitra tidak valid atau sudah dinonaktifkan');d.mitra=a.mitra}else if(!S.admin)throw new Error('Pendaftaran hanya lewat link khusus mitra.');delete d.token;['pkwt_file_1','pkwt_file_2','bpjs_file_1','bpjs_file_2'].forEach(k=>d[k]=d[k]?d2u(d[k]):'');const id='REG-'+ymd(new Date()).slice(2).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
       const nh=v=>v.replace(/\D/g,'').replace(/^62/,'0');if(DB.tims.some(t=>!['Ditolak','Nonaktif'].includes(t.status)&&[t.hp_1,t.hp_2].some(h=>h===nh(d.hp_1)||h===nh(d.hp_2))))throw new Error('No. HP sudah terdaftar. Hubungi admin bila perlu perubahan.');
       DB.tims.push({...d,hp_1:nh(d.hp_1),hp_2:nh(d.hp_2),rek_1:String(d.rek_1).replace(/\D/g,''),rek_2:String(d.rek_2).replace(/\D/g,''),id,created_at:new Date().toISOString(),status:'Daftar',ktp_1:'#',ktp_2:'#',foto_1:'#',foto_2:'#',id_akun_1:'',id_akun_2:'',kontrak_langkah:'0',pkwt_mulai:'',pkwt_selesai:'',catatan:'',updated_at:new Date().toISOString()});return{ok:true,id}}
     if(b.pw!==DB.pw)throw new Error('Password admin salah (demo: admin123)');
-    if(action==='admin_data'){const m=map();return{ok:true,config:DB.config,tims:DB.tims.map(t=>({...t})),ach:DB.ach.map(a=>({...a,tim_id:m[a.id_akun.toUpperCase()]||''})),bills:DB.bills.map(x=>({...x})),akses:DB.akses.map(({password,...x})=>({...x,username:x.username||'',has_pass:!!password})),admins:[...DB.admins],me:'admin@starlite.co.id'}}
-    const getBill=x=>{let o=DB.bills.find(z=>(x.id&&z.id===x.id)||(!x.id&&z.tim_id===x.tim_id&&z.periode===x.periode));if(!o){if(x.id)throw new Error('Tagihan tidak ditemukan');o={id:'INV-'+x.periode.replace('-','')+'-'+Math.random().toString(36).slice(2,6).toUpperCase(),tim_id:x.tim_id,periode:x.periode,status:'Ditagih',jumlah:'',tarif:'',nilai:'',file_1:'',file_2:'',file_3:'',tgl_tagih:ymd(new Date()),tgl_verifikasi:'',tgl_bayar:'',catatan:''};DB.bills.push(o)}return o};
-    if(action==='admin_bill_save'){const x=b.bill;const o=getBill(x);['jumlah','tarif','nilai','catatan','tgl_bayar','gaji_1','gaji_2','rincian'].forEach(k=>{if(k in x&&x[k]!=null)o[k]=String(x[k])});
-      if(x.status&&x.status!==o.status){if(x.status==='Diverifikasi'){const tt=DB.tims.find(z=>z.id===o.tim_id)||{};if(!o.file_3)throw new Error('Upload capture performance dulu (PKWT & BPJS opsional)');o.tgl_verifikasi=ymd(new Date())}if(x.status==='Dibayar'){if(!o.slip_1)throw new Error('Upload bukti transfer ke mitra dulu');if(!o.tgl_bayar)o.tgl_bayar=ymd(new Date())}o.status=x.status}return{ok:true,id:o.id}}
-    if(action==='admin_tim_file'){const t=DB.tims.find(x=>x.id===b.id);if(!t)throw new Error('Tim tidak ditemukan');t[b.field]=d2u(b.data);t.updated_at=new Date().toISOString();return{ok:true}}
-    if(action==='admin_bill_file_del'){const o=DB.bills.find(z=>z.tim_id===b.tim_id&&z.periode===b.periode);if(!o)throw new Error('Tagihan tidak ditemukan');const fld=b.field;o[fld]='';let st=null;
-      if(fld.startsWith('file_')&&o.status==='Diverifikasi'){o.status=st='Ditagih';o.tgl_verifikasi=''}if(fld.startsWith('slip_')&&o.status==='Dibayar'){o.status=st='Diverifikasi';o.tgl_bayar=''}return{ok:true,status:st}}
-    if(action==='admin_bill_file'){const o=getBill(b);const fld=b.field||('file_'+b.idx);o[fld]=b.url||(b.data?(()=>{try{const [h,d]=b.data.split(',');const bin=atob(d);const u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return URL.createObjectURL(new Blob([u],{type:h.slice(5,h.indexOf(';'))}))}catch(e){return demoFile(b.name)}})():demoFile(b.name));return{ok:true,id:o.id}}
+    if(action==='admin_data'){const m=map();return{ok:true,config:DB.config,tims:DB.tims.map(t=>({...t})),ach:DB.ach.map(a=>({...a,tim_id:m[a.id_akun.toUpperCase()]||''})),invoices:DB.inv.map(x=>({...x,tim_ids:[...x.tim_ids]})),akses:DB.akses.map(({password,...x})=>({...x,username:x.username||'',has_pass:!!password})),admins:[...DB.admins],me:'admin@starlite.co.id'}}
+    const getInv=id=>{const o=DB.inv.find(x=>x.id===id);if(!o)throw new Error('Invoice tidak ditemukan');return o};
+    if(action==='admin_inv_save'){const x=b.inv;const o=getInv(x.id);const upd={};if('catatan_finance' in x)upd.catatan_finance=String(x.catatan_finance||'');if('nilai_bayar' in x)upd.nilai_bayar=x.nilai_bayar||'';if('tgl_bayar' in x)upd.tgl_bayar=x.tgl_bayar||'';
+      if(x.status&&x.status!==o.status)invCheck(o,x.status,upd);Object.entries(upd).forEach(([k,v])=>o[k]=v==null?'':v);return{ok:true}}
+    if(action==='admin_inv_file'){const o=getInv(b.id);o.slip=b.url||d2u(b.data);return{ok:true}}
+    if(action==='admin_inv_file_del'){const o=getInv(b.id);o.slip='';if(o.status==='Dibayar'){o.status='Dicek';o.tgl_bayar=''}return{ok:true}}
+    if(action==='admin_inv_delete'){const o=getInv(b.id);if(o.status==='Dibayar')throw new Error('Invoice yang sudah dibayar tidak bisa dihapus');DB.inv=DB.inv.filter(x=>x!==o);return{ok:true}}
     if(action==='admin_mitra_login'){const u=String(b.username||'').trim().toLowerCase();const M=String(b.mitra).toUpperCase();if(!/^[a-z0-9._-]{3,40}$/.test(u))throw new Error('Username 3–40 karakter: huruf, angka, titik, minus, garis bawah');
       if(b.password&&b.password.length<6)throw new Error('Password minimal 6 karakter');if(DB.akses.some(x=>x.username===u&&x.mitra!==M))throw new Error('Username '+u+' sudah dipakai mitra lain');
       let a=DB.akses.find(x=>x.mitra===M);if(!a){a={mitra:M,token:genToken(),aktif:true};DB.akses.push(a)}if(!b.password&&!a.password)throw new Error('Isi password untuk akun baru');
@@ -1735,7 +1786,6 @@ function demoApi(action,b){
     if(action==='admin_akses_save'){const r=b.row;const e=DB.akses.find(x=>x.mitra===r.mitra);if(e)Object.assign(e,r);else DB.akses.push({...r});return{ok:true}}
     if(action==='admin_admin_add'){const e=String(b.email).toLowerCase();if(!DB.admins.includes(e))DB.admins.push(e);return{ok:true}}
     if(action==='admin_admin_del'){if(b.email==='admin@starlite.co.id')throw new Error('Tidak bisa menghapus akun sendiri');DB.admins=DB.admins.filter(x=>x!==b.email);return{ok:true}}
-    if(action==='admin_bill_delete'){const o=DB.bills.find(z=>z.id===b.id);if(o.status==='Dibayar')throw new Error('Tagihan yang sudah dibayar tidak bisa dihapus');DB.bills=DB.bills.filter(z=>z!==o);return{ok:true}}
     if(action==='admin_update'){const t=DB.tims.find(x=>x.id===b.id);for(const k of ['id_akun_1','id_akun_2']){const v=(b.fields[k]||'').toUpperCase();if(v&&DB.tims.some(x=>x.id!==b.id&&[x.id_akun_1,x.id_akun_2].map(z=>(z||'').toUpperCase()).includes(v)))throw new Error('ID akun '+b.fields[k]+' sudah dipakai tim lain')}Object.assign(t,b.fields,{updated_at:new Date().toISOString()});return{ok:true}}
     if(action==='admin_wo'){return DB.wo.filter(w=>w.tanggal&&w.tanggal.startsWith(b.periode)).map(w=>({...w}))}
     if(action==='admin_wo_upload'){const idx=new Map(DB.wo.map((w,i)=>[w.id_wo,i]));b.rows.forEach(r=>{if(idx.has(r.id_wo))DB.wo[idx.get(r.id_wo)]=r;else{idx.set(r.id_wo,DB.wo.length);DB.wo.push(r)}});
