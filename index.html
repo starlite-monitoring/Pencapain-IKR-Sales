@@ -442,7 +442,7 @@ body.formmode main{max-width:880px;margin:0 auto}
       <div style="height:16px"></div>
       <button class="btn pri" type="submit" style="width:100%;justify-content:center;padding:11px">Masuk</button>
       <div class="sub2" id="mlMsg" style="margin-top:10px;text-align:center;color:var(--bad)"></div>
-      <p class="sub2" style="margin:16px 0 0;text-align:center">Username &amp; password diberikan oleh admin Starlite.<br><a href="#panduan">📖 Lihat panduan penggunaan</a></p>
+      <p class="sub2" style="margin:16px 0 0;text-align:center">Username &amp; password diberikan oleh Vendor Management Starlite.<br><a href="#panduan">📖 Lihat panduan penggunaan</a></p>
     </form></div>
   </section>
   <section id="v-login" class="view hidden">
@@ -472,7 +472,7 @@ body.formmode main{max-width:880px;margin:0 auto}
       </div>
     </div>
     <div class="card hidden" id="pregBar" style="margin-bottom:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 16px;border-color:var(--brand)"><div style="flex:1;min-width:220px"><b>Tambah tim baru untuk <span id="pregMitra"></span></b><div class="sub2">Setelah dikirim, tim langsung muncul di portal Anda dengan status Daftar.</div></div><a class="btn" id="pregBack" href="#">← Kembali ke portal</a></div>
-    <div class="card empty hidden" id="regBlocked" style="margin-top:6vh"><div style="font-size:40px">🔗</div><h2>Gunakan link khusus mitra</h2><p class="sub">Pendaftaran tim dilakukan dari link portal mitra masing-masing (tombol <b>+</b> di pojok kanan atas).<br>Belum punya link? Hubungi admin Starlite.</p></div>
+    <div class="card empty hidden" id="regBlocked" style="margin-top:6vh"><div style="font-size:40px">🔗</div><h2>Gunakan link khusus mitra</h2><p class="sub">Pendaftaran tim dilakukan dari link portal mitra masing-masing (tombol <b>+</b> di pojok kanan atas).<br>Belum punya link? Hubungi Vendor Management Starlite.</p></div>
     <form id="fReg" autocomplete="off" novalidate>
       <div class="progress-top"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><small id="progTxt">0 dari 14 isian</small><small id="progPct">0%</small></div><div class="bar"><i id="progBar" style="width:0"></i></div></div>
       <div class="card fsec" style="margin-bottom:16px">
@@ -1226,20 +1226,20 @@ function renderPanduan(){
     <h1>Panduan Portal Mitra</h1><p>Cara login, memantau tim, mendaftarkan tim baru, dan mengajukan tagihan</p>
     <div style="margin-top:14px"><a class="btn" href="#mitra" style="background:#fff;color:#0a3a78;border-color:transparent;font-weight:700">Masuk ke portal →</a></div></div>
    <div class="pg">
-   ${st(1,'Buka portal',`<p>Klik <b>link khusus mitra</b> yang dikirim admin Starlite (lewat WhatsApp/email) — portal langsung terbuka tanpa login.</p><ul><li>Simpan / bookmark link tersebut dan jangan dibagikan ke pihak lain.</li><li>Link tidak bisa dibuka? Hubungi admin untuk link baru.</li><li>Bila diberi username &amp; password, bisa juga login di <b class="mono">${esc(location.href.split('#')[0])}#mitra</b>.</li></ul>`,'login','Halaman login')}
+   ${st(1,'Buka portal',`<p>Klik <b>link khusus mitra</b> yang dikirim Vendor Management Starlite (lewat WhatsApp/email) — portal langsung terbuka tanpa login.</p><ul><li>Simpan / bookmark link tersebut dan jangan dibagikan ke pihak lain.</li><li>Link tidak bisa dibuka? Hubungi Vendor Management Starlite untuk link baru.</li><li>Bila diberi username &amp; password, bisa juga login di <b class="mono">${esc(location.href.split('#')[0])}#mitra</b>.</li></ul>`,'login','Halaman login')}
    ${st(2,'Beranda &amp; performa tim',`<p>Pilih <b>periode</b> (bulan). Kotak di atas menampilkan HC terverifikasi, rata-rata capaian target, estimasi nilai bulan ini, dan total yang sudah dibayar.</p><ul><li>Kartu tim diurutkan dari HC terbanyak.</li><li>Target IKR 65 HC/tim/bulan · Sales 40 HC/orang/bulan.</li></ul>`,'beranda','Beranda portal')}
    ${st(3,'Minta akun tim baru',`<p>Klik tombol <b>+</b> di pojok kanan atas → <b>Minta akun tim baru</b>.</p><ul><li>1 tim = 2 orang: nama, HP, email.</li><li>Foto KTP &amp; foto diri <b>wajib</b> · PKWT &amp; BPJS opsional.</li><li>Status: <b>Mitra submit</b> → <b>Verifikasi</b> (admin mengisi ID IKR &amp; kata sandi) → <b>Selesai</b>. Akun tim tampil di bagian Status pendaftaran tim.</li></ul>`,'plus','Menu tombol plus')}
    ${st(4,'Detail WO &amp; pelanggan',`<p>Bagian <b>Detail WO &amp; pelanggan</b> menampilkan setiap WO: tanggal, nama &amp; ID pelanggan, teknisi, sales, status, SLA, dan apakah dihitung HC.</p><ul><li>Filter per tim / status, cari pelanggan, dan unduh CSV.</li></ul>`,'wo','Detail WO')}
    ${st(5,'Ajukan tagihan',`<p>Klik <b>+</b> → <b>Ajukan tagihan</b>. Satu invoice atas nama mitra: pilih periode, <b>centang tim yang ditagih</b>, cek estimasi, lalu lampirkan dokumen:</p><ol><li>Capture performance — <b>wajib</b> (bisa dibuat otomatis)</li><li>Surat PKWT/kontrak dari mitra — opsional</li><li>BPJS Kesehatan &amp; Ketenagakerjaan — opsional</li></ol><p>Dokumen salah atau diminta revisi Finance? Klik <b>Upload ulang</b>.</p>`,'ajukan','Form ajukan tagihan')}
    ${st(6,'Pantau status &amp; pembayaran',`<p>Tabel <b>Tagihan &amp; pembayaran</b> menunjukkan status setiap tagihan:</p><ul><li><b>Diajukan mitra</b> — invoice masuk, menunggu dicek Finance.</li><li><b>Perlu revisi</b> — baca catatan Finance lalu upload ulang.</li><li><b>Dicek finance</b> — invoice disetujui, menunggu pembayaran.</li><li><b>Dibayar IJE</b> — sudah ditransfer ke mitra, tanggal &amp; nilai bayar tercatat.</li></ul>`,'tagihan','Status tagihan')}
-   <div class="card" style="text-align:center;padding:22px"><b>Butuh bantuan?</b><div class="sub2" style="margin-top:4px">Lupa password, akun terkunci, atau data tidak sesuai — hubungi admin Vendor Management Starlite.</div><div style="margin-top:12px"><a class="btn pri" href="#mitra">Masuk ke portal</a></div></div>
+   <div class="card" style="text-align:center;padding:22px"><b>Butuh bantuan?</b><div class="sub2" style="margin-top:4px">Lupa password, akun terkunci, atau data tidak sesuai — hubungi Vendor Management Starlite.</div><div style="margin-top:12px"><a class="btn pri" href="#mitra">Masuk ke portal</a></div></div>
    </div>`}
 const edaranText=(m,link,u,pw)=>{const tgl=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
   return `*EDARAN — PORTAL MITRA STARLITE*
 Kepada Yth. PIC *${m}*
 
 Dengan hormat,
-Mulai ${tgl}, monitoring tim IKR & Sales, permintaan akun tim baru, dan pengajuan tagihan dilakukan melalui *Portal Mitra Starlite*. Portal hanya menampilkan data tim milik ${m}.
+Mulai ${tgl}, *Program Subsidi IKR & Sales Mitra Tier 1* — monitoring performa tim, permintaan akun tim baru, dan pengajuan tagihan — dilakukan melalui *Portal Mitra Starlite*. Portal hanya menampilkan data tim milik ${m}.
 
 *Link portal ${m}* (langsung terbuka, tanpa login)
 ${link}
@@ -1259,7 +1259,7 @@ Password : ${pw}`:''}
 
 Panduan bergambar: ${panduanUrl()}
 
-Butuh bantuan / link tidak bisa dibuka: hubungi admin Starlite.
+Butuh bantuan / link tidak bisa dibuka: hubungi Vendor Management Starlite.
 
 Hormat kami,
 Vendor Management Starlite`};
@@ -1329,10 +1329,21 @@ async function openPortalReg(tok,base){base=base||'#m-'+tok;
   if(PREG!==tok)return;$('#pregMitra').textContent=PORTAL.mitra;
   const sel=$('#fReg [name=mitra]');sel.innerHTML=`<option>${esc(PORTAL.mitra)}</option>`;sel.value=PORTAL.mitra;sel.classList.add('locked');formProg()}
 function endPortalReg(){PREG=null;$('#pregBar').classList.add('hidden');$('#fReg [name=mitra]').classList.remove('locked');try{fillLists()}catch(e){}}
+/* Auto-sinkron portal mitra: hasil verifikasi admin (ID & sandi) dan status invoice muncul sendiri tiap 60 detik */
+setInterval(async()=>{
+  if(!PORTAL||!PORTAL.token||document.hidden||!document.body.classList.contains('portalmode')||PREG)return;
+  if(!$('#ptPer')||$('#modalRoot').innerHTML.trim())return;const ae=document.activeElement;if(ae&&/INPUT|TEXTAREA/.test(ae.tagName))return;
+  try{const P0=PORTAL;const d=await api('portal',{token:P0.token});if(PORTAL!==P0||$('#modalRoot').innerHTML.trim())return;
+    const st=P=>Object.fromEntries((P.tims||[]).map(t=>[t.id,t.status]));const iv=P=>Object.fromEntries((P.invoices||[]).map(i=>[i.id,i.status]));
+    const a0=st(P0),i0=iv(P0);d.token=P0.token;d.base=P0.base;d.mitra=String(d.mitra||'').toUpperCase();PORTAL=d;renderPortal($('#ptPer')?.value);
+    const msg=[];(d.tims||[]).forEach(t=>{if(t.status==='Aktif'&&a0[t.id]&&a0[t.id]!=='Aktif')msg.push('Akun '+aName(t)+' sudah aktif — ID & kata sandi tersedia')});
+    (d.invoices||[]).forEach(i=>{if(i0[i.id]&&i0[i.id]!==i.status)msg.push('Invoice '+i.id+' → '+(ILBL[i.status]||i.status))});if(msg.length)toast('🔔 '+msg.join(' · '))}
+  catch(e){console.warn('auto-sinkron portal gagal',e.message)}
+},60000);
 async function loadPortal(tok,base){
   $('#portalBody').innerHTML='<div class="loading">Memuat portal mitra…</div>';
   try{PORTAL=await api('portal',{token:tok});PORTAL.token=tok;PORTAL.base=base||'#m-'+tok;PORTAL.mitra=String(PORTAL.mitra||'').toUpperCase();PWO.cache={};renderPortal()}
-  catch(e){if(base==='#mitra'){mTokSet('');PORTAL=null;$('#mlMsg').textContent='Sesi berakhir: '+e.message+' Silakan login lagi.';route();return}$('#portalBody').innerHTML=`<div class="card empty" style="margin-top:10vh"><div style="font-size:40px">🔒</div><h2>Link tidak valid</h2><p class="sub">${esc(e.message)}<br>Hubungi admin Starlite untuk mendapatkan link monitoring yang baru.</p></div>`}
+  catch(e){if(base==='#mitra'){mTokSet('');PORTAL=null;$('#mlMsg').textContent='Sesi berakhir: '+e.message+' Silakan login lagi.';route();return}$('#portalBody').innerHTML=`<div class="card empty" style="margin-top:10vh"><div style="font-size:40px">🔒</div><h2>Link tidak valid</h2><p class="sub">${esc(e.message)}<br>Hubungi Vendor Management Starlite untuk mendapatkan link yang baru.</p></div>`}
 }
 function renderPortal(per){
   const P=PORTAL;const c=Object.assign({},CFG0,P.config||{});const ach=P.ach||[];const T=(P.tims||[]).map(t=>({...t}));const IV=P.invoices||[];
@@ -1352,7 +1363,7 @@ function renderPortal(per){
       <div class="plus-menu hidden" id="pPlusMenu"><a href="${P.base}/daftar"><b>👥 Minta akun tim baru</b><small>1 tim = 2 orang · diverifikasi &amp; disetujui admin</small></a><button type="button" id="pInvBtn"><b>🧾 Ajukan tagihan</b><small>1 invoice atas nama mitra · pilih tim yang ditagih</small></button></div></div>
   <div class="p-hero"><img class="wm" src="${LOGO.star}" alt="">
     <div class="chip"><img class="s" src="${LOGO.star}" alt=""><img class="t" src="${LOGO.text}" alt="STARLITE"><span>×</span><img class="w" src="${LOGO.weave}" alt="weave"></div>
-    <h1>${esc(P.mitra)}</h1><p>Portal mitra · monitoring, pendaftaran tim & pengajuan tagihan</p>
+    <h1>${esc(P.mitra)}</h1><p>Program Subsidi IKR &amp; Sales Mitra Tier 1 · monitoring performa, permintaan akun tim &amp; pengajuan tagihan</p>
     <div class="ctl"><label class="f">Periode<select id="ptPer">${months.map(([v,l],i)=>`<option value="${v}" ${v===per?'selected':''}>${l}${i===0?' (berjalan)':''}</option>`).join('')}</select></label></div></div></div>
   <div class="kpis">
     <div class="kpi hero"><div class="k">HC terverifikasi · ${esc(perLabel(per))}</div><div class="v">${nf(hc)}</div><div class="d">${rows.length} tim · ${rows.length*2} personel</div></div>
@@ -1377,7 +1388,7 @@ function renderPortal(per){
      <td>${ipill(b.status)}${b.catatan_finance&&['Revisi','Ditolak','Diajukan'].includes(b.status)?`<div class="sub2" style="margin-top:3px;max-width:240px;color:${b.status==='Revisi'?'var(--bad)':'var(--text-2)'}">Finance: ${esc(b.catatan_finance)}</div>`:''}${['Diajukan','Revisi'].includes(b.status)?` <button type="button" class="btn sm ${b.status==='Revisi'?'pri':''}" data-pinv="${esc(b.id)}" style="margin-top:4px">⬆ Upload ulang</button>`:''}</td>
      <td>${b.tgl_bayar?fmtD(b.tgl_bayar)+(b.nilai_bayar?'<div class="sub2">'+rp(b.nilai_bayar)+'</div>':''):'–'}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">Belum ada tagihan.</td></tr>'}
    </tbody></table></div></div>
-  <div class="foot-note">Data per ${new Date(P.updated||Date.now()).toLocaleString('id-ID')} · Portal ini hanya menampilkan tim ${esc(P.mitra)}. Pertanyaan? Hubungi admin Starlite.</div>
+  <div class="foot-note">Data per ${new Date(P.updated||Date.now()).toLocaleString('id-ID')} · Portal ini hanya menampilkan tim ${esc(P.mitra)}. Pertanyaan? Hubungi Vendor Management Starlite.</div>
   ${S.admin?'<a class="btn dark back-admin" href="#akses" style="background:var(--side);color:#fff">← Kembali ke admin</a>':''}`;
   $('#ptPer').onchange=e=>renderPortal(e.target.value);
   const pm=$('#pPlusMenu');$('#pPlus').onclick=e=>{e.stopPropagation();pm.classList.toggle('hidden')};document.addEventListener('click',()=>pm.classList.add('hidden'),{once:true});
@@ -1772,7 +1783,7 @@ function demoApi(action,b){
     if(action==='portal_wo'){const a=DB.akses.find(x=>x.token===b.token&&x.aktif);if(!a)throw new Error('Link tidak valid atau sudah dinonaktifkan');
       const keys=new Set(DB.tims.filter(t=>t.mitra===a.mitra&&['Aktif','Nonaktif'].includes(t.status)).flatMap(t=>[t.id_akun_1,t.id_akun_2,t.nama_1,t.nama_2]).filter(Boolean).map(k=>k.trim().toUpperCase()));
       return DB.wo.filter(w=>w.tanggal&&w.tanggal.startsWith(b.periode)&&keys.has(String(w.nama_ikr).trim().toUpperCase())).map(({notes_visit,notes_bast,partner,...w})=>w)}
-    if(action==='mitra_login'){const a=DB.akses.find(x=>x.username&&x.username===String(b.username||'').trim().toLowerCase());if(!a||a.password!==b.password)throw new Error('Username atau password salah');if(!a.aktif)throw new Error('Akun mitra dinonaktifkan. Hubungi admin Starlite.');return{token:a.token}}
+    if(action==='mitra_login'){const a=DB.akses.find(x=>x.username&&x.username===String(b.username||'').trim().toLowerCase());if(!a||a.password!==b.password)throw new Error('Username atau password salah');if(!a.aktif)throw new Error('Akun mitra dinonaktifkan. Hubungi Vendor Management Starlite.');return{token:a.token}}
     if(action==='portal'){const a=DB.akses.find(x=>x.token===b.token&&x.aktif);if(!a)throw new Error('Link tidak valid atau sudah dinonaktifkan');const T=DB.tims.filter(t=>t.mitra===a.mitra);
       const ids=new Set(T.flatMap(t=>[t.id_akun_1,t.id_akun_2]).filter(Boolean).map(v=>v.toUpperCase()));
       return{mitra:a.mitra,config:DB.config,updated:new Date().toISOString(),
