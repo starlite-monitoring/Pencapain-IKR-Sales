@@ -54,6 +54,7 @@ aside.side{background:var(--side);color:var(--side-text);padding:18px 12px;posit
 .side a.cta{background:var(--brand);color:#fff;font-weight:700;justify-content:center;margin:2px 0 4px}
 .side a .n{font-size:11px;background:#ffffff1a;border-radius:10px;padding:1px 7px}
 .side a .n.hot{background:var(--brand);color:#fff}
+.tc .acc{font-size:12px;color:var(--text-2);margin:6px 0 2px;display:grid;gap:3px}.tc .acc .mono{color:var(--text)}
 .pw-wrap{position:relative;display:block}.pw-wrap input{width:100%;padding-right:44px!important}.pw-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;cursor:pointer;font-size:17px;padding:4px 6px;border-radius:6px;line-height:1}.pw-eye:hover{background:var(--accent-soft)}
 .vtabs{display:flex;gap:4px;flex-wrap:wrap;margin:0 0 18px;padding:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;width:max-content;max-width:100%}
 .vtabs a{padding:8px 14px;border-radius:9px;text-decoration:none;color:var(--text-2);font-weight:600;font-size:14px;display:flex;gap:6px;align-items:center}
@@ -677,6 +678,12 @@ async function sbApi(action,b){
   case 'admin_ach_delete':{for(const k of b.keys){const[tanggal,id_akun,sumber]=k.split('|');chk(await sb.from(TB.ach).delete().match({tanggal,id_akun,sumber}))}return{ok:true}}
   case 'admin_config':{const rows=Object.entries(b.config).map(([key,value])=>({key,value:String(value)}));chk(await sb.from(TB.cfg).upsert(rows,{onConflict:'key'}));return{ok:true}}
   case 'admin_pw':{if(!b.newPw||b.newPw.length<6)throw new Error('Password minimal 6 karakter');chk(await sb.auth.updateUser({password:b.newPw}));return{ok:true}}
+  case 'admin_tim_delete':{const id=b.id;const invs=chk(await sb.from(TB.inv).select('id,tim_ids'))||[];const used=invs.filter(i=>(i.tim_ids||[]).includes(id)).map(i=>i.id);
+    if(used.length)throw new Error('Tim sudah masuk invoice '+used.join(', ')+' — tidak bisa dihapus. Gunakan Nonaktifkan.');
+    const t=chk(await sb.from(TB.tim).select('*').eq('id',id).maybeSingle());if(!t)throw new Error('Tim tidak ditemukan');
+    const paths=['ktp_1','ktp_2','foto_1','foto_2','pkwt_file_1','pkwt_file_2','bpjs_file_1','bpjs_file_2'].map(k=>t[k]).filter(v=>v&&!/^(https?:|data:)/.test(v));
+    if(paths.length){try{await sb.storage.from(BK.ktp).remove(paths)}catch(e){}}
+    chk(await sb.from(TB.tim).delete().eq('id',id));return{ok:true}}
   case 'admin_inv_save':{const x=b.inv;const o=chk(await sb.from(TB.inv).select('*').eq('id',x.id).maybeSingle());if(!o)throw new Error('Invoice tidak ditemukan');
     const upd={updated_at:new Date().toISOString()};if('catatan_finance' in x)upd.catatan_finance=String(x.catatan_finance||'');
     if('nilai_bayar' in x)upd.nilai_bayar=x.nilai_bayar===''||x.nilai_bayar==null?null:Math.max(0,+x.nilai_bayar||0);if('tgl_bayar' in x)upd.tgl_bayar=x.tgl_bayar||null;
@@ -1056,9 +1063,13 @@ function renderPipe(){
           <div class="who"><b>${esc(aName(t))}</b> ${tag(t.jenis)} ${off?pill(t.status,STK[t.status]):''}<div class="sub2">${esc(t.nama_1)} & ${esc(t.nama_2)}</div><div class="sub2">${esc(t.stasiun)} · <span class="mono">${esc(t.id)}</span></div></div>
           ${stepper(t,off?'':st)}
           <div class="inf">${st==='Daftar'?'Data tim dari mitra sudah masuk.<br>Klik <b>Verifikasi</b> untuk memproses.':accLines(t)}</div>
-          <div class="act">${st==='Daftar'?`<button class="btn sm pri" data-edit="${esc(t.id)}">Verifikasi →</button>`:st==='Verifikasi'?`<button class="btn sm pri" data-edit="${esc(t.id)}">Lanjut verifikasi →</button>`:`<button class="btn sm" data-edit="${esc(t.id)}">✎ Edit</button>`}</div></div>`}).join(''):'<div class="trk-empty">Belum ada tim terdaftar dari mitra ini.</div>'}</div>`}).join('')||'<div class="card empty">Tidak ada tim yang cocok.</div>';
+          <div class="act" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${st==='Daftar'?`<button class="btn sm pri" data-edit="${esc(t.id)}">Verifikasi →</button>`:st==='Verifikasi'?`<button class="btn sm pri" data-edit="${esc(t.id)}">Lanjut verifikasi →</button>`:`<button class="btn sm" data-edit="${esc(t.id)}">✎ Edit</button>`}<button class="btn sm bad" data-del="${esc(t.id)}" title="Hapus tim ini">🗑 Hapus</button></div></div>`}).join(''):'<div class="trk-empty">Belum ada tim terdaftar dari mitra ini.</div>'}</div>`}).join('')||'<div class="card empty">Tidak ada tim yang cocok.</div>';
   $$('#trk [data-edit]').forEach(b=>b.onclick=()=>openEdit(b.dataset.edit));
+  $$('#trk [data-del]').forEach(b=>b.onclick=()=>delTim(b.dataset.del,b));
 }
+async function delTim(id,btn){const t=S.admin.tims.find(x=>x.id===id);if(!t)return;
+  if(!btn.dataset.c){btn.dataset.c=1;btn.textContent='Klik lagi: hapus permanen';setTimeout(()=>{if(btn.isConnected){delete btn.dataset.c;btn.textContent='🗑 Hapus'}},4000);return}
+  btn.disabled=true;try{await api('admin_tim_delete',{pw:S.pw,id});toast(aName(t)+' dihapus');$('#modalRoot').innerHTML='';await refreshAll()}catch(e){toast(e.message,true);btn.disabled=false;delete btn.dataset.c;btn.textContent='🗑 Hapus'}}
 function openEdit(id){
   const t=S.admin.tims.find(x=>x.id===id);if(!t)return;
   const nxt={Daftar:['Akun','Mulai verifikasi →'],Kontrak:['Aktif','✓ Selesai · aktifkan akun'],Akun:['Aktif','✓ Selesai · aktifkan akun']}[t.status];
@@ -1090,6 +1101,7 @@ function openEdit(id){
    <div class="msec"><h4>Catatan</h4><textarea name="catatan" rows="2" style="width:100%">${esc(t.catatan)}</textarea></div>
    <div class="foot">
     ${['Ditolak','Nonaktif'].includes(t.status)?`<button type="button" class="btn" data-st="Daftar">Pulihkan ke Mitra submit</button>`:`<button type="button" class="btn bad" data-st="${t.status==='Aktif'?'Nonaktif':'Ditolak'}">${t.status==='Aktif'?'Nonaktifkan':'Tolak'}</button>`}
+    <button type="button" class="btn bad" id="edDel">🗑 Hapus</button>
     <span style="flex:1"></span><button type="button" class="btn" data-close>Batal</button><button class="btn" type="submit">Simpan</button>
     ${nxt?`<button type="button" class="btn pri" data-st="${nxt[0]}">${nxt[1]}</button>`:''}
    </div></form>`,true);
@@ -1107,6 +1119,7 @@ function openEdit(id){
   F.onsubmit=e=>{e.preventDefault();save()};
   F.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>save(b.dataset.st));
   F.querySelectorAll('[data-oi]').forEach(b=>b.onclick=()=>openInvAdmin(b.dataset.oi));
+  const ed=F.querySelector('#edDel');ed.onclick=()=>delTim(id,ed);
 }
 
 /* ================== PENAGIHAN (Finance) ================== */
@@ -1380,15 +1393,13 @@ function renderPortal(per){
   </div>
   <div class="sec-h"><h2>Performa tim ${esc(perLabel(per))}</h2><span class="sub2">Urut dari HC terbanyak</span></div>
   <div class="lb">${rows.map((r,i)=>{const x=r.x,t=r.t;return `<div class="tc ${t.jenis==='Sales'?'j-sls':'j-ikr'} ${i<3&&x.hc>0?'r'+(i+1):''}" data-ptim="${esc(t.id)}" title="Klik untuk lihat pelanggan tim ini"><div class="rk">${i+1}</div>${i===0&&x.hc>0?'<div class="crown">🏆 TERBAIK DI MITRA INI</div>':''}
-    <div class="nm">${esc(aName(t))} ${tag(t.jenis)}</div><div class="al">${esc(t.stasiun)} · ${esc(x.wilayah)}</div><div class="mb">${x.rows.map(p=>esc(p.nama)+' '+nf(p.hc)).join(' · ')}</div>
+    <div class="nm">${esc(aName(t))} ${tag(t.jenis)}</div><div class="al">${esc(t.stasiun)} · ${esc(x.wilayah)}</div><div class="mb">${x.rows.map(p=>esc(p.nama)+' '+nf(p.hc)).join(' · ')}</div>${t.status==='Aktif'?`<div class="acc">${[1,2].map(i=>t['id_akun_'+i]?`<div>🔑 <span class="mono">${esc(t['id_akun_'+i])}</span>${t['pass_akun_'+i]?` · sandi <span class="mono" data-pwv="${esc(t['pass_akun_'+i])}">••••••</span> <button type="button" class="btn sm" data-shpw style="padding:0 7px;font-size:11px">lihat</button>`:''}</div>`:'').join('')}</div>`:''}
     <div class="big"><b>${nf(x.hc)}</b><span>${esc(lbl(t.jenis))}</span></div><div class="prog ${x.pct>=1?'done':''}"><i style="width:${Math.min(100,x.pct*100)}%"></i></div>
     <div class="tg"><span>${nf(x.hc)} / ${nf(x.target,0)} target</span><b>${pct(x.pct)}</b></div>
     <div class="mini"><div><b>${x.wd}/${x.wdTot}</b>hari kerja</div><div><b>${rpS(x.gaji)}</b>gaji pokok</div><div><b>${rpS(x.insTek+x.insMitra)}</b>insentif</div><div><b>${r.b?esc(ILBL[r.b.status]):'–'}</b>invoice</div></div></div>`}).join('')||'<div class="card empty" style="grid-column:1/-1">Belum ada tim aktif pada periode ini.</div>'}</div>
+  ${(()=>{const pend=T.filter(t=>['Daftar','Kontrak','Akun'].includes(t.status));return pend.length?`<div class="note" style="margin:-4px 0 16px">⏳ Permintaan akun sedang diproses admin: ${pend.map(t=>`<b>${esc(aName(t))}</b> (${t.status==='Daftar'?'Mitra submit':'Verifikasi'})`).join(', ')} — ID &amp; kata sandi muncul di kartu tim setelah selesai.</div>`:''})()}
   <div class="card" style="margin-bottom:16px"><h2>HC per hari</h2><p class="sub">Semua tim ${esc(P.mitra)} · ${esc(perLabel(per))}</p><div class="chart-box"><canvas id="cPortal"></canvas></div></div>
   <div class="card" style="margin-bottom:16px;padding:0" id="pWo"></div>
-  <div class="trk-g"><div class="trk-h"><div class="ini">${esc(P.mitra.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase())}</div><div><b>Status pendaftaran tim</b><div class="sub2">Mitra submit → Verifikasi admin → Selesai (akun aktif)</div></div><div class="sp" style="flex:1"></div><a class="btn sm" href="${P.base}/daftar">+ Minta akun tim</a></div>
-   ${T.filter(t=>!['Ditolak'].includes(t.status)).map(t=>{const st=pStage(t);const off=st==='Nonaktif';return `<div class="trk-r" style="grid-template-columns:minmax(190px,1fr) minmax(300px,1.6fr) minmax(220px,1.4fr)"><div class="who"><b>${esc(aName(t))}</b> ${tag(t.jenis)} ${off?pill('Nonaktif','mute'):''}<div class="sub2">${esc(t.nama_1)} & ${esc(t.nama_2)}</div></div>${stepper(t,off?'':st)}
-     <div class="inf">${accP(t)}</div></div>`}).join('')||'<div class="trk-empty">Belum ada tim.</div>'}</div>
   <div class="card" style="padding:0"><div style="padding:16px 18px 10px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap"><div style="flex:1"><h2>Tagihan & pembayaran</h2><p class="sub" style="margin:0">1 invoice atas nama ${esc(P.mitra)} · pilih tim yang ditagih · dicek Finance lalu dibayar ${PAYER}</p></div><button type="button" class="btn pri" id="pInvBtn2">+ Ajukan tagihan</button></div>
    <div class="tbl-wrap" style="border:0;border-top:1px solid var(--line);border-radius:0 0 12px 12px"><table><thead><tr><th>No. invoice</th><th>Periode</th><th>Tim ditagih</th><th class="num">HC</th><th class="num">Nilai</th><th>Dokumen</th><th>Status</th><th>Dibayar</th></tr></thead><tbody>
    ${IV.slice().sort((a,b)=>b.periode.localeCompare(a.periode)||String(b.tgl_ajukan).localeCompare(String(a.tgl_ajukan))).map(b=>`<tr><td class="mono" style="white-space:nowrap"><b>${esc(b.id)}</b></td><td>${esc(perLabel(b.periode))}</td><td>${(b.tim_ids||[]).map(id=>esc(tn(id))).join('<br>')}</td><td class="num">${nf(b.jumlah)}</td><td class="num"><b>${rp(b.nilai)}</b></td><td>${[b.f1,b.f2,b.f3].filter(Boolean).length}/3</td>
@@ -1402,12 +1413,12 @@ function renderPortal(per){
   $('#pInvBtn').onclick=()=>openInvoice();const po=$('#pOut');if(po)po.onclick=()=>{mTokSet('');PORTAL=null;$('#mlMsg').textContent='';$('#fMLogin').reset();location.hash='#mitra';route()};$('#pInvBtn2').onclick=()=>openInvoice();
   $$('#portalBody [data-ptim]').forEach(x=>x.onclick=()=>{PWO.tim=x.dataset.ptim;PWO.q='';renderPortalWO(per,act);$('#pWo').scrollIntoView({behavior:'smooth',block:'start'})});
   $$('#portalBody [data-pinv]').forEach(x=>x.onclick=()=>openInvoice(x.dataset.pinv));
-  $$('#portalBody [data-shpw]').forEach(x=>x.onclick=()=>{const s=x.previousElementSibling;const on=s.textContent!==s.dataset.pwv;s.textContent=on?s.dataset.pwv:'••••••';x.textContent=on?'sembunyikan':'lihat'});
+  $$('#portalBody [data-shpw]').forEach(x=>x.onclick=e=>{e.stopPropagation();const s=x.previousElementSibling;const on=s.textContent!==s.dataset.pwv;s.textContent=on?s.dataset.pwv:'••••••';x.textContent=on?'tutup':'lihat'});
   const R={a:per+'-01',b:ymd(new Date(+per.slice(0,4),+per.slice(5),0)),months:1};lineChart('cPortal',R,daily,'HC');
   renderPortalWO(per,act);
 }
 
-let PWO={tim:'',st:'',q:'',cache:{}};
+let PWO={tim:'',j:'',st:'',q:'',cache:{}};
 function renderPortalWO(per,act){
   const P=PORTAL;const c=Object.assign({},CFG0,P.config||{});const who={};
   act.forEach(t=>[1,2].forEach(i=>{const id=(t['id_akun_'+i]||'').trim().toUpperCase();if(id)who[id]={t,nama:t['nama_'+i],i}}));
@@ -1415,29 +1426,29 @@ function renderPortalWO(per,act){
   if(PWO.tim&&!act.some(t=>t.id===PWO.tim))PWO.tim='';
   const key=P.token+'|'+per;const W=PWO.cache[key];
   if(!W){$('#pWo').innerHTML='<div class="loading">Memuat detail WO…</div>';api('portal_wo',{token:P.token,periode:per}).then(r=>{PWO.cache[key]=r;if(($('#ptPer')?.value||per)===per)renderPortalWO(per,act)}).catch(e=>{PWO.cache[key]=[];$('#pWo').innerHTML=`<div class="empty">${esc(e.message)}</div>`});return}
-  const A=(P.ach||[]).filter(a=>a.tanggal.startsWith(per)&&who[String(a.id_akun).trim().toUpperCase()]).map(a=>({...a,w:who[String(a.id_akun).trim().toUpperCase()]})).filter(a=>!PWO.tim||a.w.t.id===PWO.tim);
+  const A=(P.ach||[]).filter(a=>a.tanggal.startsWith(per)&&who[String(a.id_akun).trim().toUpperCase()]).map(a=>({...a,w:who[String(a.id_akun).trim().toUpperCase()]})).filter(a=>(!PWO.tim||a.w.t.id===PWO.tim)&&(!PWO.j||a.w.t.jenis===PWO.j));
   const per1={};A.forEach(a=>{const k=a.w.t.id+'|'+a.w.i;per1[k]=per1[k]||{w:a.w,n:0,d:new Set()};per1[k].n+=+a.jumlah||0;per1[k].d.add(a.tanggal)});
   const tot=A.reduce((s,a)=>s+(+a.jumlah||0),0);
-  const R=W.map(w=>({...w,m:M[String(w.nama_ikr||'').trim().toUpperCase()]})).filter(w=>!PWO.tim||(w.m&&w.m.t.id===PWO.tim));
-  const q=PWO.q.trim().toLowerCase();const L=R.filter(w=>PWO.st==='hc'?w.dihitung:PWO.st==='no'?!w.dihitung:PWO.st==='sla'?/exceed/i.test(w.status_sla):true).filter(w=>!q||[w.nama_pelanggan,w.id_pelanggan,w.id_wo,w.nama_ikr,w.nama_sales].join(' ').toLowerCase().includes(q));
+  const R=W.map(w=>({...w,m:M[String(w.nama_ikr||'').trim().toUpperCase()]})).filter(w=>(!PWO.tim||(w.m&&w.m.t.id===PWO.tim))&&(!PWO.j||(w.m&&w.m.t.jenis===PWO.j)));
+  const q=PWO.q.trim().toLowerCase();const L=R.filter(w=>!q||[w.id_pelanggan,w.nama_pelanggan,w.id_wo].join(' ').toLowerCase().includes(q));
   const npel=new Set(R.filter(w=>w.dihitung).map(w=>w.id_pelanggan||w.nama_pelanggan)).size;
   const hc=R.filter(w=>w.dihitung).length,sla=R.filter(w=>/exceed/i.test(w.status_sla)).length;
-  $('#pWo').innerHTML=`<div style="padding:16px 18px 10px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap"><div style="flex:1;min-width:220px"><h2>Detail WO &amp; pelanggan</h2><p class="sub" style="margin:0">${esc(perLabel(per))} · HC terverifikasi <b>${nf(tot)}</b>${R.length?` · <b>${nf(npel)}</b> pelanggan terpasang · ${nf(R.length)} WO (${nf(hc)} dihitung, ${nf(R.length-hc)} tidak dihitung, ${nf(sla)} exceeded SLA)`:''}</p></div>
-    <label class="f">Tim<select id="pWoTim"><option value="">Semua tim</option>${act.map(t=>`<option value="${esc(t.id)}" ${PWO.tim===t.id?'selected':''}>${esc(aName(t))}</option>`).join('')}</select></label>
-    <div class="chips" id="pWoSt">${[['','Semua'],['hc','Dihitung'],['no','Tidak dihitung'],['sla','Exceeded SLA']].map(([v,l])=>`<span class="chip ${PWO.st===v?'on':''}" data-st="${v}">${l}</span>`).join('')}</div>
-    <input id="pWoQ" placeholder="Cari pelanggan, sales, ID WO" value="${esc(PWO.q)}" style="width:230px">
-    <button type="button" class="btn" id="pWoCsv" ${L.length||A.length?'':'disabled'}>⬇ Unduh CSV</button></div>
+  const actJ=act.filter(t=>!PWO.j||t.jenis===PWO.j);
+  $('#pWo').innerHTML=`<div style="padding:14px 18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <input id="pWoQ" placeholder="🔍 Cari ID pelanggan / nama pelanggan" value="${esc(PWO.q)}" style="flex:1;min-width:240px">
+    <select id="pWoJ" title="Filter IKR / Sales"><option value="">IKR &amp; Sales</option><option value="IKR" ${PWO.j==='IKR'?'selected':''}>IKR</option><option value="Sales" ${PWO.j==='Sales'?'selected':''}>Sales</option></select>
+    <select id="pWoTim" title="Filter nama tim"><option value="">Semua tim</option>${actJ.map(t=>`<option value="${esc(t.id)}" ${PWO.tim===t.id?'selected':''}>${esc(aName(t))}</option>`).join('')}</select></div>
    ${Object.keys(per1).length?`<div class="wo-sum">${Object.values(per1).sort((a,b)=>b.n-a.n).map(x=>`<div class="wo-p ${x.w.t.jenis==='Sales'?'j-sls':'j-ikr'}"><b>${nf(x.n)}</b><span>${esc(x.w.nama)}</span><small>${esc(aName(x.w.t))} · ${x.d.size} hari</small></div>`).join('')}</div>`:''}
    <div class="tbl-wrap" style="border:0;border-top:1px solid var(--line);max-height:480px;border-radius:0 0 12px 12px"><table><thead><tr><th>Tanggal</th><th>Nama pelanggan</th><th>ID pelanggan</th><th>Status pelanggan</th><th>Teknisi · tim</th><th>Nama Sales</th><th>ID WO · pelanggan</th><th>Status WO</th><th>SLA</th><th class="num">Durasi</th><th>HC</th></tr></thead><tbody>
    ${L.slice(0,400).map(w=>`<tr class="${w.m&&w.m.t.jenis==='Sales'?'j-sls':'j-ikr'}"><td>${fmtD(w.tanggal)}</td><td><b>${esc(w.nama_pelanggan||'–')}</b></td><td class="mono">${esc(w.id_pelanggan||'–')}</td>
      <td>${w.status_pelanggan?pill(w.status_pelanggan,/batal|cancel|gagal/i.test(w.status_pelanggan)?'bad':'good'):'–'}</td><td>${esc(w.nama_ikr)}<div class="sub2">${w.m?esc(aName(w.m.t)):'–'}</div></td>
      <td>${w.nama_sales?`<span style="color:var(--c-sls);font-weight:600">${esc(w.nama_sales)}</span>`:'<span class="sub2">–</span>'}</td><td><span class="mono" style="font-size:12px">${esc(w.id_wo)}</span><div class="sub2">${esc(w.nama_pelanggan||'–')}</div></td><td>${esc(w.status_category)}<div class="sub2">${esc(w.alasan_batal||w.status_pengerjaan)}</div></td>
-     <td>${w.status_sla?pill(w.status_sla,/exceed/i.test(w.status_sla)?'bad':'good'):'–'}</td><td class="num">${w.durasi==null?'–':nf(w.durasi)+' mnt'}</td><td>${w.dihitung?pill('✓ HC','good'):pill('tidak','mute')}</td></tr>`).join('')||`<tr><td colspan="11" class="empty">${A.length?'Detail per WO belum tersedia untuk periode ini — rekap HC per teknisi tampil di atas.':'Belum ada WO pada periode ini.'}</td></tr>`}
-   </tbody></table></div>${L.length>400?`<div class="sub2" style="padding:8px 18px">Menampilkan 400 dari ${nf(L.length)} WO — unduh CSV untuk semua.</div>`:''}`;
+     <td>${w.status_sla?pill(w.status_sla,/exceed/i.test(w.status_sla)?'bad':'good'):'–'}</td><td class="num">${w.durasi==null?'–':nf(w.durasi)+' mnt'}</td><td>${w.dihitung?pill('✓ HC','good'):pill('tidak','mute')}</td></tr>`).join('')||`<tr><td colspan="11" class="empty">${q?'Tidak ada pelanggan yang cocok dengan "'+esc(PWO.q)+'".':A.length?'Detail per WO belum tersedia untuk periode ini — rekap HC per teknisi tampil di atas.':'Belum ada WO pada periode ini.'}</td></tr>`}
+   </tbody></table></div>${L.length>400?`<div class="sub2" style="padding:8px 18px">Menampilkan 400 dari ${nf(L.length)} WO — persempit dengan pencarian ID pelanggan atau filter tim.</div>`:''}`;
   $('#pWoTim').onchange=e=>{PWO.tim=e.target.value;renderPortalWO(per,act)};
   $('#pWoQ').oninput=e=>{PWO.q=e.target.value;const pos=e.target.selectionStart;renderPortalWO(per,act);const n=$('#pWoQ');n.focus();n.setSelectionRange(pos,pos)};
-  $$('#pWoSt [data-st]').forEach(x=>x.onclick=()=>{PWO.st=x.dataset.st;renderPortalWO(per,act)});
-  $('#pWoCsv').onclick=()=>{const rows=L.length?[['Tanggal','ID WO','Mitra','Tim','Nama IKR','Nama Sales','Kategori','Status Category','Status Pengerjaan','Alasan Pembatalan','Status SLA','Durasi (menit)','ID Pelanggan','Nama Pelanggan','Status Pelanggan','Dihitung HC']].concat(L.map(w=>[w.tanggal,w.id_wo,P.mitra,w.m?aName(w.m.t):'',w.nama_ikr,w.nama_sales||'',w.kategori,w.status_category,w.status_pengerjaan,w.alasan_batal,w.status_sla,w.durasi??'',w.id_pelanggan,w.nama_pelanggan,w.status_pelanggan,w.dihitung?'Ya':'Tidak']))
+  $('#pWoJ').onchange=e=>{PWO.j=e.target.value;if(PWO.tim&&!act.some(t=>t.id===PWO.tim&&(!PWO.j||t.jenis===PWO.j)))PWO.tim='';renderPortalWO(per,act)};
+  const _csv=()=>{const rows=L.length?[['Tanggal','ID WO','Mitra','Tim','Nama IKR','Nama Sales','Kategori','Status Category','Status Pengerjaan','Alasan Pembatalan','Status SLA','Durasi (menit)','ID Pelanggan','Nama Pelanggan','Status Pelanggan','Dihitung HC']].concat(L.map(w=>[w.tanggal,w.id_wo,P.mitra,w.m?aName(w.m.t):'',w.nama_ikr,w.nama_sales||'',w.kategori,w.status_category,w.status_pengerjaan,w.alasan_batal,w.status_sla,w.durasi??'',w.id_pelanggan,w.nama_pelanggan,w.status_pelanggan,w.dihitung?'Ya':'Tidak']))
       :[['Tanggal','Mitra','Tim','Jenis','Nama','ID akun','Jumlah WO']].concat(A.map(a=>[a.tanggal,P.mitra,aName(a.w.t),a.w.t.jenis,a.w.nama,a.id_akun,a.jumlah]));
     const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');const u=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv'}));
     const el=document.createElement('a');el.href=u;el.download=`detail-wo-${P.mitra.replace(/\W+/g,'-')}-${per}.csv`;document.body.appendChild(el);el.click();el.remove()};
@@ -1812,6 +1823,8 @@ function demoApi(action,b){
       DB.tims.push({...d,hp_1:nh(d.hp_1),hp_2:nh(d.hp_2),rek_1:String(d.rek_1).replace(/\D/g,''),rek_2:String(d.rek_2).replace(/\D/g,''),id,created_at:new Date().toISOString(),status:'Daftar',ktp_1:'#',ktp_2:'#',foto_1:'#',foto_2:'#',id_akun_1:'',id_akun_2:'',kontrak_langkah:'0',pkwt_mulai:'',pkwt_selesai:'',catatan:'',updated_at:new Date().toISOString()});return{ok:true,id}}
     if(b.pw!==DB.pw)throw new Error('Password admin salah');
     if(action==='admin_data'){const m=map();return{ok:true,config:DB.config,tims:DB.tims.map(t=>({...t})),ach:DB.ach.map(a=>({...a,tim_id:m[a.id_akun.toUpperCase()]||''})),invoices:DB.inv.map(x=>({...x,tim_ids:[...x.tim_ids]})),akses:DB.akses.map(({password,...x})=>({...x,username:x.username||'',has_pass:!!password})),admins:[...DB.admins],me:'admin@starlite.co.id'}}
+    if(action==='admin_tim_delete'){const used=DB.inv.filter(i=>i.tim_ids.includes(b.id)).map(i=>i.id);if(used.length)throw new Error('Tim sudah masuk invoice '+used.join(', ')+' — tidak bisa dihapus. Gunakan Nonaktifkan.');
+      if(!DB.tims.some(t=>t.id===b.id))throw new Error('Tim tidak ditemukan');DB.tims=DB.tims.filter(t=>t.id!==b.id);return{ok:true}}
     const getInv=id=>{const o=DB.inv.find(x=>x.id===id);if(!o)throw new Error('Invoice tidak ditemukan');return o};
     if(action==='admin_inv_save'){const x=b.inv;const o=getInv(x.id);const upd={};if('catatan_finance' in x)upd.catatan_finance=String(x.catatan_finance||'');if('nilai_bayar' in x)upd.nilai_bayar=x.nilai_bayar||'';if('tgl_bayar' in x)upd.tgl_bayar=x.tgl_bayar||'';
       if(x.status&&x.status!==o.status)invCheck(o,x.status,upd);Object.entries(upd).forEach(([k,v])=>o[k]=v==null?'':v);return{ok:true}}
