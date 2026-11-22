@@ -1349,17 +1349,21 @@ async function openPortalReg(tok,base){base=base||'#m-'+tok;
   if(PREG!==tok)return;$('#pregMitra').textContent=PORTAL.mitra;
   const sel=$('#fReg [name=mitra]');sel.innerHTML=`<option>${esc(PORTAL.mitra)}</option>`;sel.value=PORTAL.mitra;sel.classList.add('locked');formProg()}
 function endPortalReg(){PREG=null;$('#pregBar').classList.add('hidden');$('#fReg [name=mitra]').classList.remove('locked');try{fillLists()}catch(e){}}
-/* Auto-sinkron portal mitra: hasil verifikasi admin (ID & sandi) dan status invoice muncul sendiri tiap 60 detik */
-setInterval(async()=>{
-  if(!PORTAL||!PORTAL.token||document.hidden||!document.body.classList.contains('portalmode')||PREG)return;
-  if(!$('#ptPer')||$('#modalRoot').innerHTML.trim())return;const ae=document.activeElement;if(ae&&/INPUT|TEXTAREA/.test(ae.tagName))return;
-  try{const P0=PORTAL;const d=await api('portal',{token:P0.token});if(PORTAL!==P0||$('#modalRoot').innerHTML.trim())return;
-    const st=P=>Object.fromEntries((P.tims||[]).map(t=>[t.id,t.status]));const iv=P=>Object.fromEntries((P.invoices||[]).map(i=>[i.id,i.status]));
-    const a0=st(P0),i0=iv(P0);d.token=P0.token;d.base=P0.base;d.mitra=String(d.mitra||'').toUpperCase();PORTAL=d;renderPortal($('#ptPer')?.value);
-    const msg=[];(d.tims||[]).forEach(t=>{if(t.status==='Aktif'&&a0[t.id]&&a0[t.id]!=='Aktif')msg.push('Akun '+aName(t)+' sudah aktif — ID & kata sandi tersedia')});
+/* Auto-refresh portal mitra: setiap perubahan dari admin (verifikasi akun, ID & sandi, status invoice, HC/WO) muncul sendiri */
+let PSYNC=false;
+async function portalSync(force){
+  if(PSYNC||!PORTAL||!PORTAL.token||document.hidden||!document.body.classList.contains('portalmode')||PREG)return;
+  if(!$('#ptPer')||$('#modalRoot').innerHTML.trim())return;const ae=document.activeElement;if(!force&&ae&&/INPUT|TEXTAREA/.test(ae.tagName))return;
+  PSYNC=true;try{const P0=PORTAL;const d=await api('portal',{token:P0.token});if(PORTAL!==P0||$('#modalRoot').innerHTML.trim())return;
+    const st=P=>Object.fromEntries((P.tims||[]).map(t=>[t.id,t.status+'|'+t.id_akun_1+'|'+t.id_akun_2+'|'+(t.pass_akun_1||'')+'|'+(t.pass_akun_2||'')]));const iv=P=>Object.fromEntries((P.invoices||[]).map(i=>[i.id,i.status]));
+    const a0=st(P0),i0=iv(P0),s0=Object.fromEntries((P0.tims||[]).map(t=>[t.id,t.status]));d.token=P0.token;d.base=P0.base;d.mitra=String(d.mitra||'').toUpperCase();
+    const y=window.scrollY;PORTAL=d;PWO.cache={};renderPortal($('#ptPer')?.value);window.scrollTo(0,y);
+    const msg=[];(d.tims||[]).forEach(t=>{if(t.status==='Aktif'&&s0[t.id]&&s0[t.id]!=='Aktif')msg.push('Akun '+aName(t)+' sudah aktif — ID & kata sandi tersedia');else if(a0[t.id]&&a0[t.id]!==st(d)[t.id]&&t.status==='Aktif')msg.push('Data akun '+aName(t)+' diperbarui admin')});
     (d.invoices||[]).forEach(i=>{if(i0[i.id]&&i0[i.id]!==i.status)msg.push('Invoice '+i.id+' → '+(ILBL[i.status]||i.status))});if(msg.length)toast('🔔 '+msg.join(' · '))}
-  catch(e){console.warn('auto-sinkron portal gagal',e.message)}
-},60000);
+  catch(e){console.warn('auto-refresh portal gagal',e.message)}finally{PSYNC=false}
+}
+setInterval(()=>portalSync(),30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)portalSync()});
 async function loadPortal(tok,base){
   $('#portalBody').innerHTML='<div class="loading">Memuat portal mitra…</div>';
   try{PORTAL=await api('portal',{token:tok});PORTAL.token=tok;PORTAL.base=base||'#m-'+tok;PORTAL.mitra=String(PORTAL.mitra||'').toUpperCase();PWO.cache={};renderPortal()}
@@ -1393,23 +1397,26 @@ function renderPortal(per){
   </div>
   <div class="sec-h"><h2>Performa tim ${esc(perLabel(per))}</h2><span class="sub2">Urut dari HC terbanyak</span></div>
   <div class="lb">${rows.map((r,i)=>{const x=r.x,t=r.t;return `<div class="tc ${t.jenis==='Sales'?'j-sls':'j-ikr'} ${i<3&&x.hc>0?'r'+(i+1):''}" data-ptim="${esc(t.id)}" title="Klik untuk lihat pelanggan tim ini"><div class="rk">${i+1}</div>${i===0&&x.hc>0?'<div class="crown">🏆 TERBAIK DI MITRA INI</div>':''}
-    <div class="nm">${esc(aName(t))} ${tag(t.jenis)}</div><div class="al">${esc(t.stasiun)} · ${esc(x.wilayah)}</div><div class="mb">${x.rows.map(p=>esc(p.nama)+' '+nf(p.hc)).join(' · ')}</div>${t.status==='Aktif'?`<div class="acc">${[1,2].map(i=>t['id_akun_'+i]?`<div>🔑 <span class="mono">${esc(t['id_akun_'+i])}</span>${t['pass_akun_'+i]?` · sandi <span class="mono" data-pwv="${esc(t['pass_akun_'+i])}">••••••</span> <button type="button" class="btn sm" data-shpw style="padding:0 7px;font-size:11px">lihat</button>`:''}</div>`:'').join('')}</div>`:''}
+    <div class="nm">${esc(aName(t))} ${tag(t.jenis)}</div><div class="al">${esc(t.stasiun)} · ${esc(x.wilayah)}</div><div class="mb">${x.rows.map(p=>esc(p.nama)+' '+nf(p.hc)).join(' · ')}</div>
     <div class="big"><b>${nf(x.hc)}</b><span>${esc(lbl(t.jenis))}</span></div><div class="prog ${x.pct>=1?'done':''}"><i style="width:${Math.min(100,x.pct*100)}%"></i></div>
     <div class="tg"><span>${nf(x.hc)} / ${nf(x.target,0)} target</span><b>${pct(x.pct)}</b></div>
     <div class="mini"><div><b>${x.wd}/${x.wdTot}</b>hari kerja</div><div><b>${rpS(x.gaji)}</b>gaji pokok</div><div><b>${rpS(x.insTek+x.insMitra)}</b>insentif</div><div><b>${r.b?esc(ILBL[r.b.status]):'–'}</b>invoice</div></div></div>`}).join('')||'<div class="card empty" style="grid-column:1/-1">Belum ada tim aktif pada periode ini.</div>'}</div>
-  ${(()=>{const pend=T.filter(t=>['Daftar','Kontrak','Akun'].includes(t.status));return pend.length?`<div class="note" style="margin:-4px 0 16px">⏳ Permintaan akun sedang diproses admin: ${pend.map(t=>`<b>${esc(aName(t))}</b> (${t.status==='Daftar'?'Mitra submit':'Verifikasi'})`).join(', ')} — ID &amp; kata sandi muncul di kartu tim setelah selesai.</div>`:''})()}
-  <div class="card" style="margin-bottom:16px"><h2>HC per hari</h2><p class="sub">Semua tim ${esc(P.mitra)} · ${esc(perLabel(per))}</p><div class="chart-box"><canvas id="cPortal"></canvas></div></div>
+    <div class="card" style="margin-bottom:16px"><h2>HC per hari</h2><p class="sub">Semua tim ${esc(P.mitra)} · ${esc(perLabel(per))}</p><div class="chart-box"><canvas id="cPortal"></canvas></div></div>
   <div class="card" style="margin-bottom:16px;padding:0" id="pWo"></div>
+  <div class="trk-g"><div class="trk-h"><div class="ini">${esc(P.mitra.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase())}</div><div><b>Status pendaftaran tim</b><div class="sub2">Mitra submit → Verifikasi admin → Selesai (akun aktif)</div></div><div class="sp" style="flex:1"></div><a class="btn sm" href="${P.base}/daftar">+ Minta akun tim</a></div>
+   ${T.filter(t=>!['Ditolak'].includes(t.status)).map(t=>{const st=pStage(t);const off=st==='Nonaktif';return `<div class="trk-r" style="grid-template-columns:minmax(190px,1fr) minmax(300px,1.6fr) minmax(220px,1.4fr)"><div class="who"><b>${esc(aName(t))}</b> ${tag(t.jenis)} ${off?pill('Nonaktif','mute'):''}<div class="sub2">${esc(t.nama_1)} & ${esc(t.nama_2)}</div></div>${stepper(t,off?'':st)}
+     <div class="inf">${accP(t)}</div></div>`}).join('')||'<div class="trk-empty">Belum ada tim.</div>'}</div>
   <div class="card" style="padding:0"><div style="padding:16px 18px 10px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap"><div style="flex:1"><h2>Tagihan & pembayaran</h2><p class="sub" style="margin:0">1 invoice atas nama ${esc(P.mitra)} · pilih tim yang ditagih · dicek Finance lalu dibayar ${PAYER}</p></div><button type="button" class="btn pri" id="pInvBtn2">+ Ajukan tagihan</button></div>
    <div class="tbl-wrap" style="border:0;border-top:1px solid var(--line);border-radius:0 0 12px 12px"><table><thead><tr><th>No. invoice</th><th>Periode</th><th>Tim ditagih</th><th class="num">HC</th><th class="num">Nilai</th><th>Dokumen</th><th>Status</th><th>Dibayar</th></tr></thead><tbody>
    ${IV.slice().sort((a,b)=>b.periode.localeCompare(a.periode)||String(b.tgl_ajukan).localeCompare(String(a.tgl_ajukan))).map(b=>`<tr><td class="mono" style="white-space:nowrap"><b>${esc(b.id)}</b></td><td>${esc(perLabel(b.periode))}</td><td>${(b.tim_ids||[]).map(id=>esc(tn(id))).join('<br>')}</td><td class="num">${nf(b.jumlah)}</td><td class="num"><b>${rp(b.nilai)}</b></td><td>${[b.f1,b.f2,b.f3].filter(Boolean).length}/3</td>
      <td>${ipill(b.status)}${b.catatan_finance&&['Revisi','Ditolak','Diajukan'].includes(b.status)?`<div class="sub2" style="margin-top:3px;max-width:240px;color:${b.status==='Revisi'?'var(--bad)':'var(--text-2)'}">Finance: ${esc(b.catatan_finance)}</div>`:''}${['Diajukan','Revisi'].includes(b.status)?` <button type="button" class="btn sm ${b.status==='Revisi'?'pri':''}" data-pinv="${esc(b.id)}" style="margin-top:4px">⬆ Upload ulang</button>`:''}</td>
      <td>${b.tgl_bayar?fmtD(b.tgl_bayar)+(b.nilai_bayar?'<div class="sub2">'+rp(b.nilai_bayar)+'</div>':''):'–'}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">Belum ada tagihan.</td></tr>'}
    </tbody></table></div></div>
-  <div class="foot-note">Data per ${new Date(P.updated||Date.now()).toLocaleString('id-ID')} · Portal ini hanya menampilkan tim ${esc(P.mitra)}. Pertanyaan? Hubungi Vendor Management Starlite.</div>
+  <div class="foot-note">🔄 Diperbarui otomatis tiap 30 detik · terakhir ${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'})} <button type="button" class="btn sm" id="pSync" style="margin-left:6px">Muat ulang</button> · Portal ini hanya menampilkan tim ${esc(P.mitra)}. Pertanyaan? Hubungi Vendor Management Starlite.</div>
   ${S.admin?'<a class="btn dark back-admin" href="#akses" style="background:var(--side);color:#fff">← Kembali ke admin</a>':''}`;
   $('#ptPer').onchange=e=>renderPortal(e.target.value);
   const pm=$('#pPlusMenu');$('#pPlus').onclick=e=>{e.stopPropagation();pm.classList.toggle('hidden')};document.addEventListener('click',()=>pm.classList.add('hidden'),{once:true});
+  $('#pSync').onclick=async e=>{e.target.disabled=true;e.target.textContent='Memuat…';await portalSync(true);const b=$('#pSync');if(b&&b.disabled){b.disabled=false;b.textContent='Muat ulang'}};
   $('#pInvBtn').onclick=()=>openInvoice();const po=$('#pOut');if(po)po.onclick=()=>{mTokSet('');PORTAL=null;$('#mlMsg').textContent='';$('#fMLogin').reset();location.hash='#mitra';route()};$('#pInvBtn2').onclick=()=>openInvoice();
   $$('#portalBody [data-ptim]').forEach(x=>x.onclick=()=>{PWO.tim=x.dataset.ptim;PWO.q='';renderPortalWO(per,act);$('#pWo').scrollIntoView({behavior:'smooth',block:'start'})});
   $$('#portalBody [data-pinv]').forEach(x=>x.onclick=()=>openInvoice(x.dataset.pinv));
