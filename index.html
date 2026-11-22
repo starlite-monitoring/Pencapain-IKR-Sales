@@ -54,6 +54,11 @@ aside.side{background:var(--side);color:var(--side-text);padding:18px 12px;posit
 .side a.cta{background:var(--brand);color:#fff;font-weight:700;justify-content:center;margin:2px 0 4px}
 .side a .n{font-size:11px;background:#ffffff1a;border-radius:10px;padding:1px 7px}
 .side a .n.hot{background:var(--brand);color:#fff}
+.vtabs{display:flex;gap:4px;flex-wrap:wrap;margin:0 0 18px;padding:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;width:max-content;max-width:100%}
+.vtabs a{padding:8px 14px;border-radius:9px;text-decoration:none;color:var(--text-2);font-weight:600;font-size:14px;display:flex;gap:6px;align-items:center}
+.vtabs a:hover{background:var(--accent-soft);color:var(--text)}
+.vtabs a.on{background:var(--side);color:#fff}
+.vtabs a .n{font-size:11px;background:var(--brand);color:#fff;border-radius:10px;padding:1px 7px}
 .brandcard{background:none;border:0;border-radius:0;padding:8px 4px 10px;margin:2px 2px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:none}
 .brandcard img.s{filter:none}
 .brandcard .row1{display:flex;align-items:center;gap:10px}.brandcard .row1 img.s{height:46px}.brandcard .row1 img.t{height:20px}
@@ -366,22 +371,15 @@ body.formmode main{max-width:880px;margin:0 auto}
 <body>
 <div class="app">
 <aside class="side">
-  <div class="brandcard"><div class="row1"><img class="s" data-logo="star" alt=""><img class="t" data-logo="textw" alt="STARLITE"></div><div class="row2">×<img data-logo="weavew" alt="weave"></div></div>
+  <div class="brandcard"><div class="row1"><img class="s" data-logo="star" alt=""><img class="t" data-logo="textw" alt="STARLITE"></div><div class="row2"><img data-logo="weavew" alt="weave"></div></div>
   <div class="prog-name" id="progName">Mitra Center<small>Pencapaian IKR & Sales</small></div>
-  <h6>PERFORMA</h6>
-  <a href="#home" data-v="home">Dashboard <span class="jdots"><i class="j-ikr"></i><i class="j-sls"></i></span></a>
-  <h6>MITRA</h6>
-  <a href="#tracking" data-v="tracking">Tracking Mitra <span id="nPipe"></span></a>
-  <a href="#daftar" data-v="daftar">Form Pendaftaran</a>
-  <h6>KEUANGAN · FINANCE</h6>
-  <a href="#tagihan" data-v="tagihan">Penagihan <span id="nInv"></span></a>
-  <a href="#hitung" data-v="hitung">Perhitungan Gaji</a>
-  <h6>DATA</h6>
-  <a href="#input" data-v="input">Detail WO <span id="nUnm"></span></a>
+  <h6>MENU</h6>
+  <a href="#home" data-v="home" data-g="home,tracking,daftar">Dashboard &amp; Tracking <span id="nPipe"></span></a>
+  <a href="#tagihan" data-v="tagihan" data-g="tagihan,hitung">Finance · Penagihan <span id="nInv"></span></a>
+  <a href="#input" data-v="input" data-g="input">Detail Pelanggan Aktivasi <span id="nUnm"></span></a>
   <h6>SUPERADMIN</h6>
-  <a href="#akses" data-v="akses">Akun Mitra</a>
-  <a href="#admins" data-v="admins">Pengguna Admin</a>
-  <a href="#setting" data-v="setting">Pengaturan</a>
+  <a href="#akses" data-v="akses" data-g="akses">Akun Mitra</a>
+  <a href="#setting" data-v="setting" data-g="setting,admins">Pengaturan</a>
   <div class="foot">
     <div class="row"><span class="dot" id="connDot"></span><span id="connTxt">Menghubungkan…</span></div>
     <button id="btnLogout">⎋ Keluar</button>
@@ -394,12 +392,14 @@ body.formmode main{max-width:880px;margin:0 auto}
       <a href="#" class="dsw" data-dsw="portal">👁 Mitra (portal)</a>
     </div></div>
 
+  <nav class="vtabs hidden" id="vtabs"></nav>
+
   <!-- ============ DASHBOARD UTAMA ============ -->
   <section id="v-home" class="view hidden"><div id="homeBody"></div></section>
 
   <!-- ============ SUPERADMIN: LINK MITRA ============ -->
   <section id="v-akses" class="view hidden">
-    <div class="ph"><div><h1>Akun Mitra</h1><p>Satu link Portal Mitra untuk semua — setiap mitra login dengan username &amp; password dari admin, dan hanya melihat tim miliknya sendiri</p></div></div>
+    <div class="ph"><div><h1>Akun Mitra</h1><p>Link langsung untuk tiap mitra — cukup klik, tanpa login. Mitra hanya melihat tim miliknya sendiri.</p></div></div>
     <div id="aksesBody"></div>
   </section>
 
@@ -557,7 +557,7 @@ body.formmode main{max-width:880px;margin:0 auto}
 
   <!-- ============ INPUT PENCAPAIAN (admin) ============ -->
   <section id="v-input" class="view hidden">
-    <div class="ph"><div><h1>Detail WO</h1><p>Upload Excel "detail instalasi WO" dari Metabase — sistem membaca tiap WO, menghitung HC per teknisi per hari, dan mencocokkan ke tim lewat Nama IKR / IKR ID</p></div></div>
+    <div class="ph"><div><h1>Detail Pelanggan Aktivasi</h1><p>Upload Excel "detail instalasi WO" dari Metabase — sistem membaca tiap WO, menghitung HC per teknisi per hari, dan mencocokkan ke tim lewat Nama IKR / IKR ID</p></div></div>
     <div id="iBody"></div>
   </section>
 
@@ -743,15 +743,32 @@ async function loadAdmin(){
   catch(e){toast(e.message);logout(true);return false}
 }
 async function refreshAll(){if(await loadAdmin())renderView()}
+/* Auto-sinkron: data dari mitra (pendaftaran / invoice) muncul sendiri tiap 60 detik */
+setInterval(async()=>{
+  if(!S.admin||!S.pw||document.hidden||document.body.classList.contains('portalmode')||document.body.classList.contains('formmode'))return;
+  if($('#modalRoot').innerHTML.trim())return;const ae=document.activeElement;if(ae&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName)&&ae.closest('main'))return;
+  const cnt=A=>({d:(A.tims||[]).filter(t=>t.status==='Daftar').length,i:(A.invoices||[]).filter(x=>x.status==='Diajukan').length,n:(A.tims||[]).length+(A.invoices||[]).length});
+  const before=cnt(S.admin);
+  try{const d=await api('admin_data',{pw:S.pw});(d.tims||[]).forEach(t=>t.mitra=String(t.mitra||'').toUpperCase());(d.akses||[]).forEach(a=>a.mitra=String(a.mitra||'').toUpperCase());
+    if($('#modalRoot').innerHTML.trim())return;S.admin=d;S.loadedAt=Date.now();S.me=d.me||S.me;derive();sideBadges();fillLists();renderView();
+    const after=cnt(d);const msg=[];if(after.d>before.d)msg.push((after.d-before.d)+' pendaftaran tim baru');if(after.i>before.i)msg.push((after.i-before.i)+' invoice baru dari mitra');if(msg.length)toast('🔔 Masuk: '+msg.join(' · '))}
+  catch(e){console.warn('auto-sinkron gagal',e.message)}
+},60000);
+const TABG=[[['home','Dashboard'],['tracking','Tracking Mitra'],['daftar','Form Pendaftaran']],[['tagihan','Penagihan'],['hitung','Perhitungan Gaji']],[['setting','Pengaturan umum'],['admins','Pengguna Admin']]];
+function renderTabs(v){const el=$('#vtabs');const g=TABG.find(g=>g.some(x=>x[0]===v));if(!v||!g||!S.admin){el.classList.add('hidden');return}
+  const nP=S.admin.tims.filter(t=>['Daftar','Kontrak','Akun'].includes(t.status)).length,nI=(S.admin.invoices||[]).filter(i=>i.status==='Diajukan').length;
+  const bd={tracking:nP,tagihan:nI};el.classList.remove('hidden');
+  el.innerHTML=g.map(([k,l])=>`<a href="#${k}" class="${k===v?'on':''}">${l}${bd[k]?` <span class="n">${bd[k]}</span>`:''}</a>`).join('')}
 function sideBadges(){const T=S.admin.tims;const n=T.filter(t=>['Daftar','Kontrak','Akun'].includes(t.status)).length;
   $('#nPipe').innerHTML=n?`<span class="n ${T.some(t=>t.status==='Daftar')?'hot':''}">${n}</span>`:'';
   const ni=(S.admin.invoices||[]).filter(i=>i.status==='Diajukan').length;$('#nInv').innerHTML=ni?`<span class="n hot" title="Invoice menunggu dicek">${ni}</span>`:'';
-  const u=new Set(S.admin.ach.filter(a=>!a.tim_id).map(a=>a.id_akun)).size;$('#nUnm').innerHTML=u?`<span class="n hot" title="ID belum terhubung">${u}</span>`:''}
+  renderTabs(S.view);const u=new Set(S.admin.ach.filter(a=>!a.tim_id).map(a=>a.id_akun)).size;$('#nUnm').innerHTML=u?`<span class="n hot" title="ID belum terhubung">${u}</span>`:''}
 function logout(silent){S.pw=null;S.admin=null;S.pub=null;sSet('stl_pw',null);lSet('stl_pw',null);if(sb)sb.auth.signOut().catch(()=>{});if(!silent)toast('Anda sudah keluar');route()}
 $('#btnLogout').onclick=()=>logout();
 
 /* ================== routing ================== */
 function route(){
+  $('#vtabs').classList.add('hidden');
   let v=location.hash.slice(1);if(v==='pipeline')v='tracking';if(v==='ikr'||v==='sales'||v==='perf'){if(v!=='perf')S.dj=v==='ikr'?'IKR':'Sales';v='home'}
   if(v==='panduan'){S.view='portal';$('#modalRoot').innerHTML='';document.body.classList.add('formmode','portalmode');$$('.view').forEach(x=>x.classList.toggle('hidden',x.id!=='v-panduan'));renderPanduan();window.scrollTo(0,0);return}
   // Portal mitra dengan login: #mitra (username & password dari admin)
@@ -774,7 +791,7 @@ function route(){
   document.body.classList.toggle('formmode',formOnly||needLogin);
   const sec=needLogin?'login':v;
   $$('.view').forEach(x=>x.classList.toggle('hidden',x.id!=='v-'+(sec==='home'?'dash':sec)));
-  $$('.side a').forEach(a=>a.classList.toggle('on',a.dataset.v===v));
+  $$('.side a').forEach(a=>a.classList.toggle('on',(a.dataset.g||a.dataset.v||'').split(',').includes(v)));renderTabs(needLogin?'':v);
   $('#shareCard').classList.toggle('hidden',!S.admin);
   $('#regBlocked').classList.toggle('hidden',!formOnly);if(formOnly){$('#fReg').classList.add('hidden');$('#regDone').classList.add('hidden')}else if($('#regDone').classList.contains('hidden'))$('#fReg').classList.remove('hidden');
   window.scrollTo(0,0);
@@ -1209,7 +1226,7 @@ function renderPanduan(){
     <h1>Panduan Portal Mitra</h1><p>Cara login, memantau tim, mendaftarkan tim baru, dan mengajukan tagihan</p>
     <div style="margin-top:14px"><a class="btn" href="#mitra" style="background:#fff;color:#0a3a78;border-color:transparent;font-weight:700">Masuk ke portal →</a></div></div>
    <div class="pg">
-   ${st(1,'Masuk ke portal',`<p>Buka link <b class="mono">${esc(location.href.split('#')[0])}#mitra</b> di HP atau laptop, isi <b>username</b> &amp; <b>password</b> dari admin Starlite, lalu klik <b>Masuk</b>.</p><ul><li>Login tersimpan di perangkat sampai klik <b>Keluar</b>.</li><li>5× salah password → akun terkunci 10 menit.</li></ul>`,'login','Halaman login')}
+   ${st(1,'Buka portal',`<p>Klik <b>link khusus mitra</b> yang dikirim admin Starlite (lewat WhatsApp/email) — portal langsung terbuka tanpa login.</p><ul><li>Simpan / bookmark link tersebut dan jangan dibagikan ke pihak lain.</li><li>Link tidak bisa dibuka? Hubungi admin untuk link baru.</li><li>Bila diberi username &amp; password, bisa juga login di <b class="mono">${esc(location.href.split('#')[0])}#mitra</b>.</li></ul>`,'login','Halaman login')}
    ${st(2,'Beranda &amp; performa tim',`<p>Pilih <b>periode</b> (bulan). Kotak di atas menampilkan HC terverifikasi, rata-rata capaian target, estimasi nilai bulan ini, dan total yang sudah dibayar.</p><ul><li>Kartu tim diurutkan dari HC terbanyak.</li><li>Target IKR 65 HC/tim/bulan · Sales 40 HC/orang/bulan.</li></ul>`,'beranda','Beranda portal')}
    ${st(3,'Minta akun tim baru',`<p>Klik tombol <b>+</b> di pojok kanan atas → <b>Minta akun tim baru</b>.</p><ul><li>1 tim = 2 orang: nama, HP, email.</li><li>Foto KTP &amp; foto diri <b>wajib</b> · PKWT &amp; BPJS opsional.</li><li>Status: <b>Mitra submit</b> → <b>Verifikasi</b> (admin mengisi ID IKR &amp; kata sandi) → <b>Selesai</b>. Akun tim tampil di bagian Status pendaftaran tim.</li></ul>`,'plus','Menu tombol plus')}
    ${st(4,'Detail WO &amp; pelanggan',`<p>Bagian <b>Detail WO &amp; pelanggan</b> menampilkan setiap WO: tanggal, nama &amp; ID pelanggan, teknisi, sales, status, SLA, dan apakah dihitung HC.</p><ul><li>Filter per tim / status, cari pelanggan, dan unduh CSV.</li></ul>`,'wo','Detail WO')}
@@ -1217,31 +1234,32 @@ function renderPanduan(){
    ${st(6,'Pantau status &amp; pembayaran',`<p>Tabel <b>Tagihan &amp; pembayaran</b> menunjukkan status setiap tagihan:</p><ul><li><b>Diajukan mitra</b> — invoice masuk, menunggu dicek Finance.</li><li><b>Perlu revisi</b> — baca catatan Finance lalu upload ulang.</li><li><b>Dicek finance</b> — invoice disetujui, menunggu pembayaran.</li><li><b>Dibayar IJE</b> — sudah ditransfer ke mitra, tanggal &amp; nilai bayar tercatat.</li></ul>`,'tagihan','Status tagihan')}
    <div class="card" style="text-align:center;padding:22px"><b>Butuh bantuan?</b><div class="sub2" style="margin-top:4px">Lupa password, akun terkunci, atau data tidak sesuai — hubungi admin Vendor Management Starlite.</div><div style="margin-top:12px"><a class="btn pri" href="#mitra">Masuk ke portal</a></div></div>
    </div>`}
-const edaranText=(m,u,pw)=>{const tgl=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+const edaranText=(m,link,u,pw)=>{const tgl=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
   return `*EDARAN — PORTAL MITRA STARLITE*
 Kepada Yth. PIC *${m}*
 
 Dengan hormat,
-Mulai ${tgl}, monitoring tim IKR & Sales, pendaftaran tim baru, dan pengajuan tagihan dilakukan melalui *Portal Mitra Starlite*. Setiap mitra mendapat satu akun yang hanya menampilkan data tim milik mitra tersebut.
+Mulai ${tgl}, monitoring tim IKR & Sales, permintaan akun tim baru, dan pengajuan tagihan dilakukan melalui *Portal Mitra Starlite*. Portal hanya menampilkan data tim milik ${m}.
 
-*Akun login*
-Link     : ${mitraUrl()}
+*Link portal ${m}* (langsung terbuka, tanpa login)
+${link}
+
+Mohon simpan / bookmark link di atas dan jangan dibagikan ke pihak lain — link ini khusus untuk ${m}.${u&&pw?`
+
+Alternatif login: ${mitraUrl()}
 Username : ${u}
-Password : ${pw||'(dikirim terpisah oleh admin)'}
+Password : ${pw}`:''}
 
 *Cara pakai*
-1. Buka link di HP/laptop, isi username & password, klik *Masuk*.
-2. Beranda: pilih periode untuk melihat HC terverifikasi, capaian target, estimasi & pembayaran.
+1. Klik link di atas (HP/laptop) — portal langsung terbuka.
+2. Pilih periode untuk melihat HC terverifikasi, capaian target, detail pelanggan, estimasi & pembayaran.
 3. Minta akun tim baru: klik tombol *+* → *Minta akun tim baru* (1 tim = 2 orang; KTP & foto diri wajib, PKWT & BPJS opsional). Admin Starlite memverifikasi & mengisi ID IKR + kata sandi.
 4. Submit invoice: klik *+* → *Ajukan tagihan*, 1 invoice atas nama mitra — pilih periode & centang tim yang ditagih, lampirkan capture performance (wajib).
 5. Pantau status: pendaftaran tim (Mitra submit → Verifikasi → Selesai) dan invoice (Diajukan → Dicek finance → Dibayar IJE).
 
 Panduan bergambar: ${panduanUrl()}
 
-*Penting*
-• Jangan bagikan username & password ke pihak lain.
-• 5× salah password → akun terkunci 10 menit.
-• Lupa password / butuh bantuan: hubungi admin Starlite.
+Butuh bantuan / link tidak bisa dibuka: hubungi admin Starlite.
 
 Hormat kami,
 Vendor Management Starlite`};
@@ -1252,36 +1270,39 @@ const mitraUrl=()=>location.href.split('#')[0]+'#mitra';
 const loginInfo=(m,u,pw)=>`Portal Mitra Starlite — ${m}\nLink: ${mitraUrl()}\nUsername: ${u}\nPassword: ${pw||'(password yang sudah diberikan sebelumnya)'}\n\nDari portal ini Bapak/Ibu bisa memantau performa tim, mendaftarkan tim baru (tombol + di kanan atas) dan mengajukan tagihan. Mohon username & password tidak dibagikan ke pihak lain.`;
 function renderAkses(){
   const A=S.admin.akses||[];const ml=[...new Set([...mitraList(),...S.admin.tims.map(t=>t.mitra)])];
-  $('#aksesBody').innerHTML=`<div class="card" style="margin-bottom:14px;display:flex;gap:14px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:260px"><b>🔗 Link Portal Mitra (sama untuk semua mitra)</b><div class="lnk" style="margin-top:6px">${esc(mitraUrl())}</div>
-     <div class="sub2" style="margin-top:6px">Mitra membuka link ini lalu login dengan username &amp; password di bawah. Setelah login mitra hanya melihat timnya sendiri: performa, detail WO &amp; pelanggan, status tagihan — plus tombol + untuk daftar tim baru &amp; ajukan tagihan.</div></div>
-     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" id="cpUrl">Salin link</button><a class="btn" href="#mitra" target="_blank" rel="noopener">Buka halaman login mitra ↗</a><a class="btn" href="#panduan" target="_blank" rel="noopener">📖 Panduan bergambar ↗</a></div></div>
-  <div class="note" style="margin-bottom:14px">📋 <b>Cara memberi akun ke mitra:</b> isi password (atau 🎲) → <b>Buat akun / Simpan</b> → klik <b>Salin edaran</b> → tempel di WhatsApp/email ke PIC mitra. Edaran sudah berisi link portal, username, password, cara pakai, dan link panduan bergambar.</div>
-  <div class="card" style="padding:0"><div class="tbl-wrap" style="border:0"><table><thead><tr><th>Mitra</th><th class="num">Tim</th><th>Username</th><th>Password</th><th>Status</th><th></th></tr></thead><tbody>
-  ${ml.map((m,k)=>{const a=A.find(x=>x.mitra===m)||{};const n=S.admin.tims.filter(t=>t.mitra===m).length;const has=a.has_pass&&a.username;
-    return `<tr data-row="${k}"><td style="min-width:200px"><b>${esc(m)}</b></td><td class="num">${n}</td>
+  const aOf=m=>A.find(x=>x.mitra===m)||{};const missing=ml.filter(m=>!aOf(m).token);
+  $('#aksesBody').innerHTML=`<div class="card" style="margin-bottom:14px;display:flex;gap:14px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:280px"><b>🔗 Link langsung per mitra — tanpa username &amp; password</b>
+     <div class="sub2" style="margin-top:6px">Setiap mitra punya link sendiri. Mitra cukup klik link → portal langsung terbuka dan hanya menampilkan tim miliknya. Kirim lewat <b>📋 Salin edaran</b>. Bila link bocor, klik <b>↻ Ganti link</b> — link lama langsung tidak berlaku.</div></div>
+     <div style="display:flex;gap:8px;flex-wrap:wrap">${missing.length?`<button class="btn pri" id="mkAllLink">Buat link untuk ${missing.length} mitra</button>`:''}<button class="btn" id="cpAllLink">Salin semua link</button><a class="btn" href="#panduan" target="_blank" rel="noopener">📖 Panduan ↗</a></div></div>
+  <div class="card" style="padding:0"><div class="tbl-wrap" style="border:0"><table><thead><tr><th>Mitra</th><th class="num">Tim</th><th>Link langsung</th><th>Status</th><th></th></tr></thead><tbody>
+  ${ml.map((m,k)=>{const a=aOf(m);const n=S.admin.tims.filter(t=>t.mitra===m).length;
+    return `<tr><td style="min-width:200px"><b>${esc(m)}</b></td><td class="num">${n}</td>
+     <td style="max-width:360px">${a.token?`<div class="lnk mono" style="font-size:12px;word-break:break-all">${esc(portalLink(a.token))}</div>`:'<span class="sub2">Belum dibuat</span>'}</td>
+     <td>${a.token?(a.aktif?pill('Aktif','good'):pill('Nonaktif','mute')):pill('Belum ada link','mute')}</td>
+     <td><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:420px;margin-left:auto">${a.token?`<button class="btn sm pri" data-ed="${k}" style="background:var(--good);border-color:var(--good)">📋 Salin edaran</button><button class="btn sm pri" data-cl="${k}">🔗 Salin link</button><a class="btn sm" href="#m-${esc(a.token)}" target="_blank" rel="noopener">👁 Buka</a><button class="btn sm" data-rl="${k}">↻ Ganti link</button><button class="btn sm" data-tg="${k}">${a.aktif?'Nonaktifkan':'Aktifkan'}</button>`
+       :`<button class="btn sm pri" data-mk="${k}">Buat link</button>`}</div></td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Belum ada mitra. Tambahkan di Pengaturan.</td></tr>'}
+  </tbody></table></div></div>
+  <details class="card" style="margin-top:14px" id="loginOpt"><summary style="cursor:pointer;font-weight:700">🔐 Login username &amp; password (opsional)</summary>
+   <p class="sub" style="margin:8px 0 12px">Tidak wajib. Hanya bila mitra lebih suka login di <span class="mono">${esc(mitraUrl())}</span>. Password disimpan terenkripsi — catat saat dibuat.</p>
+   <div class="tbl-wrap"><table><thead><tr><th>Mitra</th><th>Username</th><th>Password</th><th></th></tr></thead><tbody>
+   ${ml.map((m,k)=>{const a=aOf(m);const has=a.has_pass&&a.username;return `<tr><td><b>${esc(m)}</b>${has?' '+pill('ada login','info'):''}${a.kunci?' '+pill('terkunci 10 mnt','warn'):''}</td>
      <td><input class="mono" data-u="${k}" value="${esc(a.username||slugU(m))}" style="width:170px" autocapitalize="none"></td>
      <td><div style="display:flex;gap:6px;align-items:center"><input data-p="${k}" value="${esc(LASTPW[m]||'')}" placeholder="${has?'•••••• tersimpan (isi untuk ganti)':'belum ada'}" style="width:190px" class="mono"><button class="btn sm" data-gen="${k}" title="Buat password acak">🎲</button></div></td>
-     <td>${has?(a.aktif?pill('Aktif','good'):pill('Nonaktif','mute'))+(a.kunci?' '+pill('terkunci 10 mnt','warn'):''):pill('Belum ada akun','mute')}</td>
-     <td><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:360px;margin-left:auto"><button class="btn sm pri" data-sv="${k}">${has?'Simpan':'Buat akun'}</button>
-       ${has?`<button class="btn sm pri" data-ed="${k}" style="background:var(--good);border-color:var(--good)">📋 Salin edaran</button><button class="btn sm" data-ci="${k}">Salin info login</button><a class="btn sm" href="#m-${esc(a.token)}">👁 Lihat sebagai mitra</a><button class="btn sm" data-tg="${k}">${a.aktif?'Nonaktifkan':'Aktifkan'}</button>`:''}</div></td></tr>`}).join('')||'<tr><td colspan="6" class="empty">Belum ada mitra. Tambahkan di Pengaturan.</td></tr>'}
-  </tbody></table></div></div>
-  <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center"><button class="btn" id="mkAll">Buat akun untuk semua mitra yang belum punya</button><span class="sub2">Password disimpan terenkripsi — catat/salin saat dibuat. Lupa? Cukup isi password baru lalu Simpan.</span></div>`;
-  $('#cpUrl').onclick=()=>copy(mitraUrl(),'Link Portal Mitra disalin');
-  const rowOf=k=>({m:ml[k],a:A.find(x=>x.mitra===ml[k])||{},u:$(`#aksesBody [data-u="${k}"]`).value.trim().toLowerCase(),p:$(`#aksesBody [data-p="${k}"]`).value});
+     <td><div style="display:flex;gap:6px;justify-content:flex-end"><button class="btn sm" data-sv="${k}">${has?'Simpan':'Buat login'}</button>${has?`<button class="btn sm" data-ci="${k}">Salin info login</button>`:''}</div></td></tr>`}).join('')}
+   </tbody></table></div></details>`;
+  const rowOf=k=>({m:ml[k],a:aOf(ml[k]),u:($(`#aksesBody [data-u="${k}"]`)?.value||'').trim().toLowerCase(),p:$(`#aksesBody [data-p="${k}"]`)?.value||''});
+  const setTok=async(m,aktif)=>api('admin_akses_save',{pw:S.pw,row:{mitra:m,token:genToken(),aktif}});
+  $$('#aksesBody [data-mk]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await setTok(ml[b.dataset.mk],true);toast('Link dibuat — klik 📋 Salin edaran lalu kirim ke mitra');await refreshAll()}catch(e){toast(e.message,true);b.disabled=false}});
+  const ma=$('#mkAllLink');if(ma)ma.onclick=async()=>{ma.disabled=true;try{for(const m of missing)await setTok(m,true);toast(missing.length+' link mitra dibuat');await refreshAll()}catch(e){toast(e.message,true);ma.disabled=false}};
+  $('#cpAllLink').onclick=()=>{const L=ml.map(m=>[m,aOf(m)]).filter(([,a])=>a.token&&a.aktif);if(!L.length){toast('Belum ada link — klik Buat link dulu',true);return}copy(L.map(([m,a])=>`${m}\n${portalLink(a.token)}`).join('\n\n'),L.length+' link mitra disalin')};
+  $$('#aksesBody [data-cl]').forEach(b=>b.onclick=()=>copy(portalLink(aOf(ml[b.dataset.cl]).token),'Link '+ml[b.dataset.cl]+' disalin'));
+  $$('#aksesBody [data-ed]').forEach(b=>b.onclick=()=>{const r=rowOf(b.dataset.ed);copy(edaranText(r.m,portalLink(r.a.token),r.a.username||'',LASTPW[r.m]||''),'Edaran + link disalin — tempel ke WhatsApp/email mitra')});
+  $$('#aksesBody [data-rl]').forEach(b=>b.onclick=async()=>{if(!b.dataset.c){b.dataset.c=1;b.textContent='Klik lagi: link lama mati';return}const r=rowOf(b.dataset.rl);b.disabled=true;try{await setTok(r.m,true);toast('Link baru dibuat — link lama sudah tidak berlaku. Kirim ulang edaran.');await refreshAll()}catch(e){toast(e.message,true);b.disabled=false}});
+  $$('#aksesBody [data-tg]').forEach(b=>b.onclick=async()=>{const r=rowOf(b.dataset.tg);try{await api('admin_akses_save',{pw:S.pw,row:{mitra:r.m,token:r.a.token,aktif:!r.a.aktif}});toast(r.a.aktif?'Link mitra dinonaktifkan':'Link mitra diaktifkan');await refreshAll()}catch(e){toast(e.message,true)}});
   $$('#aksesBody [data-gen]').forEach(b=>b.onclick=()=>{$(`#aksesBody [data-p="${b.dataset.gen}"]`).value=genPw()});
-  $$('#aksesBody [data-sv]').forEach(b=>b.onclick=async()=>{const r=rowOf(b.dataset.sv);if(!r.a.has_pass&&!r.p){r.p=genPw()}
-    b.disabled=true;try{await api('admin_mitra_login',{pw:S.pw,mitra:r.m,username:r.u,password:r.p});if(r.p)LASTPW[r.m]=r.p;toast(r.p?'Akun tersimpan — klik "Salin info login" lalu kirim ke mitra':'Username tersimpan');await refreshAll()}catch(e){toast(e.message,true);b.disabled=false}});
-  $$('#aksesBody [data-ci]').forEach(b=>b.onclick=()=>{const r=rowOf(b.dataset.ci);copy(loginInfo(r.m,r.a.username||r.u,LASTPW[r.m]||''),LASTPW[r.m]?'Info login (dengan password) disalin — kirim ke mitra':'Info login disalin (tanpa password — isi password baru bila perlu)')});
-  $$('#aksesBody [data-ed]').forEach(b=>b.onclick=()=>{const r=rowOf(b.dataset.ed);const pw=r.p||LASTPW[r.m]||'';
-    copy(edaranText(r.m,r.a.username||r.u,pw),pw?'Edaran + password disalin — tempel ke WhatsApp/email mitra':'Edaran disalin TANPA password — isi password di kolom dulu agar ikut tersalin')});
-  $$('#aksesBody [data-tg]').forEach(b=>b.onclick=async()=>{const r=rowOf(b.dataset.tg);try{await api('admin_akses_save',{pw:S.pw,row:{mitra:r.m,token:r.a.token,aktif:!r.a.aktif}});toast(r.a.aktif?'Akun mitra dinonaktifkan':'Akun mitra diaktifkan');await refreshAll()}catch(e){toast(e.message,true)}});
-  $('#mkAll').onclick=async()=>{const miss=ml.map((m,k)=>({m,k})).filter(x=>{const a=A.find(y=>y.mitra===x.m);return !(a&&a.has_pass&&a.username)});if(!miss.length){toast('Semua mitra sudah punya akun');return}
-    const out=[];try{for(const x of miss){const u=$(`#aksesBody [data-u="${x.k}"]`).value.trim().toLowerCase()||slugU(x.m);const p=genPw();await api('admin_mitra_login',{pw:S.pw,mitra:x.m,username:u,password:p});LASTPW[x.m]=p;out.push([x.m,u,p])}}catch(e){toast(e.message,true)}
-    await refreshAll();if(out.length){const txt=out.map(([m,u,p])=>loginInfo(m,u,p)).join('\n\n———\n\n');
-      const md=modal(`<h2 style="margin:0">${out.length} akun mitra dibuat</h2><p class="sub">Salin &amp; kirim ke masing-masing mitra sekarang — password tidak bisa dilihat lagi nanti (bisa diganti kapan saja).</p>
-        <div class="tbl-wrap"><table><thead><tr><th>Mitra</th><th>Username</th><th>Password</th></tr></thead><tbody>${out.map(([m,u,p])=>`<tr><td>${esc(m)}</td><td class="mono">${esc(u)}</td><td class="mono"><b>${esc(p)}</b></td></tr>`).join('')}</tbody></table></div>
-        <div class="foot"><button class="btn" data-close>Tutup</button><button class="btn pri" id="cpAllAcc">Salin semua info login</button></div>`,true);
-      md.querySelector('[data-close]').onclick=()=>$('#modalRoot').innerHTML='';md.querySelector('#cpAllAcc').onclick=()=>copy(txt,'Semua info login disalin')}};
+  $$('#aksesBody [data-sv]').forEach(b=>b.onclick=async()=>{const r=rowOf(b.dataset.sv);if(!(r.a.has_pass&&r.a.username)&&!r.p){r.p=genPw()}
+    b.disabled=true;try{await api('admin_mitra_login',{pw:S.pw,mitra:r.m,username:r.u,password:r.p});if(r.p)LASTPW[r.m]=r.p;toast(r.p?'Login tersimpan — klik "Salin info login"':'Username tersimpan');await refreshAll();$('#loginOpt').open=true}catch(e){toast(e.message,true);b.disabled=false}});
+  $$('#aksesBody [data-ci]').forEach(b=>b.onclick=()=>{const r=rowOf(b.dataset.ci);copy(loginInfo(r.m,r.a.username||r.u,LASTPW[r.m]||''),LASTPW[r.m]?'Info login disalin':'Info login disalin (tanpa password — isi password baru bila perlu)')});
 }
 
 /* ================== SUPERADMIN: PENGGUNA ================== */
