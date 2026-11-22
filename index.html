@@ -1412,11 +1412,10 @@ function renderPortal(per){
      <td>${ipill(b.status)}${b.catatan_finance&&['Revisi','Ditolak','Diajukan'].includes(b.status)?`<div class="sub2" style="margin-top:3px;max-width:240px;color:${b.status==='Revisi'?'var(--bad)':'var(--text-2)'}">Finance: ${esc(b.catatan_finance)}</div>`:''}${['Diajukan','Revisi'].includes(b.status)?` <button type="button" class="btn sm ${b.status==='Revisi'?'pri':''}" data-pinv="${esc(b.id)}" style="margin-top:4px">⬆ Upload ulang</button>`:''}</td>
      <td>${b.tgl_bayar?fmtD(b.tgl_bayar)+(b.nilai_bayar?'<div class="sub2">'+rp(b.nilai_bayar)+'</div>':''):'–'}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">Belum ada tagihan.</td></tr>'}
    </tbody></table></div></div>
-  <div class="foot-note">🔄 Diperbarui otomatis tiap 30 detik · terakhir ${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'})} <button type="button" class="btn sm" id="pSync" style="margin-left:6px">Muat ulang</button> · Portal ini hanya menampilkan tim ${esc(P.mitra)}. Pertanyaan? Hubungi Vendor Management Starlite.</div>
+  <div class="foot-note">Portal Dashboard by Vendor Management</div>
   ${S.admin?'<a class="btn dark back-admin" href="#akses" style="background:var(--side);color:#fff">← Kembali ke admin</a>':''}`;
   $('#ptPer').onchange=e=>renderPortal(e.target.value);
   const pm=$('#pPlusMenu');$('#pPlus').onclick=e=>{e.stopPropagation();pm.classList.toggle('hidden')};document.addEventListener('click',()=>pm.classList.add('hidden'),{once:true});
-  $('#pSync').onclick=async e=>{e.target.disabled=true;e.target.textContent='Memuat…';await portalSync(true);const b=$('#pSync');if(b&&b.disabled){b.disabled=false;b.textContent='Muat ulang'}};
   $('#pInvBtn').onclick=()=>openInvoice();const po=$('#pOut');if(po)po.onclick=()=>{mTokSet('');PORTAL=null;$('#mlMsg').textContent='';$('#fMLogin').reset();location.hash='#mitra';route()};$('#pInvBtn2').onclick=()=>openInvoice();
   $$('#portalBody [data-ptim]').forEach(x=>x.onclick=()=>{PWO.tim=x.dataset.ptim;PWO.q='';renderPortalWO(per,act);$('#pWo').scrollIntoView({behavior:'smooth',block:'start'})});
   $$('#portalBody [data-pinv]').forEach(x=>x.onclick=()=>openInvoice(x.dataset.pinv));
