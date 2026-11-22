@@ -1343,7 +1343,7 @@ setInterval(async()=>{
 async function loadPortal(tok,base){
   $('#portalBody').innerHTML='<div class="loading">Memuat portal mitra…</div>';
   try{PORTAL=await api('portal',{token:tok});PORTAL.token=tok;PORTAL.base=base||'#m-'+tok;PORTAL.mitra=String(PORTAL.mitra||'').toUpperCase();PWO.cache={};renderPortal()}
-  catch(e){if(base==='#mitra'){mTokSet('');PORTAL=null;$('#mlMsg').textContent='Sesi berakhir: '+e.message+' Silakan login lagi.';route();return}$('#portalBody').innerHTML=`<div class="card empty" style="margin-top:10vh"><div style="font-size:40px">🔒</div><h2>Link tidak valid</h2><p class="sub">${esc(e.message)}<br>Hubungi Vendor Management Starlite untuk mendapatkan link yang baru.</p></div>`}
+  catch(e){if(base==='#mitra'){mTokSet('');PORTAL=null;$('#mlMsg').textContent='Sesi berakhir: '+e.message+' Silakan login lagi.';route();return}$('#portalBody').innerHTML=/^demo/.test(tok)&&!DEMO?`<div class="card empty" style="margin-top:10vh"><div style="font-size:40px">🧪</div><h2>Ini link contoh (mode demo)</h2><p class="sub">Link yang diawali <b class="mono">#m-demo…</b> hanya contoh dari mode demo dan tidak berlaku di sistem asli.<br>Mohon gunakan link terbaru dari edaran Vendor Management Starlite.</p></div>`:`<div class="card empty" style="margin-top:10vh"><div style="font-size:40px">🔒</div><h2>Link tidak valid</h2><p class="sub">${esc(e.message)}<br>Hubungi Vendor Management Starlite untuk mendapatkan link yang baru.</p></div>`}
 }
 function renderPortal(per){
   const P=PORTAL;const c=Object.assign({},CFG0,P.config||{});const ach=P.ach||[];const T=(P.tims||[]).map(t=>({...t}));const IV=P.invoices||[];
