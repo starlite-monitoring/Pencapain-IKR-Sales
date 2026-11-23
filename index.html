@@ -466,7 +466,7 @@ body.formmode main{max-width:880px;margin:0 auto}
     <div class="fhero">
       <img class="wm" data-logo="star" alt=""><div class="brandline"><div class="chip"><img class="s" data-logo="star" alt=""><img class="t" data-logo="text" alt="STARLITE"><span class="x">×</span><img class="w" data-logo="weave" alt="weave"></div></div>
       <h1>Permintaan Akun Tim IKR & Sales</h1>
-      <p>Ajukan akun untuk tim Anda — 1 tim terdiri dari 2 orang. Admin Starlite akan memverifikasi data lalu menyetujui dan mengaktifkan akun tim.</p>
+      <p>Ajukan akun untuk tim Anda — tim IKR 2 orang, tim Sales 1 orang. Admin Starlite akan memverifikasi data lalu menyetujui dan mengaktifkan akun tim.</p>
       <div class="fsteps three">
         <div><b>1 · Mitra submit</b>Mitra mengisi data tim, HP, email, foto KTP &amp; foto diri</div>
         <div><b>2 · Verifikasi</b>Admin Starlite cek data, isi ID IKR &amp; kata sandi</div>
@@ -492,7 +492,7 @@ body.formmode main{max-width:880px;margin:0 auto}
         </div>
       </div>
       <div class="card fsec" style="margin-bottom:16px">
-        <h3><b>2</b>Anggota tim (2 orang)</h3>
+        <h3><b>2</b><span id="memH">Anggota tim · IKR 2 orang, Sales 1 orang</span></h3>
         <div class="grid g2" id="members"></div>
       </div>
       <div class="card fsec">
@@ -634,7 +634,7 @@ async function sbApi(action,b){
     const r=await sb.rpc('mitra_ajukan_invoice',{p_token:b.token,p});if(r.error)throw new Error(r.error.message);return{ok:true,id:r.data}}
   case 'register':{
     const d={...b.data};const dir='reg/'+(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+rnd4());
-    for(const k of ['ktp_1','ktp_2','foto_1','foto_2']){const blob=await (await fetch(d[k])).blob();const path=`${dir}/${k}.jpg`;
+    for(const k of ['ktp_1','ktp_2','foto_1','foto_2']){if(!d[k]){d[k]='';continue}const blob=await (await fetch(d[k])).blob();const path=`${dir}/${k}.jpg`;
       const r=await sb.storage.from(BK.ktp).upload(path,blob,{contentType:'image/jpeg',upsert:false});if(r.error)throw new Error('Upload foto gagal: '+r.error.message);d[k]=path}
     for(const k of ['pkwt_file_1','pkwt_file_2','bpjs_file_1','bpjs_file_2']){if(!d[k]){d[k]='';continue}const blob=await (await fetch(d[k])).blob();const pdf=blob.type==='application/pdf';const path=`${dir}/${k}.${pdf?'pdf':'jpg'}`;
       const r=await sb.storage.from(BK.ktp).upload(path,blob,{contentType:pdf?'application/pdf':'image/jpeg',upsert:false});if(r.error)throw new Error('Upload dokumen gagal: '+r.error.message);d[k]=path}
@@ -723,15 +723,18 @@ function calcPure(t,per,ach,c){
   const wdTot=workdays(a,bEnd,hk),wd=s<=e?workdays(s,e,hk):0,f=wdTot?wd/wdTot:0;
   const G=+c[(WIL.find(w=>w[0]===t.wilayah)||WIL[0])[1]]||0,sales=t.jenis==='Sales';
   const hcOf=id=>{const k=String(id||'').trim().toUpperCase();return k?ach.reduce((x,r)=>String(r.id_akun).trim().toUpperCase()===k&&r.tanggal.startsWith(per)?x+(+r.jumlah||0):x,0):0};
-  const ppl=[1,2].map(i=>({i,nama:t['nama_'+i],id:t['id_akun_'+i],hc:hcOf(t['id_akun_'+i])}));
-  const hc=ppl[0].hc+ppl[1].hc;let rows,target,insMitra=0;
+  const ppl=mems(t).map(i=>({i,nama:t['nama_'+i],id:t['id_akun_'+i],hc:hcOf(t['id_akun_'+i])}));
+  const hc=ppl.reduce((s,x)=>s+x.hc,0);let rows,target,insMitra=0;
   if(!sales){target=(+c.target_ikr||0)*f;const p=target?Math.min(1,hc/target):(f?1:0);const insAkun=hc*(+c.ins_ikr_akun||0);insMitra=hc*(+c.ins_ikr_mitra||0);
     rows=ppl.map(x=>({...x,target:target,pct:p,gaji:Math.round(p*G*f),ins:Math.round(insAkun/2)}))}
-  else{rows=ppl.map(x=>{const T=(+c.target_sales||0)*f;const p=T?Math.min(1,x.hc/T):(f?1:0);return{...x,target:T,pct:p,gaji:Math.round(p*G*f),ins:x.hc*(+c.ins_sales||0)}});target=rows[0].target+rows[1].target}
+  else{rows=ppl.map(x=>{const T=(+c.target_sales||0)*f;const p=T?Math.min(1,x.hc/T):(f?1:0);return{...x,target:T,pct:p,gaji:Math.round(p*G*f),ins:x.hc*(+c.ins_sales||0)}});target=rows.reduce((s,r)=>s+r.target,0)}
   rows.forEach(r=>r.total=r.gaji+r.ins);
-  const gaji=rows[0].gaji+rows[1].gaji,insTek=rows[0].ins+rows[1].ins;
+  const gaji=rows.reduce((s,r)=>s+r.gaji,0),insTek=rows.reduce((s,r)=>s+r.ins,0);
   return{per,jenis:t.jenis,wilayah:wilOf(t),G,hk,wd,wdTot,f,hc,target,pct:target?Math.min(1,hc/target):0,rows,gaji,insTek,insMitra,total:gaji+insTek+insMitra}}
 const calcTeam=(t,per)=>calcPure(t,per,S.admin?.ach||[],cfg());
+const mems=t=>t.jenis==='Sales'&&!String(t.nama_2||'').trim()?[1]:[1,2];
+const nPers=L=>L.reduce((s,t)=>s+mems(t).length,0);
+const names=t=>mems(t).map(i=>t['nama_'+i]).join(' & ');
 const tName=t=>t.nama_tim||('Tim '+String((t.anggota&&t.anggota[0])||t.nama_1||'').split(' ')[0]).trim();
 const aName=t=>t.nama_tim||('Tim '+String(t.nama_1||'').split(' ')[0]).trim();
 const VIEWS=['home','tracking','tagihan','hitung','daftar','input','akses','admins','setting'];
@@ -882,18 +885,18 @@ function renderDash(){
   const pv=$('#fPer').value||periods()[0][0],R=range(pv),RP=range(R.prev);
   const today=ymd(new Date());let same=false;if(today>=R.a&&today<=R.b){const el=Math.round((new Date(today+'T00:00')-new Date(R.a+'T00:00'))/864e5);const e=new Date(RP.a+'T00:00');e.setDate(e.getDate()+el);if(ymd(e)<RP.b){RP.b=ymd(e);same=true}}
   const fm=$('#fMitra').value,fs=$('#fSta').value,q=$('#fQ').value.toLowerCase();
-  const LB={IKR:c.label_ikr,Sales:c.label_sales},TG={IKR:(+c.target_ikr||0)*R.months,Sales:(+c.target_sales||0)*2*R.months};
+  const LB={IKR:c.label_ikr,Sales:c.label_sales},TG={IKR:(+c.target_ikr||0)*R.months,Sales:(+c.target_sales||0)*R.months};const tgOf=t=>t.jenis==='Sales'?TG.Sales*Math.max(1,(t.anggota||[]).length):TG.IKR;
   const JS=dj?[dj]:['IKR','Sales'];
   $('#dSub').textContent=`Ringkasan mitra, performa IKR (biru) & Sales (oranye), dan pembayaran · ${fmtD(R.a)} – ${fmtD(R.b)}`;
   const H0=S.admin?renderHome():{kpis:'',mitra:''};
   const tims=P.tims.filter(t=>JS.includes(t.jenis)&&(!fm||t.mitra===fm)&&(!fs||t.stasiun===fs));
   if(!tims.length){$('#dBody').innerHTML=`<div class="kpis k4">${H0.kpis}</div>${H0.mitra}<div class="card empty">Belum ada tim aktif${fm||fs||dj?' untuk filter ini':''}.</div>`;$('#updNote').textContent='';return}
   const ids=new Set(tims.map(t=>t.id));const cur=sumRange(ids,R),prev=sumRange(ids,RP);
-  const rows=tims.map(t=>{const n=cur.sum[t.id]||0,dd=cur.days[t.id]||{},act=Object.keys(dd).length,target=TG[t.jenis];
+  const rows=tims.map(t=>{const n=cur.sum[t.id]||0,dd=cur.days[t.id]||{},act=Object.keys(dd).length,target=tgOf(t);
     return{t,n,target,label:LB[t.jenis],prev:prev.sum[t.id]||0,p:target?n/target:null,act,avg:act?n/act:null,best:act?Math.max(...Object.values(dd)):0}});
   const ranked=rows.slice().sort((a,b)=>(b.p||0)-(a.p||0)||b.n-a.n||tName(a.t).localeCompare(tName(b.t)));ranked.forEach((r,i)=>r.rank=i+1);
   const K=J=>{const L=rows.filter(r=>r.t.jenis===J);const tot=L.reduce((a,r)=>a+r.n,0),pv=L.reduce((a,r)=>a+r.prev,0),ak=L.filter(r=>r.t.status==='Aktif').length||L.length;
-    const d=pv?(tot-pv)/pv:null;return{L,tot,pv,ak,hit:L.filter(r=>r.target&&r.n>=r.target).length,cap:ak&&TG[J]?tot/(TG[J]*ak):null,d}};
+    const d=pv?(tot-pv)/pv:null;return{L,tot,pv,ak,hit:L.filter(r=>r.target&&r.n>=r.target).length,cap:(()=>{const A=L.filter(r=>r.t.status==='Aktif');const B=A.length?A:L;const tg=B.reduce((a,r)=>a+(r.target||0),0);return tg?tot/tg:null})(),d}};
   const kp=J=>{const k=K(J);const cl=J==='IKR'?'j-ikr':'j-sls';if(!k.L.length)return '';
     return `<div class="kpi ${cl}"><div class="k"><span class="dot"></span>${J} · total ${esc(LB[J])}</div><div class="v">${nf(k.tot)}</div><div class="d">${k.d==null?nf(k.pv)+' '+R.pl:`<span class="${k.d>=0?'up':'down'}">${k.d>=0?'▲':'▼'} ${nf(Math.abs(k.d)*100,0)}%</span> vs ${R.pl}${same?' (s/d tgl sama)':''}`}</div></div>
     <div class="kpi ${cl}"><div class="k"><span class="dot"></span>${J} · capaian target</div><div class="v">${pct(k.cap)}</div><div class="d">${k.hit}/${k.L.length} tim capai target · ${k.ak} tim aktif</div></div>`};
@@ -948,7 +951,7 @@ function openTeam(id,R,label,target,r){
 }
 
 /* ================== DAFTAR ================== */
-const memberHTML=i=>`<div class="member"><h4>Anggota ${i} ${i===1?pill('Lead','info'):pill('Tim','mute')}</h4>
+const memberHTML=i=>`<div class="member" id="mem-${i}"><h4><span class="memT">Anggota ${i}</span> ${i===1?pill('Lead','info'):pill('Tim','mute')}</h4>
   <label class="f">Nama lengkap (sesuai KTP) *<input name="nama_${i}"></label>
   <div class="fg"><label class="f">No. HP / WA *<input name="hp_${i}" inputmode="tel" placeholder="08…"></label><label class="f">Email *<input name="email_${i}" type="email" placeholder="nama@email.com"></label></div>
   <div><div class="up-h">Dokumen foto *</div>
@@ -977,22 +980,30 @@ $$('#fReg [data-k]').forEach(inp=>inp.onchange=async()=>{const k=inp.dataset.k,i
 async function compress(file){const img=await createImageBitmap(file);const s=Math.min(1,1200/Math.max(img.width,img.height));
   const c=document.createElement('canvas');c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext('2d').drawImage(img,0,0,c.width,c.height);
   let q=.82,u=c.toDataURL('image/jpeg',q);while(u.length>400000&&q>.35){q-=.1;u=c.toDataURL('image/jpeg',q)}return u}
-const REQ=['jenis','mitra','stasiun','wilayah','nama_1','hp_1','email_1','nama_2','hp_2','email_2'];
-function formProg(){const fd=new FormData($('#fReg'));const n=REQ.filter(k=>String(fd.get(k)||'').trim()).length+(KTP[1]?1:0)+(KTP[2]?1:0)+(FOTO[1]?1:0)+(FOTO[2]?1:0)+(fd.get('setuju')?1:0);
-  const tot=REQ.length+5;$('#progTxt').textContent=`${n} dari ${tot} isian`;$('#progPct').textContent=Math.round(n/tot*100)+'%';$('#progBar').style.width=(n/tot*100)+'%'}
+const REQ1=['jenis','mitra','stasiun','wilayah','nama_1','hp_1','email_1'],REQ2=['nama_2','hp_2','email_2'];
+const regTwo=()=>($('#fReg').querySelector('[name=jenis]:checked')||{}).value!=='Sales';
+const reqKeys=()=>regTwo()?REQ1.concat(REQ2):REQ1;
+function memLayout(){const two=regTwo(),sales=!two&&($('#fReg').querySelector('[name=jenis]:checked'));
+  $('#mem-2').classList.toggle('hidden',!two);$('#members').style.gridTemplateColumns=two?'':'minmax(0,560px)';
+  $('#memH').textContent=sales?'Anggota tim Sales (1 orang)':$('#fReg').querySelector('[name=jenis]:checked')?'Anggota tim IKR (2 orang)':'Anggota tim · IKR 2 orang, Sales 1 orang';
+  $('#mem-1 .memT').textContent=sales?'Anggota Sales':'Anggota 1'}
+function formProg(){memLayout();const fd=new FormData($('#fReg'));const M=regTwo()?[1,2]:[1];const R=reqKeys();const n=R.filter(k=>String(fd.get(k)||'').trim()).length+M.filter(i=>KTP[i]).length+M.filter(i=>FOTO[i]).length+(fd.get('setuju')?1:0);
+  const tot=R.length+M.length*2+1;$('#progTxt').textContent=`${n} dari ${tot} isian`;$('#progPct').textContent=Math.round(n/tot*100)+'%';$('#progBar').style.width=(n/tot*100)+'%'}
 $('#fReg').addEventListener('input',formProg);$('#fReg').addEventListener('change',formProg);
 $('#fReg').addEventListener('reset',()=>setTimeout(()=>{KTP[1]=KTP[2]=FOTO[1]=FOTO[2]=PKWT[1]=PKWT[2]=BPJS[1]=BPJS[2]=null;$$('#fReg .up').forEach(t=>{t.classList.remove('has');t.style.backgroundImage=''});formProg()}));
 $('#fReg').addEventListener('submit',async e=>{
   e.preventDefault();const f=e.target,fd=Object.fromEntries(new FormData(f));
-  const miss=REQ.filter(k=>!String(fd[k]||'').trim());
+  const M=regTwo()?[1,2]:[1];const miss=reqKeys().filter(k=>!String(fd[k]||'').trim());
   if(miss.length){f.querySelector(`[name="${miss[0]}"]`)?.focus();toast(miss[0]==='jenis'?'Pilih daftar sebagai IKR atau Sales':'Lengkapi isian bertanda *');return}
-  for(const i of [1,2]){if(!/^(\+?62|0)8\d{7,12}$/.test(fd['hp_'+i].replace(/[\s-]/g,''))){toast(`No. HP anggota ${i} tidak valid`);f['hp_'+i].focus();return}
+  for(const i of M){if(!/^(\+?62|0)8\d{7,12}$/.test(fd['hp_'+i].replace(/[\s-]/g,''))){toast(`No. HP anggota ${i} tidak valid`);f['hp_'+i].focus();return}
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(fd['email_'+i].trim())){toast(`Email anggota ${i} tidak valid`);f['email_'+i].focus();return}}
-  if(!KTP[1]||!KTP[2]){toast('Lampirkan foto KTP kedua anggota');return}
-  if(!FOTO[1]||!FOTO[2]){toast('Lampirkan foto diri kedua anggota');return}
+  if(M.some(i=>!KTP[i])){toast(M.length>1?'Lampirkan foto KTP kedua anggota':'Lampirkan foto KTP');return}
+  if(M.some(i=>!FOTO[i])){toast(M.length>1?'Lampirkan foto diri kedua anggota':'Lampirkan foto diri');return}
+  if(M.length>1&&fd.hp_1.replace(/\D/g,'').replace(/^62/,'0')===fd.hp_2.replace(/\D/g,'').replace(/^62/,'0')){toast('No. HP kedua anggota tidak boleh sama');return}
   if(!fd.setuju){toast('Centang pernyataan persetujuan data');return}
   const b=$('#btnReg');b.disabled=true;b.textContent='Mengirim…';
-  try{const data={};REQ.concat(['nama_tim']).forEach(k=>data[k]=String(fd[k]||'').trim());data.ktp_1=KTP[1];data.ktp_2=KTP[2];data.foto_1=FOTO[1];data.foto_2=FOTO[2];data.pkwt_file_1=PKWT[1]||'';data.pkwt_file_2=PKWT[2]||'';data.bpjs_file_1=BPJS[1]||'';data.bpjs_file_2=BPJS[2]||'';if(PREG){data.token=PREG;data.mitra=PORTAL?.mitra||data.mitra}data.mitra=String(data.mitra||'').toUpperCase();
+  try{const data={};REQ1.concat(REQ2,['nama_tim']).forEach(k=>data[k]=String(fd[k]||'').trim());data.ktp_1=KTP[1];data.foto_1=FOTO[1];data.pkwt_file_1=PKWT[1]||'';data.bpjs_file_1=BPJS[1]||'';
+    if(M.length>1){data.ktp_2=KTP[2];data.foto_2=FOTO[2];data.pkwt_file_2=PKWT[2]||'';data.bpjs_file_2=BPJS[2]||''}else{REQ2.forEach(k=>data[k]='');data.ktp_2=data.foto_2='';data.pkwt_file_2=data.bpjs_file_2=''}if(PREG){data.token=PREG;data.mitra=PORTAL?.mitra||data.mitra}data.mitra=String(data.mitra||'').toUpperCase();
     const r=await api('register',{data});
     f.classList.add('hidden');$('#regDone').classList.remove('hidden');
     $('#regDone').innerHTML=`<div class="card regdone"><div class="ic">✓</div><h2 style="font-size:22px;margin:0 0 6px">Permintaan akun berhasil dikirim</h2>
@@ -1030,15 +1041,15 @@ const pStage=t=>stageOf(t.status);
 $('#pMitra').addEventListener('change',()=>renderPipe());$('#pArsip').addEventListener('change',()=>renderPipe());
 const TSTEPS=['Daftar','Verifikasi','Aktif'];
 const TLBL={Daftar:'Mitra submit',Verifikasi:'Verifikasi',Aktif:'Selesai'};
-const accN=t=>[1,2].filter(i=>t['id_akun_'+i]&&t['pass_akun_'+i]).length;
+const accN=t=>mems(t).filter(i=>t['id_akun_'+i]&&t['pass_akun_'+i]).length;
 function stageDetail(t,st){
   if(st==='Daftar')return Math.floor((Date.now()-new Date(t.created_at))/864e5)+' hari';
-  if(st==='Verifikasi')return 'akun '+accN(t)+'/2';
+  if(st==='Verifikasi')return 'akun '+accN(t)+'/'+mems(t).length;
   if(st==='Aktif')return 'akun aktif';return ''}
 function stepper(t,st){const idx=TSTEPS.indexOf(st);
   return `<div class="stp">${TSTEPS.map((s,i)=>{const fin=s==='Aktif'&&i===idx;const cls=idx<0?'':i<idx?'done':i===idx?(fin?'cur paid':'cur'):'';
     return `<div class="s ${cls}"><i>${i<idx||fin?'✓':i+1}</i>${TLBL[s]}${i===idx?`<span class="dt">${esc(stageDetail(t,st))}</span>`:''}</div>`}).join('')}</div>`}
-const accLines=t=>[1,2].map(i=>`<div><b>${esc(t['nama_'+i]||'–')}</b> · ${t['id_akun_'+i]?`<span class="mono">${esc(t['id_akun_'+i])}</span>`:'<span style="color:var(--warn)">ID kosong</span>'}${t['pass_akun_'+i]?' · 🔑':''}</div>`).join('');
+const accLines=t=>mems(t).map(i=>`<div><b>${esc(t['nama_'+i]||'–')}</b> · ${t['id_akun_'+i]?`<span class="mono">${esc(t['id_akun_'+i])}</span>`:'<span style="color:var(--warn)">ID kosong</span>'}${t['pass_akun_'+i]?' · 🔑':''}</div>`).join('');
 function renderPipe(){
   {const sel=$('#pMitra'),cur=sel.value;const ml=[...new Set([...mitraList(),...S.admin.tims.map(t=>t.mitra)].filter(Boolean))];sel.innerHTML='<option value="">Semua mitra</option>'+ml.map(m=>`<option>${esc(m)}</option>`).join('');if(ml.includes(cur))sel.value=cur}
   const q=$('#pQ').value.toLowerCase(),fm=$('#pMitra').value,arsip=$('#pArsip').checked;
@@ -1056,11 +1067,11 @@ function renderPipe(){
       .sort((a,b)=>TSTEPS.indexOf(pStage(a))-TSTEPS.indexOf(pStage(b))||aName(a).localeCompare(aName(b)));
     if((q||pJ)&&!vis.length)return'';
     const akt=L.filter(t=>t.status==='Aktif').length,proc=L.filter(t=>['Daftar','Kontrak','Akun'].includes(t.status)).length;
-    return `<div class="trk-g"><div class="trk-h"><div class="ini">${esc(ini(m))}</div><div><b>${esc(m)}</b><div class="sub2">${L.length} tim · ${L.length*2} personel</div></div>
+    return `<div class="trk-g"><div class="trk-h"><div class="ini">${esc(ini(m))}</div><div><b>${esc(m)}</b><div class="sub2">${L.length} tim · ${nPers(L)} personel</div></div>
       <div class="stats"><span><b>${proc}</b> perlu diproses</span><span><b>${akt}</b> selesai</span></div></div>
       ${vis.length?vis.map(t=>{const st=pStage(t);const off=['Ditolak','Nonaktif'].includes(t.status);
         return `<div class="trk-r ${off?'off':''}">
-          <div class="who"><b>${esc(aName(t))}</b> ${tag(t.jenis)} ${off?pill(t.status,STK[t.status]):''}<div class="sub2">${esc(t.nama_1)} & ${esc(t.nama_2)}</div><div class="sub2">${esc(t.stasiun)} · <span class="mono">${esc(t.id)}</span></div></div>
+          <div class="who"><b>${esc(aName(t))}</b> ${tag(t.jenis)} ${off?pill(t.status,STK[t.status]):''}<div class="sub2">${esc(names(t))}</div><div class="sub2">${esc(t.stasiun)} · <span class="mono">${esc(t.id)}</span></div></div>
           ${stepper(t,off?'':st)}
           <div class="inf">${st==='Daftar'?'Data tim dari mitra sudah masuk.<br>Klik <b>Verifikasi</b> untuk memproses.':accLines(t)}</div>
           <div class="act" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${st==='Daftar'?`<button class="btn sm pri" data-edit="${esc(t.id)}">Verifikasi →</button>`:st==='Verifikasi'?`<button class="btn sm pri" data-edit="${esc(t.id)}">Lanjut verifikasi →</button>`:`<button class="btn sm" data-edit="${esc(t.id)}">✎ Edit</button>`}<button class="btn sm bad" data-del="${esc(t.id)}" title="Hapus tim ini">🗑 Hapus</button></div></div>`}).join(''):'<div class="trk-empty">Belum ada tim terdaftar dari mitra ini.</div>'}</div>`}).join('')||'<div class="card empty">Tidak ada tim yang cocok.</div>';
@@ -1082,7 +1093,7 @@ function openEdit(id){
    <input type="hidden" name="status" value="${esc(t.status)}">
    <div class="msec"><h4>Verifikasi akun · diisi admin Starlite</h4>
     <p class="sub2" style="margin:-4px 0 10px">Isi <b>${lid}</b> &amp; <b>kata sandi</b> tiap anggota. Nama boleh di-rename sesuai format akun, mis. <b class="mono">IJE_RIDHO</b>. ${lid} harus sama dengan kolom "Nama IKR" di Detail WO agar HC terhitung.</p>
-    <div class="grid g2">${[1,2].map(i=>`<div class="fslot ${t['id_akun_'+i]&&t['pass_akun_'+i]?'ok':''}" style="gap:8px"><b>Anggota ${i} ${i===1?pill('Lead','info'):pill('Tim','mute')}</b>
+    <div class="grid g2">${mems(t).map(i=>`<div class="fslot ${t['id_akun_'+i]&&t['pass_akun_'+i]?'ok':''}" style="gap:8px"><b>Anggota ${i} ${i===1?pill('Lead','info'):pill('Tim','mute')}</b>
      <label class="f">Nama<div style="display:flex;gap:6px"><input name="nama_${i}" value="${esc(t['nama_'+i])}" style="flex:1;min-width:0"><button type="button" class="btn sm" data-ren="${i}" title="Rename ke format IJE_NAMA">IJE_</button></div></label>
      <label class="f">${lid}<input name="id_akun_${i}" value="${esc(t['id_akun_'+i])}" class="mono" placeholder="${esc(ren(t['nama_'+i])||'mis. IJE_RIDHO')}" autocomplete="off"></label>
      <label class="f">Kata sandi<div style="display:flex;gap:6px"><input name="pass_akun_${i}" value="${esc(t['pass_akun_'+i])}" class="mono" style="flex:1;min-width:0" autocomplete="off" spellcheck="false"><button type="button" class="btn sm" data-gpw="${i}" title="Buat kata sandi acak">🎲</button></div></label></div>`).join('')}</div></div>
@@ -1093,7 +1104,7 @@ function openEdit(id){
     <label class="f">Stasiun<input name="stasiun" value="${esc(t.stasiun)}" list="dlSta"></label>
     <label class="f">Wilayah (gaji pokok)<select name="wilayah">${WIL.map(([w])=>`<option ${wilOf(t)===w?'selected':''}>${w}</option>`).join('')}</select></label></div></div>
    <div class="msec"><h4>Kontak &amp; dokumen dari mitra</h4>
-    <div class="grid g2">${[1,2].map(i=>{const lk=(u,l)=>u&&u!=='#'?`<a href="${esc(u)}" target="_blank" rel="noopener">${l} ↗</a>`:'';const docs=[lk(t['ktp_'+i],'Foto KTP'),lk(t['foto_'+i],'Foto diri'),lk(t['pkwt_file_'+i],'PKWT'),lk(t['bpjs_file_'+i],'BPJS')].filter(Boolean);
+    <div class="grid g2">${mems(t).map(i=>{const lk=(u,l)=>u&&u!=='#'?`<a href="${esc(u)}" target="_blank" rel="noopener">${l} ↗</a>`:'';const docs=[lk(t['ktp_'+i],'Foto KTP'),lk(t['foto_'+i],'Foto diri'),lk(t['pkwt_file_'+i],'PKWT'),lk(t['bpjs_file_'+i],'BPJS')].filter(Boolean);
      return `<div class="member"><h4>${esc(t['nama_'+i]||'Anggota '+i)}</h4>
      <div class="fg"><label class="f">HP<input name="hp_${i}" value="${esc(t['hp_'+i])}"></label><label class="f">Email<input name="email_${i}" value="${esc(t['email_'+i])}"></label></div>
      <div style="display:flex;gap:14px;flex-wrap:wrap">${docs.join('')||'<span class="sub2">'+'Belum ada dokumen'+'</span>'}</div></div>`}).join('')}</div></div>
@@ -1111,8 +1122,8 @@ function openEdit(id){
   F.querySelectorAll('[data-gpw]').forEach(b=>b.onclick=()=>{F['pass_akun_'+b.dataset.gpw].value=genPw()});
   const save=async st=>{const fields=Object.fromEntries(new FormData(F));if(st)fields.status=st;
     ['nama_1','nama_2','id_akun_1','id_akun_2','pass_akun_1','pass_akun_2'].forEach(k=>fields[k]=String(fields[k]||'').trim());
-    if(fields.status==='Aktif'&&st){for(const i of [1,2]){if(!fields['id_akun_'+i]){toast(`Isi ${lid} anggota ${i} dulu`,true);F['id_akun_'+i].focus();return}if(!fields['pass_akun_'+i]){toast(`Isi kata sandi anggota ${i} dulu`,true);F['pass_akun_'+i].focus();return}}}
-    if(!fields.nama_1||!fields.nama_2){toast('Nama anggota tidak boleh kosong',true);return}
+    if(fields.status==='Aktif'&&st){for(const i of mems(t)){if(!fields['id_akun_'+i]){toast(`Isi ${lid} anggota ${i} dulu`,true);F['id_akun_'+i].focus();return}if(!fields['pass_akun_'+i]){toast(`Isi kata sandi anggota ${i} dulu`,true);F['pass_akun_'+i].focus();return}}}
+    if(mems(t).some(i=>!fields['nama_'+i])){toast('Nama anggota tidak boleh kosong',true);return}
     F.querySelectorAll('button').forEach(b=>b.disabled=true);
     try{await api('admin_update',{pw:S.pw,id,fields});toast(st==='Aktif'?'Verifikasi selesai · akun aktif':st==='Akun'?'Masuk tahap verifikasi':st?'Status → '+st:'Tersimpan');$('#modalRoot').innerHTML='';await refreshAll()}
     catch(err){toast(err.message,true);F.querySelectorAll('button').forEach(b=>b.disabled=false)}};
@@ -1225,7 +1236,7 @@ function renderHome(){
   const todo=[[onb.filter(t=>t.status==='Daftar').length,'pendaftaran tim baru menunggu verifikasi','#tracking'],[onb.filter(t=>t.status!=='Daftar').length,'tim sedang diverifikasi (ID IKR & kata sandi)','#tracking'],[noId.length,'tim aktif belum punya IKR/Sales ID','#tracking'],
     [unm,'ID pencapaian belum terhubung ke tim','#input'],[B.filter(b=>b.status==='Diajukan').length,'invoice diajukan mitra menunggu dicek Finance','#tagihan'],[needPay,'invoice sudah dicek, menunggu pembayaran '+PAYER,'#tagihan'],[noBill,'tim aktif belum masuk invoice '+perLabel(prev),'#tagihan']].filter(x=>x[0]>0);
   return{kpis:`
-    <div class="kpi hero"><div class="k">Tim aktif</div><div class="v">${aktif.length}</div><div class="d">${aktif.length*2} personel · ${mit.filter(x=>x.a).length} mitra</div></div>
+    <div class="kpi hero"><div class="k">Tim aktif</div><div class="v">${aktif.length}</div><div class="d">${nPers(aktif)} personel · ${mit.filter(x=>x.a).length} mitra</div></div>
     <div class="kpi"><div class="k">HC bulan ini</div><div class="v">${nf(hcM(per))}</div><div class="d">${nf(hcM(prev))} bulan lalu</div></div>
     <div class="kpi"><div class="k">Estimasi tagihan bulan ini</div><div class="v">${rpS(est)}</div><div class="d">rumus Program Subsidi Tier 1</div></div>
     <div class="kpi"><div class="k">Dibayar ${esc(perLabel(prev))}</div><div class="v">${rpS(paidPrev)}</div><div class="d">${bPrev.filter(b=>b.status==='Dibayar').length}/${bPrev.length} invoice · ${openB.length} belum lunas</div></div>`,
@@ -1248,7 +1259,7 @@ function renderPanduan(){
    <div class="pg">
    ${st(1,'Buka portal',`<p>Klik <b>link khusus mitra</b> yang dikirim Vendor Management Starlite (lewat WhatsApp/email) — portal langsung terbuka tanpa login.</p><ul><li>Simpan / bookmark link tersebut dan jangan dibagikan ke pihak lain.</li><li>Link tidak bisa dibuka? Hubungi Vendor Management Starlite untuk link baru.</li><li>Bila diberi username &amp; password, bisa juga login di <b class="mono">${esc(location.href.split('#')[0])}#mitra</b>.</li></ul>`,'login','Halaman login')}
    ${st(2,'Beranda &amp; performa tim',`<p>Pilih <b>periode</b> (bulan). Kotak di atas menampilkan HC terverifikasi, rata-rata capaian target, estimasi nilai bulan ini, dan total yang sudah dibayar.</p><ul><li>Kartu tim diurutkan dari HC terbanyak.</li><li>Target IKR 65 HC/tim/bulan · Sales 40 HC/orang/bulan.</li></ul>`,'beranda','Beranda portal')}
-   ${st(3,'Minta akun tim baru',`<p>Klik tombol <b>+</b> di pojok kanan atas → <b>Minta akun tim baru</b>.</p><ul><li>1 tim = 2 orang: nama, HP, email.</li><li>Foto KTP &amp; foto diri <b>wajib</b> · PKWT &amp; BPJS opsional.</li><li>Status: <b>Mitra submit</b> → <b>Verifikasi</b> (admin mengisi ID IKR &amp; kata sandi) → <b>Selesai</b>. Akun tim tampil di bagian Status pendaftaran tim.</li></ul>`,'plus','Menu tombol plus')}
+   ${st(3,'Minta akun tim baru',`<p>Klik tombol <b>+</b> di pojok kanan atas → <b>Minta akun tim baru</b>.</p><ul><li>Tim IKR = 2 orang, tim Sales = 1 orang: nama, HP, email.</li><li>Foto KTP &amp; foto diri <b>wajib</b> · PKWT &amp; BPJS opsional.</li><li>Status: <b>Mitra submit</b> → <b>Verifikasi</b> (admin mengisi ID IKR &amp; kata sandi) → <b>Selesai</b>. Akun tim tampil di bagian Status pendaftaran tim.</li></ul>`,'plus','Menu tombol plus')}
    ${st(4,'Detail WO &amp; pelanggan',`<p>Bagian <b>Detail WO &amp; pelanggan</b> menampilkan setiap WO: tanggal, nama &amp; ID pelanggan, teknisi, sales, status, SLA, dan apakah dihitung HC.</p><ul><li>Filter per tim / status, cari pelanggan, dan unduh CSV.</li></ul>`,'wo','Detail WO')}
    ${st(5,'Ajukan tagihan',`<p>Klik <b>+</b> → <b>Ajukan tagihan</b>. Satu invoice atas nama mitra: pilih periode, <b>centang tim yang ditagih</b>, cek estimasi, lalu lampirkan dokumen:</p><ol><li>Capture performance — <b>wajib</b> (bisa dibuat otomatis)</li><li>Surat PKWT/kontrak dari mitra — opsional</li><li>BPJS Kesehatan &amp; Ketenagakerjaan — opsional</li></ol><p>Dokumen salah atau diminta revisi Finance? Klik <b>Upload ulang</b>.</p>`,'ajukan','Form ajukan tagihan')}
    ${st(6,'Pantau status &amp; pembayaran',`<p>Tabel <b>Tagihan &amp; pembayaran</b> menunjukkan status setiap tagihan:</p><ul><li><b>Diajukan mitra</b> — invoice masuk, menunggu dicek Finance.</li><li><b>Perlu revisi</b> — baca catatan Finance lalu upload ulang.</li><li><b>Dicek finance</b> — invoice disetujui, menunggu pembayaran.</li><li><b>Dibayar IJE</b> — sudah ditransfer ke mitra, tanggal &amp; nilai bayar tercatat.</li></ul>`,'tagihan','Status tagihan')}
@@ -1273,7 +1284,7 @@ Password : ${pw}`:''}
 *Cara pakai*
 1. Klik link di atas (HP/laptop) — portal langsung terbuka.
 2. Pilih periode untuk melihat HC terverifikasi, capaian target, detail pelanggan, estimasi & pembayaran.
-3. Minta akun tim baru: klik tombol *+* → *Minta akun tim baru* (1 tim = 2 orang; KTP & foto diri wajib, PKWT & BPJS opsional). Admin Starlite memverifikasi & mengisi ID IKR + kata sandi.
+3. Minta akun tim baru: klik tombol *+* → *Minta akun tim baru* (tim IKR 2 orang, tim Sales 1 orang; KTP & foto diri wajib, PKWT & BPJS opsional). Admin Starlite memverifikasi & mengisi ID IKR + kata sandi.
 4. Submit invoice: klik *+* → *Ajukan tagihan*, 1 invoice atas nama mitra — pilih periode & centang tim yang ditagih, lampirkan capture performance (wajib).
 5. Pantau status: pendaftaran tim (Mitra submit → Verifikasi → Selesai) dan invoice (Diajukan → Dicek finance → Dibayar IJE).
 
@@ -1380,17 +1391,17 @@ function renderPortal(per){
   const hc=rows.reduce((s,r)=>s+r.x.hc,0),est=rows.reduce((s,r)=>s+r.x.total,0),cap=rows.length?rows.reduce((s,r)=>s+r.x.pct,0)/rows.length:null;
   const tn=id=>{const t=T.find(x=>x.id===id);return t?aName(t):'–'};
   const accP=t=>{const st=pStage(t);if(st==='Daftar')return '<span class="sub2">Menunggu verifikasi admin Starlite</span>';if(st==='Verifikasi')return '<span class="sub2">Sedang diverifikasi admin — akun dibuatkan</span>';
-    return [1,2].map(i=>t['id_akun_'+i]?`<div><b>${esc(t['nama_'+i])}</b> · ID <span class="mono">${esc(t['id_akun_'+i])}</span>${t['pass_akun_'+i]?` · sandi <span class="mono" data-pwv="${esc(t['pass_akun_'+i])}">••••••</span> <button type="button" class="btn sm" data-shpw style="padding:1px 7px;font-size:11px">lihat</button>`:''}</div>`:'').join('')||'<span class="sub2">Akun belum diisi admin</span>'};
+    return mems(t).map(i=>t['id_akun_'+i]?`<div><b>${esc(t['nama_'+i])}</b> · ID <span class="mono">${esc(t['id_akun_'+i])}</span>${t['pass_akun_'+i]?` · sandi <span class="mono" data-pwv="${esc(t['pass_akun_'+i])}">••••••</span> <button type="button" class="btn sm" data-shpw style="padding:1px 7px;font-size:11px">lihat</button>`:''}</div>`:'').join('')||'<span class="sub2">Akun belum diisi admin</span>'};
   $('#portalBody').innerHTML=`
   <div style="position:relative">
     <div class="p-plus">${P.base==='#mitra'?'<button type="button" class="btn sm p-out" id="pOut">Keluar</button>':''}<button type="button" class="plus-btn" id="pPlus" title="Tambah" aria-label="Tambah">+</button>
-      <div class="plus-menu hidden" id="pPlusMenu"><a href="${P.base}/daftar"><b>👥 Minta akun tim baru</b><small>1 tim = 2 orang · diverifikasi &amp; disetujui admin</small></a><button type="button" id="pInvBtn"><b>🧾 Ajukan tagihan</b><small>1 invoice atas nama mitra · pilih tim yang ditagih</small></button></div></div>
+      <div class="plus-menu hidden" id="pPlusMenu"><a href="${P.base}/daftar"><b>👥 Minta akun tim baru</b><small>IKR 2 orang · Sales 1 orang · diverifikasi admin</small></a><button type="button" id="pInvBtn"><b>🧾 Ajukan tagihan</b><small>1 invoice atas nama mitra · pilih tim yang ditagih</small></button></div></div>
   <div class="p-hero"><img class="wm" src="${LOGO.star}" alt="">
     <div class="chip"><img class="s" src="${LOGO.star}" alt=""><img class="t" src="${LOGO.text}" alt="STARLITE"><span>×</span><img class="w" src="${LOGO.weave}" alt="weave"></div>
     <h1>${esc(P.mitra)}</h1><p>Program Subsidi IKR &amp; Sales Mitra Tier 1 · monitoring performa, permintaan akun tim &amp; pengajuan tagihan</p>
     <div class="ctl"><label class="f">Periode<select id="ptPer">${months.map(([v,l],i)=>`<option value="${v}" ${v===per?'selected':''}>${l}${i===0?' (berjalan)':''}</option>`).join('')}</select></label></div></div></div>
   <div class="kpis">
-    <div class="kpi hero"><div class="k">HC terverifikasi · ${esc(perLabel(per))}</div><div class="v">${nf(hc)}</div><div class="d">${rows.length} tim · ${rows.length*2} personel</div></div>
+    <div class="kpi hero"><div class="k">HC terverifikasi · ${esc(perLabel(per))}</div><div class="v">${nf(hc)}</div><div class="d">${rows.length} tim · ${nPers(rows.map(r=>r.t))} personel</div></div>
     <div class="kpi"><div class="k">Rata-rata capaian target</div><div class="v">${pct(cap)}</div><div class="d">IKR ${nf(+c.target_ikr)} HC/tim · Sales ${nf(+c.target_sales)} HC/orang</div></div>
     <div class="kpi"><div class="k">Estimasi nilai ${esc(perLabel(per))}</div><div class="v">${rpS(est)}</div><div class="d">gaji pokok prorata + insentif</div></div>
     <div class="kpi"><div class="k">Total sudah dibayar</div><div class="v">${rpS(paidAll)}</div><div class="d">${paidL.length} invoice lunas</div></div>
@@ -1404,7 +1415,7 @@ function renderPortal(per){
     <div class="card" style="margin-bottom:16px"><h2>HC per hari</h2><p class="sub">Semua tim ${esc(P.mitra)} · ${esc(perLabel(per))}</p><div class="chart-box"><canvas id="cPortal"></canvas></div></div>
   <div class="card" style="margin-bottom:16px;padding:0" id="pWo"></div>
   <div class="trk-g"><div class="trk-h"><div class="ini">${esc(P.mitra.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase())}</div><div><b>Status pendaftaran tim</b><div class="sub2">Mitra submit → Verifikasi admin → Selesai (akun aktif)</div></div><div class="sp" style="flex:1"></div><a class="btn sm" href="${P.base}/daftar">+ Minta akun tim</a></div>
-   ${T.filter(t=>!['Ditolak'].includes(t.status)).map(t=>{const st=pStage(t);const off=st==='Nonaktif';return `<div class="trk-r" style="grid-template-columns:minmax(190px,1fr) minmax(300px,1.6fr) minmax(220px,1.4fr)"><div class="who"><b>${esc(aName(t))}</b> ${tag(t.jenis)} ${off?pill('Nonaktif','mute'):''}<div class="sub2">${esc(t.nama_1)} & ${esc(t.nama_2)}</div></div>${stepper(t,off?'':st)}
+   ${T.filter(t=>!['Ditolak'].includes(t.status)).map(t=>{const st=pStage(t);const off=st==='Nonaktif';return `<div class="trk-r" style="grid-template-columns:minmax(190px,1fr) minmax(300px,1.6fr) minmax(220px,1.4fr)"><div class="who"><b>${esc(aName(t))}</b> ${tag(t.jenis)} ${off?pill('Nonaktif','mute'):''}<div class="sub2">${esc(names(t))}</div></div>${stepper(t,off?'':st)}
      <div class="inf">${accP(t)}</div></div>`}).join('')||'<div class="trk-empty">Belum ada tim.</div>'}</div>
   <div class="card" style="padding:0"><div style="padding:16px 18px 10px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap"><div style="flex:1"><h2>Tagihan & pembayaran</h2><p class="sub" style="margin:0">1 invoice atas nama ${esc(P.mitra)} · pilih tim yang ditagih · dicek Finance lalu dibayar ${PAYER}</p></div><button type="button" class="btn pri" id="pInvBtn2">+ Ajukan tagihan</button></div>
    <div class="tbl-wrap" style="border:0;border-top:1px solid var(--line);border-radius:0 0 12px 12px"><table><thead><tr><th>No. invoice</th><th>Periode</th><th>Tim ditagih</th><th class="num">HC</th><th class="num">Nilai</th><th>Dokumen</th><th>Status</th><th>Dibayar</th></tr></thead><tbody>
@@ -1479,10 +1490,10 @@ function openInvoice(invId){
   const calc=()=>T.map(t=>({t,x:calcPure(t,per,P.ach||[],c),inv:IV.find(i=>i.periode===per&&i.status!=='Ditolak'&&i.id!==ex?.id&&(i.tim_ids||[]).includes(t.id))}));
   const picked=()=>calc().filter(r=>sel.has(r.t.id));
   const drawS=()=>{const R=picked();const hc=R.reduce((s,r)=>s+r.x.hc,0),tot=R.reduce((s,r)=>s+r.x.total,0);
-    m.querySelector('#invSum').innerHTML=`<div class="kpis" style="margin:0;grid-template-columns:repeat(3,1fr)"><div class="kpi hero"><div class="k">Tim ditagih</div><div class="v">${R.length}</div><div class="d">${R.length*2} personel</div></div><div class="kpi"><div class="k">HC ${esc(perLabel(per))}</div><div class="v">${nf(hc)}</div><div class="d">terverifikasi</div></div><div class="kpi"><div class="k">Estimasi nilai invoice</div><div class="v">${rpS(tot)}</div><div class="d">dicek Finance</div></div></div>`};
+    m.querySelector('#invSum').innerHTML=`<div class="kpis" style="margin:0;grid-template-columns:repeat(3,1fr)"><div class="kpi hero"><div class="k">Tim ditagih</div><div class="v">${R.length}</div><div class="d">${nPers(R.map(r=>r.t))} personel</div></div><div class="kpi"><div class="k">HC ${esc(perLabel(per))}</div><div class="v">${nf(hc)}</div><div class="d">terverifikasi</div></div><div class="kpi"><div class="k">Estimasi nilai invoice</div><div class="v">${rpS(tot)}</div><div class="d">dicek Finance</div></div></div>`};
   const drawT=()=>{const R=calc();if(init){R.forEach(r=>{if(!r.inv&&(r.t.status==='Aktif'||r.x.hc>0))sel.add(r.t.id)});init=false}R.forEach(r=>{if(r.inv)sel.delete(r.t.id)});
     m.querySelector('#invTims').innerHTML=R.map(r=>{const dis=!!r.inv||!!ex;const on=sel.has(r.t.id);if(ex&&!on)return'';
-      return `<label class="inv-t ${on?'on':''} ${r.inv?'off':''}"><input type="checkbox" data-tid="${esc(r.t.id)}" ${on?'checked':''} ${dis?'disabled':''}><div><b>${esc(aName(r.t))}</b> ${tag(r.t.jenis)}<div class="sub2">${esc(r.t.nama_1)} & ${esc(r.t.nama_2)}${r.inv?' · sudah ditagih di '+esc(r.inv.id):''}</div></div><div class="num"><b>${nf(r.x.hc)} HC</b><div class="sub2">${rp(r.x.total)}</div></div></label>`}).join('');
+      return `<label class="inv-t ${on?'on':''} ${r.inv?'off':''}"><input type="checkbox" data-tid="${esc(r.t.id)}" ${on?'checked':''} ${dis?'disabled':''}><div><b>${esc(aName(r.t))}</b> ${tag(r.t.jenis)}<div class="sub2">${esc(names(r.t))}${r.inv?' · sudah ditagih di '+esc(r.inv.id):''}</div></div><div class="num"><b>${nf(r.x.hc)} HC</b><div class="sub2">${rp(r.x.total)}</div></div></label>`}).join('');
     m.querySelectorAll('[data-tid]').forEach(cb=>cb.onchange=()=>{cb.checked?sel.add(cb.dataset.tid):sel.delete(cb.dataset.tid);cb.closest('.inv-t').classList.toggle('on',cb.checked);F[3]=F[3]&&F[3].auto?null:F[3];drawS();drawF()});drawS()};
   const drawF=()=>{
     m.querySelector('#invFiles').innerHTML=[1,2,3].map(i=>{const has=F[i];const up=ex&&ex['f'+i];return `<div class="fslot ${has||up?'ok':''}"><b>${i}. ${esc(FN[i-1])}</b>
@@ -1510,11 +1521,11 @@ function captureMulti(mitra,per,R,ach){const W=1200,rowH=40,H=420+R.length*rowH+
   g.fillStyle='#fff';g.font='800 34px Plus Jakarta Sans, Arial';g.fillText('STARLITE · Capture Performance',130,62);g.font='500 18px Plus Jakarta Sans, Arial';g.fillText(`${mitra} · ${perLabel(per)} · ${R.length} tim`,130,96);
   const hc=R.reduce((s,r)=>s+r.x.hc,0),tot=R.reduce((s,r)=>s+r.x.total,0),cap=R.length?R.reduce((s,r)=>s+r.x.pct,0)/R.length:0;
   const box=(bx,lbl,val,sub)=>{g.fillStyle='#f0f4fa';g.fillRect(bx,160,260,100);g.fillStyle='#52514e';g.font='600 15px Arial';g.fillText(lbl,bx+18,188);g.fillStyle='#0b0b0b';g.font='800 32px Arial';g.fillText(val,bx+18,230);g.fillStyle='#85837d';g.font='500 13px Arial';g.fillText(sub,bx+18,250)};
-  box(40,'Tim ditagih',String(R.length),(R.length*2)+' personel');box(320,'HC terverifikasi',nf(hc),'dari data pencapaian');box(600,'Capaian rata-rata',pct(cap),'terhadap target');box(880,'Total invoice',rpS(tot),'gaji + insentif');
+  box(40,'Tim ditagih',String(R.length),nPers(R.map(r=>r.t))+' personel');box(320,'HC terverifikasi',nf(hc),'dari data pencapaian');box(600,'Capaian rata-rata',pct(cap),'terhadap target');box(880,'Total invoice',rpS(tot),'gaji + insentif');
   const cols=[[40,'Tim'],[300,'Anggota (ID)'],[720,'HC'],[800,'Target'],[890,'Capaian'],[1000,'Total']];let y=300;
   g.fillStyle='#0a3a78';g.fillRect(40,y,1120,34);g.fillStyle='#fff';g.font='700 14px Arial';cols.forEach(([x,l])=>g.fillText(l,x+10,y+22));y+=34;
   R.forEach((r,i)=>{const t=r.t,x=r.x;g.fillStyle=i%2?'#f6f8fb':'#fff';g.fillRect(40,y,1120,rowH);g.fillStyle='#0b0b0b';g.font='700 14px Arial';g.fillText((aName(t)+' · '+t.jenis).slice(0,30),50,y+25);
-    g.font='500 13px Arial';g.fillStyle='#52514e';g.fillText(`${t.nama_1} (${t.id_akun_1||'-'}) & ${t.nama_2} (${t.id_akun_2||'-'})`.slice(0,58),310,y+25);
+    g.font='500 13px Arial';g.fillStyle='#52514e';g.fillText(mems(t).map(i=>`${t['nama_'+i]} (${t['id_akun_'+i]||'-'})`).join(' & ').slice(0,58),310,y+25);
     g.fillStyle='#0b0b0b';g.font='700 14px Arial';g.fillText(nf(x.hc),730,y+25);g.font='500 14px Arial';g.fillText(nf(x.target,1),810,y+25);g.fillText(pct(x.pct),900,y+25);g.font='700 14px Arial';g.fillText(rp(x.total),1010,y+25);y+=rowH});
   g.fillStyle='#e8eef7';g.fillRect(40,y,1120,36);g.fillStyle='#0b0b0b';g.font='800 15px Arial';g.fillText('TOTAL',50,y+24);g.fillText(nf(hc),730,y+24);g.fillText(rp(tot),1010,y+24);y+=36;
   const days=[];const end=ymd(new Date(+per.slice(0,4),+per.slice(5),0));for(let d=new Date(per+'-01T00:00');ymd(d)<=end;d.setDate(d.getDate()+1))days.push(ymd(d));
@@ -1547,8 +1558,8 @@ function renderHitung(){
      <td><div class="hc-bar"><b>${nf(p.hc)}</b><span class="sub2">HC${t.jenis==='Sales'?' / '+nf(p.target,0):' · tim '+nf(x.hc)+' / '+nf(x.target,0)}</span></div><div class="prog ${p.pct>=1?'done':''}" style="width:90px;height:6px;margin-top:4px"><i style="width:${Math.min(100,p.pct*100)}%"></i></div></td>
      <td class="num">${pct(p.pct)}</td><td class="num">${x.wd}/${x.wdTot}</td>
      <td class="num">${rp(p.gaji)}</td><td class="num">${rp(p.ins)}</td><td class="num"><b>${rp(p.total)}</b></td>
-     ${k?'':`<td rowspan="2" class="tim-cell">${r.b?ipill(r.b.status)+'<div class="sub2 mono" style="margin-top:3px">'+esc(r.b.id)+'</div>':pill('Belum diajukan','mute')}${x.insMitra?`<div class="sub2" style="margin-top:4px">+ insentif mitra ${rp(x.insMitra)}</div>`:''}</td>
-     <td rowspan="2" class="tim-cell"><div class="row-actions" style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap"><button class="btn sm" data-why="${esc(t.id)}">Rincian</button>${r.b?`<button class="btn sm" data-oi="${esc(r.b.id)}">Invoice</button>`:''}</div></td>`}</tr>`}).join('')};
+     ${k?'':`<td rowspan="${x.rows.length}" class="tim-cell">${r.b?ipill(r.b.status)+'<div class="sub2 mono" style="margin-top:3px">'+esc(r.b.id)+'</div>':pill('Belum diajukan','mute')}${x.insMitra?`<div class="sub2" style="margin-top:4px">+ insentif mitra ${rp(x.insMitra)}</div>`:''}</td>
+     <td rowspan="${x.rows.length}" class="tim-cell"><div class="row-actions" style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap"><button class="btn sm" data-why="${esc(t.id)}">Rincian</button>${r.b?`<button class="btn sm" data-oi="${esc(r.b.id)}">Invoice</button>`:''}</div></td>`}</tr>`}).join('')};
   const P=R.flatMap(r=>r.c.rows);const ps=k=>P.reduce((a,p)=>a+(+p[k]||0),0);const hitP=P.filter(p=>p.pct>=1).length;
   $('#hBody').innerHTML=`
   <div class="rumus">
@@ -1569,7 +1580,7 @@ function renderHitung(){
   </div>
   <div class="card" style="padding:0"><div class="tbl-wrap" style="border:0"><table id="hTbl"><thead><tr><th>Nama · tim · wilayah</th><th>HC / target</th><th class="num">Capaian</th><th class="num">Hari kerja</th><th class="num">Gaji pokok</th><th class="num">Insentif</th><th class="num">Diterima</th><th>Invoice</th><th></th></tr></thead><tbody>
   ${order.map(m=>{const L=R.filter(r=>r.t.mitra===m);const ss=k=>L.reduce((a,r)=>a+r.c[k],0);
-    return L.map(row).join('')+`<tr class="sub"><td colspan="4">Subtotal ${esc(m)} · ${L.length*2} orang</td><td class="num">${rp(ss('gaji'))}</td><td class="num">${rp(ss('insTek'))}</td><td class="num">${rp(ss('gaji')+ss('insTek'))}</td><td colspan="2">${ss('insMitra')?'+ insentif mitra '+rp(ss('insMitra'))+' → total '+rp(ss('total')):''}</td></tr>`}).join('')||'<tr><td colspan="9" class="empty">Tidak ada orang aktif pada periode ini.</td></tr>'}
+    return L.map(row).join('')+`<tr class="sub"><td colspan="4">Subtotal ${esc(m)} · ${nPers(L.map(r=>r.t))} orang</td><td class="num">${rp(ss('gaji'))}</td><td class="num">${rp(ss('insTek'))}</td><td class="num">${rp(ss('gaji')+ss('insTek'))}</td><td colspan="2">${ss('insMitra')?'+ insentif mitra '+rp(ss('insMitra'))+' → total '+rp(ss('total')):''}</td></tr>`}).join('')||'<tr><td colspan="9" class="empty">Tidak ada orang aktif pada periode ini.</td></tr>'}
   ${R.length?`<tr class="grand"><td colspan="4">TOTAL ${esc(perLabel(per))} · ${P.length} orang</td><td class="num">${rp(sum('gaji'))}</td><td class="num">${rp(sum('insTek'))}</td><td class="num">${rp(sum('gaji')+sum('insTek'))}</td><td colspan="2">${sum('insMitra')?'+ insentif mitra '+rp(sum('insMitra'))+' → total tagihan '+rp(sum('total')):''}</td></tr>`:''}
   </tbody></table></div></div>`;
   $$('#hBody [data-why]').forEach(b=>b.onclick=()=>openWhy(b.dataset.why,per));
@@ -1603,7 +1614,7 @@ function capturePerformance(t,per,x0,ach0){const x=x0||calcTeam(t,per);const c=c
   const grd=g.createLinearGradient(0,0,W,0);grd.addColorStop(0,'#0a3a78');grd.addColorStop(1,'#2a9bf0');g.fillStyle='#fff';g.fillRect(0,0,W,H);g.fillStyle=grd;g.fillRect(0,0,W,130);
   const star=document.querySelector('.brandcard img.s');try{if(star&&star.complete)g.drawImage(star,40,30,70,70)}catch(e){}
   g.fillStyle='#fff';g.font='800 34px Plus Jakarta Sans, Arial';g.fillText('STARLITE · Capture Performance',130,62);g.font='500 18px Plus Jakarta Sans, Arial';g.fillText(`${t.jenis} · ${t.mitra} · ${perLabel(per)}`,130,96);
-  g.fillStyle='#0b0b0b';g.font='800 30px Plus Jakarta Sans, Arial';g.fillText(aName(t),40,185);g.fillStyle='#52514e';g.font='500 17px Plus Jakarta Sans, Arial';g.fillText(`${t.nama_1} (${t.id_akun_1||'-'})  &  ${t.nama_2} (${t.id_akun_2||'-'})  ·  ${t.stasiun} · ${x.wilayah}`,40,215);
+  g.fillStyle='#0b0b0b';g.font='800 30px Plus Jakarta Sans, Arial';g.fillText(aName(t),40,185);g.fillStyle='#52514e';g.font='500 17px Plus Jakarta Sans, Arial';g.fillText(`${mems(t).map(i=>`${t['nama_'+i]} (${t['id_akun_'+i]||'-'})`).join('  &  ')}  ·  ${t.stasiun} · ${x.wilayah}`,40,215);
   const box=(bx,lbl,val,sub)=>{g.fillStyle='#f0f4fa';g.fillRect(bx,245,260,110);g.fillStyle='#52514e';g.font='600 15px Arial';g.fillText(lbl,bx+18,275);g.fillStyle='#0b0b0b';g.font='800 36px Arial';g.fillText(val,bx+18,320);g.fillStyle='#85837d';g.font='500 13px Arial';g.fillText(sub,bx+18,343)};
   box(40,'HC terverifikasi',nf(x.hc),'dari data pencapaian');box(320,'Target',nf(x.target,1),`prorata ${x.wd}/${x.wdTot} hari kerja`);box(600,'Capaian',pct(x.pct),x.pct>=1?'target tercapai':'gaji pokok prorata');box(880,'Total tagihan',rpS(x.total),'gaji + insentif');
   const days=[];const end=ymd(new Date(+per.slice(0,4),+per.slice(5),0));for(let d=new Date(per+'-01T00:00');ymd(d)<=end;d.setDate(d.getDate()+1))days.push(ymd(d));
