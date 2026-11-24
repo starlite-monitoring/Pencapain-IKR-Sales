@@ -25,7 +25,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_ag03ef6CYYJ9s92jIxAdTQ_TBAD1O9e';
   --bg:#f3f4f1;--surface:#fcfcfb;--surface-2:#f0efec;--line:#e2e1dc;--line-2:#d3d2cc;
   --text:#0b0b0b;--text-2:#52514e;--muted:#85837d;
   --side:#06264f;--side-2:#0c3466;--side-text:#c8d8ee;--side-muted:#7e98bd;--grad:linear-gradient(135deg,#0a3a78 0%,#0b5fb8 55%,#2a9bf0 100%);
-  --accent:#1a7fe0;--accent-soft:#e3f0fd;--brand:#1a8be6;--c-ikr:#1a7fe0;--c-sls:#f07c1f;
+  --accent:#1a7fe0;--accent-soft:#e3f0fd;--brand:#1a8be6;--c-ikr:#1f9d55;--c-sls:#1a7fe0;
   --good:#1a7f37;--good-bg:#e5f4ea;--warn:#9a6700;--warn-bg:#fdf3d7;--bad:#c42b2b;--bad-bg:#fbe7e6;--info:#2a78d6;--info-bg:#e6f0fc;
   --gold:#b7791f;--silver:#8b95a3;--bronze:#a0603a;
   --r:12px;--shadow:0 1px 2px rgba(16,24,40,.05);
@@ -35,7 +35,7 @@ html[data-theme=dark]{
   --text:#f0efec;--text-2:#c3c2b7;--muted:#8d8c85;--side:#041a38;--side-2:#0a2a55;--grad:linear-gradient(135deg,#072b5a 0%,#0a4f9c 55%,#1f86d6 100%);
   --accent:#3d9bf0;--accent-soft:#12294a;--brand:#2a95ec;
   --good:#4fbf6a;--good-bg:#16291b;--warn:#e0a92e;--warn-bg:#2d2513;--bad:#ef6b6b;--bad-bg:#331a1a;--info:#6da7ec;--info-bg:#1b2a3d;
-  --gold:#e0a92e;--silver:#a9b3c1;--bronze:#d08a5c;--c-ikr:#4a9df0;--c-sls:#f39445;}
+  --gold:#e0a92e;--silver:#a9b3c1;--bronze:#d08a5c;--c-ikr:#4cc27a;--c-sls:#4a9df0;}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 "Plus Jakarta Sans",system-ui,sans-serif}
 .mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12.5px}
@@ -137,8 +137,12 @@ html[data-theme=dark] .kpis>.kpi:nth-child(4n+1){--kc:#5aa2ee}html[data-theme=da
 html[data-theme] .kpis>.kpi.j-ikr:nth-child(n){--kc:var(--c-ikr)}html[data-theme] .kpis>.kpi.j-sls:nth-child(n){--kc:var(--c-sls)}
 .kpi.hero{background:linear-gradient(180deg,color-mix(in srgb,var(--kc) 14%,var(--surface)) 0%,color-mix(in srgb,var(--kc) 4%,var(--surface)) 100%);box-shadow:var(--shadow)}
 .kpi .dot{display:none!important}
-#dBody .kpi .v{color:var(--good)}
-td.ng{color:var(--good);font-weight:700}td.ng.z{color:var(--muted);font-weight:500}
+.tbl-wrap th.ctr,.tbl-wrap td.ctr{text-align:center;white-space:nowrap}.tbl-wrap th.rt,.tbl-wrap td.rt{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.mcell{border:0;background:none;font:inherit;color:var(--text);font-weight:700;font-variant-numeric:tabular-nums;padding:4px 10px;border-radius:7px;cursor:pointer}
+.mcell:hover:not(:disabled),.mcell.on{background:var(--accent-soft);color:var(--accent)}.mcell.z{color:var(--muted);font-weight:500;cursor:default}
+tr.mdet td{background:var(--surface-2,color-mix(in srgb,var(--accent) 4%,var(--surface)));padding:10px 14px 14px}
+.mdet .ml{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.mdet .mi{border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--surface)}.mdet .mi .sub2{margin-top:2px}
 .jdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}.jdot.ikr{background:var(--c-ikr)}.jdot.sls{background:var(--c-sls)}
 .sec-h h2::before,.card>h2::before{content:"";display:inline-block;width:4px;height:15px;border-radius:2px;background:var(--accent);margin-right:8px;vertical-align:-2px}
 th{background:color-mix(in srgb,var(--accent) 6%,var(--surface-2))!important}
@@ -189,7 +193,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:now
 .p-good{color:var(--good);background:var(--good-bg)}.p-warn{color:var(--warn);background:var(--warn-bg)}.p-bad{color:var(--bad);background:var(--bad-bg)}.p-info{color:var(--info);background:var(--info-bg)}.p-mute{color:var(--text-2);background:var(--surface-2)}
 .tag{font-size:10.5px;font-weight:800;letter-spacing:.06em;padding:2px 7px;border-radius:5px}
 .tc.j-ikr::before{background:var(--c-ikr);opacity:1}.tc.j-sls::before{background:var(--c-sls);opacity:1}
-.tc.j-ikr .big b{color:var(--c-ikr)}.tc.j-sls .big b{color:var(--c-sls)}.tc.j-sls .prog i{background:var(--c-sls)}
+.tc.j-ikr .prog i,.perf-ikr .prog i{background:var(--c-ikr)}.tc.j-ikr .big b{color:var(--c-ikr)}.tc.j-sls .big b{color:var(--c-sls)}.tc.j-sls .prog i{background:var(--c-sls)}
 
 .kpi .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px}.kpi.j-ikr .dot{background:var(--c-ikr)}.kpi.j-sls .dot{background:var(--c-sls)}
 .kpis.k5{grid-template-columns:repeat(5,minmax(0,1fr))}@media (max-width:1100px){.kpis.k5{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -200,8 +204,8 @@ label.btn.dis{opacity:.5;pointer-events:none}
 tr.j-ikr td:first-child{box-shadow:inset 3px 0 0 var(--c-ikr)}tr.j-sls td:first-child{box-shadow:inset 3px 0 0 var(--c-sls)}
 .chip.j-ikr.on{background:var(--c-ikr);border-color:var(--c-ikr);color:#fff}.chip.j-sls.on{background:var(--c-sls);border-color:var(--c-sls);color:#fff}
 .jdots{display:inline-flex;gap:3px;margin-left:6px}.jdots i{width:8px;height:8px;border-radius:50%;display:inline-block}.jdots .j-ikr{background:var(--c-ikr)}.jdots .j-sls{background:var(--c-sls)}
-.tag.ikr{background:var(--info-bg);color:var(--info)}.tag.sls{background:#fdeee7;color:#b4501f}
-html[data-theme=dark] .tag.sls{background:#33201a;color:#f08c5f}
+.tag.ikr{background:#e3f5ea;color:#17803f}.tag.sls{background:var(--info-bg);color:var(--info)}
+html[data-theme=dark] .tag.ikr{background:#16291b;color:#5fd08a}html[data-theme=dark] .tag.sls{background:var(--info-bg);color:var(--info)}
 .empty{padding:30px;text-align:center;color:var(--muted)}
 .loading{padding:60px;text-align:center;color:var(--muted)}
 .chart-box{position:relative;height:250px}
@@ -890,7 +894,7 @@ function renderDash(){
   const fm=$('#fMitra').value,fs=$('#fSta').value,q=$('#fQ').value.toLowerCase();
   const LB={IKR:c.label_ikr,Sales:c.label_sales},TG={IKR:(+c.target_ikr||0)*R.months,Sales:(+c.target_sales||0)*R.months};const tgOf=t=>t.jenis==='Sales'?TG.Sales*Math.max(1,(t.anggota||[]).length):TG.IKR;
   const JS=dj?[dj]:['IKR','Sales'];
-  $('#dSub').textContent=`Ringkasan mitra, performa IKR (biru) & Sales (oranye), dan pembayaran · ${fmtD(R.a)} – ${fmtD(R.b)}`;
+  $('#dSub').textContent=`Ringkasan mitra, performa IKR (hijau) & Sales (biru), dan pembayaran · ${fmtD(R.a)} – ${fmtD(R.b)}`;
   const H0=S.admin?renderHome():{kpis:'',mitra:''};
   const tims=P.tims.filter(t=>JS.includes(t.jenis)&&(!fm||t.mitra===fm)&&(!fs||t.stasiun===fs));
   if(!tims.length){$('#dBody').innerHTML=`<div class="kpis k4">${H0.kpis}</div>${H0.mitra}<div class="card empty">Belum ada tim aktif${fm||fs||dj?' untuk filter ini':''}.</div>`;$('#updNote').textContent='';return}
@@ -939,6 +943,7 @@ function renderDash(){
   chart('cMitra',{type:'bar',data:{labels:mk,datasets:JS.map(J=>({label:J,data:mk.map(k=>bym[k][J]),backgroundColor:J==='IKR'?CI:CS,borderColor:css('--surface'),borderWidth:{right:2},borderRadius:3,maxBarThickness:26}))},options:ob});
   $$('#dBody th[data-k]').forEach(th=>th.onclick=()=>{const k=th.dataset.k;S.sort={k,d:S.sort.k===k?-S.sort.d:(k==='rank'||k==='tim'||k==='mitra'||k==='jenis'?1:-1)};renderView()});
   $$('#dBody [data-mf]').forEach(a=>a.onclick=()=>{setTimeout(()=>{$('#pMitra').value=a.dataset.mf;renderPipe()},50)});
+  $$('#dBody [data-mx]').forEach(b=>b.onclick=()=>mitDetail(b));
   $$('#dBody [data-lj]').forEach(el=>el.onclick=()=>{S.dj=el.dataset.lj;renderView()});
   $$('#dBody [data-tim]').forEach(el=>el.onclick=()=>{const r=rows.find(r=>r.t.id===el.dataset.tim);openTeam(el.dataset.tim,R,r.label,r.target,r)});
   $('#updNote').textContent=P.updated?'Data diperbarui '+new Date(P.updated).toLocaleString('id-ID'):'';
@@ -1234,20 +1239,37 @@ function renderHome(){
   const noId=aktif.filter(t=>!t.id_akun_1&&!t.id_akun_2);
   const unm=new Set(S.admin.ach.filter(a=>!a.tim_id).map(a=>a.id_akun)).size,needPay=B.filter(b=>b.status==='Dicek').length,noBill=aktif.filter(t=>!invOfTeam(t.id,prev)).length;
   const mit=[...new Set([...mitraList(),...T.map(t=>t.mitra)])].map(m=>{const L=T.filter(t=>t.mitra===m),A=L.filter(t=>t.status==='Aktif');const cs=calcs.filter(r=>r.t.mitra===m);
-    return{m,n:L.length,ikr:L.filter(t=>t.jenis==='IKR'&&!['Ditolak'].includes(t.status)).length,sls:L.filter(t=>t.jenis==='Sales'&&!['Ditolak'].includes(t.status)).length,a:A.length,onb:L.filter(t=>['Daftar','Kontrak','Akun'].includes(t.status)).length,hc:cs.reduce((s,r)=>s+r.x.hc,0),cap:cs.length?cs.reduce((s,r)=>s+r.x.pct,0)/cs.length:null,est:cs.reduce((s,r)=>s+r.x.total,0),
+    return{m,L,cs,n:L.length,ikr:L.filter(t=>t.jenis==='IKR'&&!['Ditolak'].includes(t.status)).length,sls:L.filter(t=>t.jenis==='Sales'&&!['Ditolak'].includes(t.status)).length,a:A.length,onb:L.filter(t=>['Daftar','Kontrak','Akun'].includes(t.status)).length,hc:cs.reduce((s,r)=>s+r.x.hc,0),cap:cs.length?cs.reduce((s,r)=>s+r.x.pct,0)/cs.length:null,est:cs.reduce((s,r)=>s+r.x.total,0),
       paid:B.filter(b=>b.periode===prev&&b.status==='Dibayar'&&b.mitra===m).reduce((s,b)=>s+paidV(b),0)}});
   const todo=[[onb.filter(t=>t.status==='Daftar').length,'pendaftaran tim baru menunggu verifikasi','#tracking'],[onb.filter(t=>t.status!=='Daftar').length,'tim sedang diverifikasi (ID IKR & kata sandi)','#tracking'],[noId.length,'tim aktif belum punya IKR/Sales ID','#tracking'],
     [unm,'ID pencapaian belum terhubung ke tim','#input'],[B.filter(b=>b.status==='Diajukan').length,'invoice diajukan mitra menunggu dicek Finance','#tagihan'],[needPay,'invoice sudah dicek, menunggu pembayaran '+PAYER,'#tagihan'],[noBill,'tim aktif belum masuk invoice '+perLabel(prev),'#tagihan']].filter(x=>x[0]>0);
+  HOME_MIT=mit;
   return{kpis:`
     <div class="kpi hero"><div class="k">Tim aktif</div><div class="v">${aktif.length}</div><div class="d">IKR ${aktif.filter(t=>t.jenis==='IKR').length} · Sales ${aktif.filter(t=>t.jenis==='Sales').length} · ${nPers(aktif)} personel${onb.length?' · '+onb.length+' proses daftar':''}</div></div>
     <div class="kpi"><div class="k">HC bulan ini</div><div class="v">${nf(hcM(per))}</div><div class="d">${nf(hcM(prev))} bulan lalu</div></div>
     <div class="kpi"><div class="k">Estimasi tagihan bulan ini</div><div class="v">${rpS(est)}</div><div class="d">rumus Program Subsidi Tier 1</div></div>
     <div class="kpi"><div class="k">Dibayar ${esc(perLabel(prev))}</div><div class="v">${rpS(paidPrev)}</div><div class="d">${bPrev.filter(b=>b.status==='Dibayar').length}/${bPrev.length} invoice · ${openB.length} belum lunas</div></div>`,
-   mitra:`<div class="card" style="padding:0;margin-bottom:22px"><div style="padding:16px 18px 10px"><h2>Ringkasan per mitra</h2><p class="sub" style="margin:0">Klik nama mitra untuk melihat Tracking-nya · <b>Tim IKR / Tim Sales</b> = jumlah tim yang didaftarkan mitra per jenis · <b>Proses daftar</b> = tim yang sudah didaftarkan tapi belum selesai verifikasi (Mitra submit / Verifikasi)</p></div>
-     <div class="tbl-wrap" style="border:0;border-top:1px solid var(--line);border-radius:0 0 12px 12px"><table><thead><tr><th>Mitra</th><th class="num"><span class="jdot ikr"></span>Tim IKR</th><th class="num"><span class="jdot sls"></span>Tim Sales</th><th class="num">Aktif</th><th class="num">Proses daftar</th><th class="num">HC bulan ini</th><th class="num">Capaian rata²</th><th class="num">Estimasi</th><th class="num">Dibayar bln lalu</th></tr></thead><tbody>
-     ${mit.map(x=>`<tr><td style="min-width:170px"><a href="#tracking" data-mf="${esc(x.m)}"><b>${esc(x.m)}</b></a></td><td class="num ng ${x.ikr?'':'z'}">${x.ikr}</td><td class="num ng ${x.sls?'':'z'}">${x.sls}</td><td class="num ng ${x.a?'':'z'}">${x.a}</td><td class="num ng ${x.onb?'':'z'}">${x.onb||'–'}</td><td class="num ng ${x.hc?'':'z'}">${nf(x.hc)}</td><td class="num"><span class="cap-bar" style="--kc2:${x.cap>=.8?'#3d9a4f':x.cap>=.4?'#d08a1e':'#c4553a'}"><i><b style="width:${Math.min(100,(x.cap||0)*100)}%"></b></i>${pct(x.cap)}</span></td><td class="num ng ${x.est?'':'z'}">${rp(x.est)}</td><td class="num ng ${x.paid?'':'z'}">${rp(x.paid)}</td></tr>`).join('')}
+   mitra:`<div class="card" style="padding:0;margin-bottom:22px"><div style="padding:16px 18px 10px"><h2>Ringkasan per mitra</h2></div>
+     <div class="tbl-wrap" style="border:0;border-top:1px solid var(--line);border-radius:0 0 12px 12px"><table><thead><tr><th>Mitra</th><th class="ctr"><span class="jdot ikr"></span>Tim IKR</th><th class="ctr"><span class="jdot sls"></span>Tim Sales</th><th class="ctr">Aktif</th><th class="ctr" title="Tim yang sudah didaftarkan mitra tapi belum selesai verifikasi">Proses daftar</th><th class="ctr">HC bulan ini</th><th class="ctr">Capaian rata²</th><th class="rt">Estimasi</th><th class="rt">Dibayar bln lalu</th></tr></thead><tbody>
+     ${mit.map((x,k)=>{const cell=(key,v,txt)=>`<td class="ctr"><button type="button" class="mcell ${v?'':'z'}" data-mx="${k}" data-key="${key}" ${v?'':'disabled'}>${txt}</button></td>`;
+       return `<tr data-mrow="${k}"><td style="min-width:170px"><a href="#tracking" data-mf="${esc(x.m)}"><b>${esc(x.m)}</b></a></td>${cell('ikr',x.ikr,x.ikr)}${cell('sls',x.sls,x.sls)}${cell('a',x.a,x.a)}${cell('onb',x.onb,x.onb||'–')}${cell('hc',x.hc,nf(x.hc))}<td class="ctr"><button type="button" class="mcell ${x.cap!=null?'':'z'}" data-mx="${k}" data-key="cap" ${x.cap!=null?'':'disabled'}><span class="cap-bar" style="--kc2:${x.cap>=.8?'#3d9a4f':x.cap>=.4?'#d08a1e':'#c4553a'}"><i><b style="width:${Math.min(100,(x.cap||0)*100)}%"></b></i>${pct(x.cap)}</span></button></td><td class="rt">${rp(x.est)}</td><td class="rt">${rp(x.paid)}</td></tr>`}).join('')}
      </tbody></table></div></div>`};
 }
+
+let HOME_MIT=[];
+function mitDetail(btn){const k=+btn.dataset.mx,key=btn.dataset.key,x=HOME_MIT[k];if(!x)return;const tr=btn.closest('tr');
+  const open=tr.nextElementSibling&&tr.nextElementSibling.classList.contains('mdet')?tr.nextElementSibling:null;const was=btn.classList.contains('on');
+  tr.parentElement.querySelectorAll('.mcell.on').forEach(b=>b.classList.remove('on'));if(open)open.remove();if(was)return;btn.classList.add('on');
+  const live=x.L.filter(t=>t.status!=='Ditolak');const ttl={ikr:'Tim IKR',sls:'Tim Sales',a:'Tim aktif',onb:'Proses daftar',hc:'HC bulan ini per tim',cap:'Capaian target per tim'}[key];
+  let L=key==='ikr'?live.filter(t=>t.jenis==='IKR'):key==='sls'?live.filter(t=>t.jenis==='Sales'):key==='a'?live.filter(t=>t.status==='Aktif'):key==='onb'?live.filter(t=>['Daftar','Kontrak','Akun'].includes(t.status)):x.cs.map(r=>r.t);
+  const cOf=t=>x.cs.find(r=>r.t.id===t.id)?.x;if(key==='hc'||key==='cap')L=L.slice().sort((a,b)=>((cOf(b)||{})[key==='hc'?'hc':'pct']||0)-((cOf(a)||{})[key==='hc'?'hc':'pct']||0));
+  const stl=t=>({Daftar:'Mitra submit',Kontrak:'Verifikasi',Akun:'Verifikasi',Aktif:'Aktif',Nonaktif:'Nonaktif'}[t.status]||t.status);
+  const d=document.createElement('tr');d.className='mdet';
+  d.innerHTML=`<td colspan="9"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><b>${esc(ttl)} · ${esc(x.m)}</b><span class="sub2">(${L.length})</span><span style="flex:1"></span><button type="button" class="btn sm" data-cls>Tutup</button></div>
+   <div class="ml">${L.map(t=>{const c=cOf(t);return `<div class="mi"><b>${esc(aName(t))}</b> ${tag(t.jenis)} <span class="sub2">· ${esc(stl(t))}</span>
+     <div class="sub2">${mems(t).map(i=>esc(t['nama_'+i])+(t['id_akun_'+i]?' <span class="mono">('+esc(t['id_akun_'+i])+')</span>':'')).join(' &amp; ')}</div>
+     ${c&&(key==='hc'||key==='cap'||key==='a')?`<div class="sub2">HC <b>${nf(c.hc)}</b> / ${nf(c.target,0)} · capaian <b>${pct(c.pct)}</b></div>`:''}</div>`}).join('')||'<span class="sub2">Tidak ada data.</span>'}</div></td>`;
+  tr.after(d);d.querySelector('[data-cls]').onclick=()=>{d.remove();btn.classList.remove('on')}}
 
 /* ================== SUPERADMIN: LINK MITRA ================== */
 const genToken=()=>{const ch='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';const a=new Uint32Array(24);(crypto.getRandomValues?crypto.getRandomValues(a):a.forEach((_,i)=>a[i]=Math.random()*1e9));return [...a].map(x=>ch[x%ch.length]).join('')};
