@@ -63,8 +63,8 @@ aside.side{background:var(--side);color:var(--side-text);padding:18px 12px;posit
 .vtabs a .n{font-size:11px;background:var(--brand);color:#fff;border-radius:10px;padding:1px 7px}
 .brandcard{background:none;border:0;border-radius:0;padding:8px 4px 10px;margin:2px 2px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:none}
 .brandcard img.s{filter:none}
-.brandcard .row1{display:flex;align-items:center;gap:10px}.brandcard .row1 img.s{height:46px}.brandcard .row1 img.t{height:20px}
-.brandcard .row2{display:flex;align-items:center;gap:8px;font-size:13px;color:#c5d6ec;font-weight:700}.brandcard .row2 img{height:22px}
+.brandcard .row1{display:flex;align-items:center;gap:12px}.brandcard .row1 img.s{height:44px}.brandcard .row1 img.w{height:24px}.brandcard .bsep{width:1px;height:30px;background:rgba(255,255,255,.28)}
+.brandcard .row2{display:flex;align-items:center;justify-content:center}.brandcard .row2 img.t{height:19px}
 .side .prog-name{color:#fff;font-weight:700;font-size:12.5px;padding:2px 10px 4px;line-height:1.3}.side .prog-name small{display:block;color:var(--side-muted);font-weight:500;font-size:11px}
 .banner{background:var(--grad);border-radius:18px;padding:22px 24px;margin-bottom:20px;color:#fff;position:relative;overflow:hidden;box-shadow:0 10px 30px rgba(10,60,130,.25)}
 .banner .wm{position:absolute;right:-30px;top:-40px;height:230px;opacity:.13;pointer-events:none;filter:brightness(0) invert(1)}
@@ -249,6 +249,15 @@ tr.grand td{background:var(--side);color:#fff;font-weight:800}
 .trk-h{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,var(--accent-soft),transparent 70%);flex-wrap:wrap}
 .trk-h .ini{width:38px;height:38px;border-radius:10px;background:var(--grad);color:#fff;font-weight:800;display:grid;place-items:center;font-size:13px;flex:none}
 .trk-h b{font-size:15px}.trk-h .stats{display:flex;gap:16px;margin-left:auto;font-size:12px;color:var(--text-2);flex-wrap:wrap}.trk-h .stats b{font-size:13px;color:var(--text)}
+.trk-tools{display:flex;gap:6px;justify-content:flex-end;margin:-4px 0 10px}
+button.trk-h,div.trk-h{width:100%;border:0;border-bottom:1px solid var(--line);text-align:left;cursor:pointer;font:inherit;color:inherit}
+.trk-g:not(.open)>.trk-h{border-bottom:0}.trk-g.noteam>.trk-h{cursor:default;opacity:.75}
+.trk-h .car,.trk-sh .car{display:inline-block;width:12px;color:var(--muted);transition:transform .15s;font-size:12px}
+.trk-g.open>.trk-h .car,.trk-sub.open>.trk-sh .car{transform:rotate(90deg)}
+.trk-h .tt{min-width:0}.trk-h .stats .hot b{color:var(--warn)}
+.trk-sh{display:flex;align-items:center;gap:8px;width:100%;border:0;border-bottom:1px solid var(--line);background:var(--surface-2,color-mix(in srgb,var(--text) 3%,var(--surface)));padding:9px 18px;cursor:pointer;font:inherit;color:inherit;text-align:left;flex-wrap:wrap}
+.trk-sh:hover,button.trk-h:hover:not(:disabled){filter:brightness(.98)}
+.trk-r .act{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .trk-r{display:grid;grid-template-columns:minmax(190px,1.05fr) minmax(430px,2.9fr) minmax(140px,.8fr) auto;gap:16px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line)}
 .trk-r:last-child{border-bottom:0}.trk-r:hover{background:var(--surface-2)}
 .trk-r.off{opacity:.55}
@@ -375,20 +384,52 @@ body.formmode main{max-width:880px;margin:0 auto}
 .regdone{text-align:center;padding:36px 20px}
 .regdone .ic{width:62px;height:62px;border-radius:50%;background:var(--good-bg);color:var(--good);display:grid;place-items:center;margin:0 auto 14px;font-size:30px;font-weight:800}
 .foot-note{margin-top:18px;font-size:12px;color:var(--muted);text-align:center}
+
+/* ===== ikon menu + tampilan HP ===== */
+.side a .ic{width:18px;height:18px;flex:none;opacity:.85}
+.side a{justify-content:flex-start}.side a .lbl{flex:1;min-width:0}.side a .sl,.side a.m-out{display:none}
+.side a.on .ic{opacity:1}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  aside.side{position:fixed;left:0;right:0;bottom:0;top:auto;height:auto;z-index:60;flex-direction:row;justify-content:space-around;align-items:stretch;padding:6px 4px calc(6px + env(safe-area-inset-bottom));gap:2px;overflow:visible;box-shadow:0 -4px 16px rgba(0,0,0,.18)}
+  .side .brandcard,.side .prog-name,.side h6,.side .foot{display:none!important}
+  .side a,.side a.m-out{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;flex:1;min-width:0;padding:6px 2px;font-size:10.5px;line-height:1.1;text-align:center;white-space:nowrap;position:relative;border-radius:10px}
+  .side a .lbl{display:none}.side a .sl{display:block;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .side a .ic{width:21px;height:21px}
+  .side a [id^=n]{position:absolute;top:1px;right:calc(50% - 22px)}.side a [id^=n] .n{font-size:10px;padding:0 5px;min-width:16px}
+  main{padding:14px 12px 92px!important;min-width:0}
+  .theme-btn{bottom:84px!important}
+  .vtabs{width:100%;overflow-x:auto;flex-wrap:nowrap}.vtabs a{white-space:nowrap;padding:7px 11px;font-size:13px}
+  .ph{flex-direction:column;align-items:stretch!important;gap:10px}.ph .ctl{flex-wrap:wrap}.ph .ctl>*{flex:1 1 140px;min-width:0}
+  .ph .ctl input,.ph .ctl select{width:100%!important}
+  .trk-h{padding:11px 12px!important;gap:8px!important}.trk-h .stats{width:100%;margin-left:30px!important;gap:12px}
+  .trk-h .ini{width:32px;height:32px;font-size:12px}
+  .trk-r{padding:12px!important}.trk-sh{padding:9px 12px}
+  .stp{min-width:0}.stp .s{font-size:10.5px}
+  .tbl-wrap{-webkit-overflow-scrolling:touch}
+  .modal,.modal-box,.mbox{width:calc(100vw - 16px)!important;max-width:none!important}
+  .kpi .v{font-size:22px}
+  .hero,.d-hero{padding:16px!important}
+}
+@media (max-width:420px){.kpis{grid-template-columns:1fr 1fr!important}.kpi{padding:11px 12px}}
+.trk-r.p-st{grid-template-columns:minmax(190px,1fr) minmax(300px,1.6fr) minmax(220px,1.4fr)}
+.pst-tg{border:0;background:none;cursor:pointer;padding:4px;font:inherit;color:inherit}.trk-g.open .pst-tg .car{transform:rotate(90deg)}
+@media (max-width:900px){.trk-r.p-st,.trk-r{grid-template-columns:1fr!important;gap:10px}}
 </style>
 </head>
 <body>
 <div class="app">
 <aside class="side">
-  <div class="brandcard"><div class="row1"><img class="s" data-logo="star" alt=""><img class="t" data-logo="textw" alt="STARLITE"></div><div class="row2"><img data-logo="weavew" alt="weave"></div></div>
+  <div class="brandcard"><div class="row1"><img class="s" data-logo="star" alt=""><span class="bsep"></span><img class="w" data-logo="weavew" alt="weave"></div><div class="row2"><img class="t" data-logo="textw" alt="STARLITE"></div></div>
   <div class="prog-name" id="progName">Mitra Center<small>Pencapaian IKR & Sales</small></div>
   <h6>MENU</h6>
-  <a href="#home" data-v="home" data-g="home,tracking,daftar">Dashboard &amp; Tracking <span id="nPipe"></span></a>
-  <a href="#tagihan" data-v="tagihan" data-g="tagihan,hitung">Finance · Penagihan <span id="nInv"></span></a>
-  <a href="#input" data-v="input" data-g="input">Detail Pelanggan Aktivasi <span id="nUnm"></span></a>
+  <a href="#home" data-v="home" data-g="home,tracking,daftar"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span class="lbl">Dashboard &amp; Tracking</span><span class="sl">Dashboard</span><span id="nPipe"></span></a>
+  <a href="#tagihan" data-v="tagihan" data-g="tagihan,hitung"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M6.5 15h4"/></svg><span class="lbl">Finance · Penagihan</span><span class="sl">Finance</span><span id="nInv"></span></a>
+  <a href="#input" data-v="input" data-g="input"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.6a3.4 3.4 0 0 1 0 6.8"/><path d="M18.2 14.8c1.7.8 2.8 2.6 3.3 5.2"/></svg><span class="lbl">Detail Pelanggan Aktivasi</span><span class="sl">Pelanggan</span><span id="nUnm"></span></a>
   <h6>SUPERADMIN</h6>
-  <a href="#akses" data-v="akses" data-g="akses">Akun Mitra</a>
-  <a href="#setting" data-v="setting" data-g="setting,admins">Pengaturan</a>
+  <a href="#akses" data-v="akses" data-g="akses"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4.5"/><path d="M11.2 11.8 20 3"/><path d="M16.5 6.5 19 9"/><path d="M14.5 8.5 16.5 10.5"/></svg><span class="lbl">Akun Mitra</span><span class="sl">Akun</span></a>
+  <a href="#setting" data-v="setting" data-g="setting,admins"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span class="lbl">Pengaturan</span><span class="sl">Atur</span></a>
+  <a href="javascript:void 0" class="m-out" id="mOut"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span class="sl">Keluar</span></a>
   <div class="foot">
     <div class="row"><span class="dot" id="connDot"></span><span id="connTxt">Menghubungkan…</span></div>
     <button id="btnLogout">⎋ Keluar</button>
@@ -788,6 +829,7 @@ function sideBadges(){const T=S.admin.tims;const n=T.filter(t=>['Daftar','Kontra
   const ni=(S.admin.invoices||[]).filter(i=>i.status==='Diajukan').length;$('#nInv').innerHTML=ni?`<span class="n hot" title="Invoice menunggu dicek">${ni}</span>`:'';
   renderTabs(S.view);const u=new Set(S.admin.ach.filter(a=>!a.tim_id).map(a=>a.id_akun)).size;$('#nUnm').innerHTML=u?`<span class="n hot" title="ID belum terhubung">${u}</span>`:''}
 function logout(silent){S.pw=null;S.admin=null;S.pub=null;sSet('stl_pw',null);lSet('stl_pw',null);if(sb)sb.auth.signOut().catch(()=>{});if(!silent)toast('Anda sudah keluar');route()}
+$('#mOut').onclick=()=>$('#btnLogout').click();
 $('#btnLogout').onclick=()=>logout();
 
 /* ================== routing ================== */
@@ -1058,6 +1100,7 @@ function stepper(t,st){const idx=TSTEPS.indexOf(st);
   return `<div class="stp">${TSTEPS.map((s,i)=>{const fin=s==='Aktif'&&i===idx;const cls=idx<0?'':i<idx?'done':i===idx?(fin?'cur paid':'cur'):'';
     return `<div class="s ${cls}"><i>${i<idx||fin?'✓':i+1}</i>${TLBL[s]}${i===idx?`<span class="dt">${esc(stageDetail(t,st))}</span>`:''}</div>`}).join('')}</div>`}
 const accLines=t=>mems(t).map(i=>`<div><b>${esc(t['nama_'+i]||'–')}</b> · ${t['id_akun_'+i]?`<span class="mono">${esc(t['id_akun_'+i])}</span>`:'<span style="color:var(--warn)">ID kosong</span>'}${t['pass_akun_'+i]?' · 🔑':''}</div>`).join('');
+const TRK_OPEN=new Set(),TRK_SUBX=new Set();
 function renderPipe(){
   {const sel=$('#pMitra'),cur=sel.value;const ml=[...new Set([...mitraList(),...S.admin.tims.map(t=>t.mitra)].filter(Boolean))];sel.innerHTML='<option value="">Semua mitra</option>'+ml.map(m=>`<option>${esc(m)}</option>`).join('');if(ml.includes(cur))sel.value=cur}
   const q=$('#pQ').value.toLowerCase(),fm=$('#pMitra').value,arsip=$('#pArsip').checked;
@@ -1070,19 +1113,28 @@ function renderPipe(){
   $('#pAlert').innerHTML=noId.length?`<div class="alert">⚠ ${noId.length} tim aktif belum punya IKR/Sales ID — pencapaiannya belum terhitung: ${noId.map(t=>esc(aName(t))).join(', ')}</div>`:'';
   const order=[...new Set([...mitraList(),...T.map(t=>t.mitra)])].filter(m=>!fm||m===fm);
   const ini=m=>m.replace(/^(PT|CV)\.?\s+/i,'').split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  $('#trk').innerHTML=order.map(m=>{
+  const auto=!!(q||fm);
+  const row=t=>{const st=pStage(t);const off=['Ditolak','Nonaktif'].includes(t.status);
+    return `<div class="trk-r ${off?'off':''}">
+      <div class="who"><b>${esc(aName(t))}</b> ${tag(t.jenis)} ${off?pill(t.status,STK[t.status]):''}<div class="sub2">${esc(names(t))}</div><div class="sub2">${esc(t.stasiun)} · <span class="mono">${esc(t.id)}</span></div></div>
+      ${stepper(t,off?'':st)}
+      <div class="inf">${st==='Daftar'?'Data tim dari mitra sudah masuk.<br>Klik <b>Verifikasi</b> untuk memproses.':accLines(t)}</div>
+      <div class="act">${st==='Daftar'?`<button class="btn sm pri" data-edit="${esc(t.id)}">Verifikasi →</button>`:st==='Verifikasi'?`<button class="btn sm pri" data-edit="${esc(t.id)}">Lanjut verifikasi →</button>`:`<button class="btn sm" data-edit="${esc(t.id)}">✎ Edit</button>`}<button class="btn sm bad" data-del="${esc(t.id)}" title="Hapus tim ini">🗑 Hapus</button></div></div>`};
+  $('#trk').innerHTML=`<div class="trk-tools"><button type="button" class="btn sm" id="trkOpenAll">Buka semua</button><button type="button" class="btn sm" id="trkCloseAll">Tutup semua</button></div>`+(order.map(m=>{
     const L=T.filter(t=>t.mitra===m);const vis=L.filter(t=>arsip||!['Ditolak','Nonaktif'].includes(t.status))
       .sort((a,b)=>TSTEPS.indexOf(pStage(a))-TSTEPS.indexOf(pStage(b))||aName(a).localeCompare(aName(b)));
     if((q||pJ)&&!vis.length)return'';
     const akt=L.filter(t=>t.status==='Aktif').length,proc=L.filter(t=>['Daftar','Kontrak','Akun'].includes(t.status)).length;
-    return `<div class="trk-g"><div class="trk-h"><div class="ini">${esc(ini(m))}</div><div><b>${esc(m)}</b><div class="sub2">${L.length} tim · ${nPers(L)} personel</div></div>
-      <div class="stats"><span><b>${proc}</b> perlu diproses</span><span><b>${akt}</b> selesai</span></div></div>
-      ${vis.length?vis.map(t=>{const st=pStage(t);const off=['Ditolak','Nonaktif'].includes(t.status);
-        return `<div class="trk-r ${off?'off':''}">
-          <div class="who"><b>${esc(aName(t))}</b> ${tag(t.jenis)} ${off?pill(t.status,STK[t.status]):''}<div class="sub2">${esc(names(t))}</div><div class="sub2">${esc(t.stasiun)} · <span class="mono">${esc(t.id)}</span></div></div>
-          ${stepper(t,off?'':st)}
-          <div class="inf">${st==='Daftar'?'Data tim dari mitra sudah masuk.<br>Klik <b>Verifikasi</b> untuk memproses.':accLines(t)}</div>
-          <div class="act" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${st==='Daftar'?`<button class="btn sm pri" data-edit="${esc(t.id)}">Verifikasi →</button>`:st==='Verifikasi'?`<button class="btn sm pri" data-edit="${esc(t.id)}">Lanjut verifikasi →</button>`:`<button class="btn sm" data-edit="${esc(t.id)}">✎ Edit</button>`}<button class="btn sm bad" data-del="${esc(t.id)}" title="Hapus tim ini">🗑 Hapus</button></div></div>`}).join(''):'<div class="trk-empty">Belum ada tim terdaftar dari mitra ini.</div>'}</div>`}).join('')||'<div class="card empty">Tidak ada tim yang cocok.</div>';
+    const nI=vis.filter(t=>t.jenis==='IKR').length,nS=vis.filter(t=>t.jenis==='Sales').length;
+    const open=auto||TRK_OPEN.has(m);
+    const sub=(j,lbl)=>{const A=vis.filter(t=>t.jenis===j);if(!A.length)return'';const k=m+'|'+j;const so=!TRK_SUBX.has(k);
+      return `<div class="trk-sub ${so?'open':''}"><button type="button" class="trk-sh" data-sub="${esc(k)}"><span class="car">▸</span><span class="jdot ${j==='Sales'?'sls':'ikr'}"></span><b>${lbl}</b><span class="sub2">${A.length} tim · ${A.filter(t=>['Daftar','Kontrak','Akun'].includes(t.status)).length} perlu diproses</span></button>${so?A.map(row).join(''):''}</div>`};
+    return `<div class="trk-g ${open?'open':''} ${vis.length?'':'noteam'}"><${vis.length?'button type="button" data-grp="'+esc(m)+'"':'div'} class="trk-h"><span class="car">${vis.length?'▸':''}</span><div class="ini">${esc(ini(m))}</div><div class="tt"><b>${esc(m)}</b><div class="sub2">${vis.length?`<span class="jdot ikr"></span>IKR ${nI} · <span class="jdot sls"></span>Sales ${nS} · ${nPers(vis)} personel`:'Belum ada tim terdaftar'}</div></div>
+      <div class="stats"><span class="${proc?'hot':''}"><b>${proc}</b> perlu diproses</span><span><b>${akt}</b> selesai</span></div></${vis.length?'button':'div'}>
+      ${open&&vis.length?sub('IKR','Tim IKR')+sub('Sales','Tim Sales'):''}</div>`}).join('')||'<div class="card empty">Tidak ada tim yang cocok.</div>');
+  $$('#trk [data-grp]').forEach(b=>b.onclick=()=>{const m=b.dataset.grp;TRK_OPEN.has(m)?TRK_OPEN.delete(m):TRK_OPEN.add(m);renderPipe()});
+  $$('#trk [data-sub]').forEach(b=>b.onclick=()=>{const k=b.dataset.sub;TRK_SUBX.has(k)?TRK_SUBX.delete(k):TRK_SUBX.add(k);renderPipe()});
+  $('#trkOpenAll').onclick=()=>{order.forEach(m=>TRK_OPEN.add(m));renderPipe()};$('#trkCloseAll').onclick=()=>{TRK_OPEN.clear();renderPipe()};
   $$('#trk [data-edit]').forEach(b=>b.onclick=()=>openEdit(b.dataset.edit));
   $$('#trk [data-del]').forEach(b=>b.onclick=()=>delTim(b.dataset.del,b));
 }
@@ -1439,9 +1491,12 @@ function renderPortal(per){
     <div class="mini"><div><b>${x.wd}/${x.wdTot}</b>hari kerja</div><div><b>${rpS(x.gaji)}</b>gaji pokok</div><div><b>${rpS(x.insTek+x.insMitra)}</b>insentif</div><div><b>${r.b?esc(ILBL[r.b.status]):'–'}</b>invoice</div></div></div>`}).join('')||'<div class="card empty" style="grid-column:1/-1">Belum ada tim aktif pada periode ini.</div>'}</div>
     <div class="card" style="margin-bottom:16px"><h2>HC per hari</h2><p class="sub">Semua tim ${esc(P.mitra)} · ${esc(perLabel(per))}</p><div class="chart-box"><canvas id="cPortal"></canvas></div></div>
   <div class="card" style="margin-bottom:16px;padding:0" id="pWo"></div>
-  <div class="trk-g"><div class="trk-h"><div class="ini">${esc(P.mitra.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase())}</div><div><b>Status pendaftaran tim</b><div class="sub2">Mitra submit → Verifikasi admin → Selesai (akun aktif)</div></div><div class="sp" style="flex:1"></div><a class="btn sm" href="${P.base}/daftar">+ Minta akun tim</a></div>
-   ${T.filter(t=>!['Ditolak'].includes(t.status)).map(t=>{const st=pStage(t);const off=st==='Nonaktif';return `<div class="trk-r" style="grid-template-columns:minmax(190px,1fr) minmax(300px,1.6fr) minmax(220px,1.4fr)"><div class="who"><b>${esc(aName(t))}</b> ${tag(t.jenis)} ${off?pill('Nonaktif','mute'):''}<div class="sub2">${esc(names(t))}</div></div>${stepper(t,off?'':st)}
-     <div class="inf">${accP(t)}</div></div>`}).join('')||'<div class="trk-empty">Belum ada tim.</div>'}</div>
+  ${(()=>{const V=T.filter(t=>t.status!=='Ditolak');const prow=t=>{const st=pStage(t);const off=st==='Nonaktif';return `<div class="trk-r p-st"><div class="who"><b>${esc(aName(t))}</b> ${tag(t.jenis)} ${off?pill('Nonaktif','mute'):''}<div class="sub2">${esc(names(t))}</div></div>${stepper(t,off?'':st)}<div class="inf">${accP(t)}</div></div>`};
+    const sub=(j,lbl)=>{const A=V.filter(t=>t.jenis===j);if(!A.length)return'';const k='P|'+j;const so=!TRK_SUBX.has(k);
+      return `<div class="trk-sub ${so?'open':''}"><button type="button" class="trk-sh" data-psub="${k}"><span class="car">▸</span><span class="jdot ${j==='Sales'?'sls':'ikr'}"></span><b>${lbl}</b><span class="sub2">${A.length} tim · ${A.filter(t=>['Daftar','Kontrak','Akun'].includes(t.status)).length} sedang diproses</span></button>${so?A.map(prow).join(''):''}</div>`};
+    const open=!TRK_SUBX.has('P|all');
+    return `<div class="trk-g ${open?'open':''}"><div class="trk-h"><button type="button" class="pst-tg" data-psub="P|all"><span class="car">▸</span></button><div class="ini">${esc(P.mitra.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase())}</div><div style="flex:1;min-width:160px"><b>Status pendaftaran tim</b><div class="sub2"><span class="jdot ikr"></span>IKR ${V.filter(t=>t.jenis==='IKR').length} · <span class="jdot sls"></span>Sales ${V.filter(t=>t.jenis==='Sales').length} · Mitra submit → Verifikasi → Selesai</div></div><a class="btn sm" href="${P.base}/daftar">+ Minta akun tim</a></div>
+     ${open?(V.length?sub('IKR','Tim IKR')+sub('Sales','Tim Sales'):'<div class="trk-empty">Belum ada tim.</div>'):''}</div>`})()}
   <div class="card" style="padding:0"><div style="padding:16px 18px 10px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap"><div style="flex:1"><h2>Tagihan & pembayaran</h2><p class="sub" style="margin:0">1 invoice atas nama ${esc(P.mitra)} · pilih tim yang ditagih · dicek Finance lalu dibayar ${PAYER}</p></div><button type="button" class="btn pri" id="pInvBtn2">+ Ajukan tagihan</button></div>
    <div class="tbl-wrap" style="border:0;border-top:1px solid var(--line);border-radius:0 0 12px 12px"><table><thead><tr><th>No. invoice</th><th>Periode</th><th>Tim ditagih</th><th class="num">HC</th><th class="num">Nilai</th><th>Dokumen</th><th>Status</th><th>Dibayar</th></tr></thead><tbody>
    ${IV.slice().sort((a,b)=>b.periode.localeCompare(a.periode)||String(b.tgl_ajukan).localeCompare(String(a.tgl_ajukan))).map(b=>`<tr><td class="mono" style="white-space:nowrap"><b>${esc(b.id)}</b></td><td>${esc(perLabel(b.periode))}</td><td>${(b.tim_ids||[]).map(id=>esc(tn(id))).join('<br>')}</td><td class="num">${nf(b.jumlah)}</td><td class="num"><b>${rp(b.nilai)}</b></td><td>${[b.f1,b.f2,b.f3].filter(Boolean).length}/3</td>
@@ -1455,6 +1510,7 @@ function renderPortal(per){
   $('#pInvBtn').onclick=()=>openInvoice();const po=$('#pOut');if(po)po.onclick=()=>{mTokSet('');PORTAL=null;$('#mlMsg').textContent='';$('#fMLogin').reset();location.hash='#mitra';route()};$('#pInvBtn2').onclick=()=>openInvoice();
   $$('#portalBody [data-ptim]').forEach(x=>x.onclick=()=>{PWO.tim=x.dataset.ptim;PWO.q='';renderPortalWO(per,act);$('#pWo').scrollIntoView({behavior:'smooth',block:'start'})});
   $$('#portalBody [data-pinv]').forEach(x=>x.onclick=()=>openInvoice(x.dataset.pinv));
+  $$('#portalBody [data-psub]').forEach(b=>b.onclick=()=>{const k=b.dataset.psub;TRK_SUBX.has(k)?TRK_SUBX.delete(k):TRK_SUBX.add(k);const y=window.scrollY;renderPortal($('#ptPer')?.value);window.scrollTo(0,y)});
   $$('#portalBody [data-shpw]').forEach(x=>x.onclick=e=>{e.stopPropagation();const s=x.previousElementSibling;const on=s.textContent!==s.dataset.pwv;s.textContent=on?s.dataset.pwv:'••••••';x.textContent=on?'tutup':'lihat'});
   const R={a:per+'-01',b:ymd(new Date(+per.slice(0,4),+per.slice(5),0)),months:1};lineChart('cPortal',R,daily,'HC');
   renderPortalWO(per,act);
@@ -1861,7 +1917,7 @@ function demoApi(action,b){
       const o={id:'INV-'+b.periode.replace('-','')+'-'+Math.random().toString(36).slice(2,6).toUpperCase(),mitra:a.mitra,periode:b.periode,tim_ids:ids,rincian:JSON.stringify(b.rincian||[]),jumlah:+b.jumlah||0,nilai:+b.nilai||0,status:'Diajukan',
         file_1:fl(b.files[1]),file_2:fl(b.files[2]),file_3:fl(b.files[3]),slip:'',nilai_bayar:'',catatan:b.catatan||'',catatan_finance:'',tgl_ajukan:today,tgl_cek:'',tgl_bayar:'',created_at:new Date().toISOString()};DB.inv.push(o);return{ok:true,id:o.id}}
     if(action==='register'){const d={...b.data};if(d.token){const a=DB.akses.find(x=>x.token===d.token&&x.aktif);if(!a)throw new Error('Link mitra tidak valid atau sudah dinonaktifkan');d.mitra=a.mitra}else if(!S.admin)throw new Error('Pendaftaran hanya lewat link khusus mitra.');delete d.token;['pkwt_file_1','pkwt_file_2','bpjs_file_1','bpjs_file_2'].forEach(k=>d[k]=d[k]?d2u(d[k]):'');const id='REG-'+ymd(new Date()).slice(2).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
-      const nh=v=>v.replace(/\D/g,'').replace(/^62/,'0');if(DB.tims.some(t=>!['Ditolak','Nonaktif'].includes(t.status)&&[t.hp_1,t.hp_2].some(h=>h===nh(d.hp_1)||h===nh(d.hp_2))))throw new Error('No. HP sudah terdaftar. Hubungi admin bila perlu perubahan.');
+      const nh=v=>v.replace(/\D/g,'').replace(/^62/,'0');if(DB.tims.some(t=>!['Ditolak','Nonaktif'].includes(t.status)&&[t.hp_1,t.hp_2].some(h=>h&&(h===nh(d.hp_1)||(d.hp_2&&h===nh(d.hp_2))))))throw new Error('No. HP sudah terdaftar. Hubungi admin bila perlu perubahan.');
       DB.tims.push({...d,hp_1:nh(d.hp_1),hp_2:nh(d.hp_2),rek_1:String(d.rek_1).replace(/\D/g,''),rek_2:String(d.rek_2).replace(/\D/g,''),id,created_at:new Date().toISOString(),status:'Daftar',ktp_1:'#',ktp_2:'#',foto_1:'#',foto_2:'#',id_akun_1:'',id_akun_2:'',kontrak_langkah:'0',pkwt_mulai:'',pkwt_selesai:'',catatan:'',updated_at:new Date().toISOString()});return{ok:true,id}}
     if(b.pw!==DB.pw)throw new Error('Password admin salah');
     if(action==='admin_data'){const m=map();return{ok:true,config:DB.config,tims:DB.tims.map(t=>({...t})),ach:DB.ach.map(a=>({...a,tim_id:m[a.id_akun.toUpperCase()]||''})),invoices:DB.inv.map(x=>({...x,tim_ids:[...x.tim_ids]})),akses:DB.akses.map(({password,...x})=>({...x,username:x.username||'',has_pass:!!password})),admins:[...DB.admins],me:'admin@starlite.co.id'}}
