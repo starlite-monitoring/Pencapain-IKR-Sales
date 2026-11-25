@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>(function(){var t=null;try{t=localStorage.getItem('stl_theme')}catch(e){}if(t!=='dark'&&t!=='light')t=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();</script>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" id="vpMeta" content="width=device-width, initial-scale=1">
 <title>Starlite Mitra Center — Pencapaian IKR & Sales</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -415,6 +415,18 @@ body.formmode main{max-width:880px;margin:0 auto}
 .trk-r.p-st{grid-template-columns:minmax(190px,1fr) minmax(300px,1.6fr) minmax(220px,1.4fr)}
 .pst-tg{border:0;background:none;cursor:pointer;padding:4px;font:inherit;color:inherit}.trk-g.open .pst-tg .car{transform:rotate(90deg)}
 @media (max-width:900px){.trk-r.p-st,.trk-r{grid-template-columns:1fr!important;gap:10px}}
+.vp-btn{bottom:82px!important;font-size:18px}
+.eyebrow .clk{font-weight:600;opacity:.85;text-transform:none;letter-spacing:0;margin-left:4px}
+.hx{margin-bottom:20px}.hx .card{margin:0}.hx .card>h2{margin-bottom:2px}
+.fgrp{margin-top:12px}.fh{font-size:12.5px;font-weight:700;color:var(--text-2);margin-bottom:6px}
+.fb{display:grid;grid-template-columns:110px 1fr 34px;align-items:center;gap:10px;padding:5px 6px;border-radius:8px;text-decoration:none;color:var(--text)}
+.fb:hover{background:var(--accent-soft)}.fb .fl{font-size:13px;color:var(--text-2)}.fb b{text-align:right;font-variant-numeric:tabular-nums}
+.fb .ft{height:9px;border-radius:6px;background:color-mix(in srgb,var(--text) 8%,transparent);overflow:hidden}.fb .ft i{display:block;height:100%;border-radius:6px;transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.todo{margin-top:14px;display:grid;gap:6px}.todo a{display:block;padding:8px 11px;border-radius:9px;background:var(--warn-bg);color:var(--text);text-decoration:none;font-size:13px}.todo a b{color:var(--warn)}.todo.ok{padding:9px 11px;border-radius:9px;background:var(--good-bg);color:var(--good);font-size:13px;font-weight:600}
+.feed{display:grid;margin-top:8px}.fe{display:flex;gap:10px;align-items:flex-start;padding:9px 4px;border-bottom:1px dashed var(--line);text-decoration:none;color:var(--text);font-size:13px;line-height:1.4}.fe:last-child{border-bottom:0}.fe:hover{background:var(--accent-soft);border-radius:8px}
+.fe .fi{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;font-size:15px;background:var(--accent-soft)}.fe.e-pay .fi{background:var(--good-bg)}.fe.e-inv .fi{background:var(--warn-bg)}
+.fe .ftx{min-width:0}.fe small{display:block;color:var(--muted);font-size:11.5px;margin-top:1px}
+@media (max-width:900px){.kpis.k4{grid-template-columns:repeat(2,minmax(0,1fr))}.fb{grid-template-columns:92px 1fr 28px}}
 </style>
 </head>
 <body>
@@ -466,7 +478,7 @@ body.formmode main{max-width:880px;margin:0 auto}
   <section id="v-dash" class="view">
     <div class="banner"><img class="wm" data-logo="star" alt="">
     <div class="ph">
-      <div><div class="eyebrow" id="dEyebrow">★ DASHBOARD · SUPERADMIN</div><h1 id="dTitle">Selamat datang di Mitra Center</h1><p id="dSub"></p></div>
+      <div><div class="eyebrow" id="dEyebrow">★ DASHBOARD · SUPERADMIN <span id="dClock" class="clk"></span></div><h1 id="dTitle">Selamat datang di Mitra Center</h1><p id="dSub"></p></div>
       <div class="sp"></div>
       <div class="ctl">
         <div class="chips" id="dJenis"><span class="chip on" data-j="">Semua</span><span class="chip j-ikr" data-j="IKR">IKR</span><span class="chip j-sls" data-j="Sales">Sales</span></div>
@@ -619,6 +631,7 @@ body.formmode main{max-width:880px;margin:0 auto}
 </main>
 </div>
 <div id="modalRoot"></div>
+<button type="button" class="theme-btn vp-btn hidden" id="vpBtn" title="Ganti tampilan"></button>
 <button type="button" class="theme-btn" id="themeBtn" title="Ganti mode terang / gelap" aria-label="Ganti mode terang / gelap"></button>
 <div class="toast" id="toast"></div>
 
@@ -833,8 +846,13 @@ $('#mOut').onclick=()=>$('#btnLogout').click();
 $('#btnLogout').onclick=()=>logout();
 
 /* ================== routing ================== */
+const VP_DESK='width=1280, initial-scale='+Math.max(.25,Math.min(1,(screen.width||390)/1280)).toFixed(3);
+const isPhone=()=>Math.min(screen.width||9999,screen.height||9999)<820;
+const vpMode=()=>{try{return localStorage.getItem('stl_vp')||'desk'}catch(e){return 'desk'}};
+function setVP(admin){const m=$('#vpMeta');if(!m)return;const want=admin&&isPhone()&&vpMode()==='desk'?VP_DESK:'width=device-width, initial-scale=1';if(m.content!==want)m.content=want;
+  const b=$('#vpBtn');if(b){b.classList.toggle('hidden',!(admin&&isPhone()));b.textContent=vpMode()==='desk'?'📱':'🖥';b.title=vpMode()==='desk'?'Ganti ke tampilan HP':'Ganti ke tampilan desktop'}}
 function route(){
-  $('#vtabs').classList.add('hidden');
+  $('#vtabs').classList.add('hidden');setTimeout(()=>setVP(!document.body.classList.contains('portalmode')&&!document.body.classList.contains('formmode')),0);
   let v=location.hash.slice(1);if(v==='pipeline')v='tracking';if(v==='ikr'||v==='sales'||v==='perf'){if(v!=='perf')S.dj=v==='ikr'?'IKR':'Sales';v='home'}
   if(v==='panduan'){S.view='portal';$('#modalRoot').innerHTML='';document.body.classList.add('formmode','portalmode');$$('.view').forEach(x=>x.classList.toggle('hidden',x.id!=='v-panduan'));renderPanduan();window.scrollTo(0,0);return}
   // Portal mitra dengan login: #mitra (username & password dari admin)
@@ -937,9 +955,11 @@ function renderDash(){
   const LB={IKR:c.label_ikr,Sales:c.label_sales},TG={IKR:(+c.target_ikr||0)*R.months,Sales:(+c.target_sales||0)*R.months};const tgOf=t=>t.jenis==='Sales'?TG.Sales*Math.max(1,(t.anggota||[]).length):TG.IKR;
   const JS=dj?[dj]:['IKR','Sales'];
   $('#dSub').textContent=`Ringkasan mitra, performa IKR (hijau) & Sales (biru), dan pembayaran · ${fmtD(R.a)} – ${fmtD(R.b)}`;
-  const H0=S.admin?renderHome():{kpis:'',mitra:''};
+  if(S.admin){const h=new Date().getHours();const sal=h<11?'Selamat pagi':h<15?'Selamat siang':h<18?'Selamat sore':'Selamat malam';const nm=String(S.me||'').split('@')[0].split(/[._-]/)[0];
+    $('#dTitle').textContent=nm?`${sal}, ${nm[0].toUpperCase()+nm.slice(1)} 👋`:`${sal} 👋`;tickClock()}
+  const H0=S.admin?renderHome():{kpis:'',mitra:'',extra:''};setTimeout(animNums,0);
   const tims=P.tims.filter(t=>JS.includes(t.jenis)&&(!fm||t.mitra===fm)&&(!fs||t.stasiun===fs));
-  if(!tims.length){$('#dBody').innerHTML=`<div class="kpis k4">${H0.kpis}</div>${H0.mitra}<div class="card empty">Belum ada tim aktif${fm||fs||dj?' untuk filter ini':''}.</div>`;$('#updNote').textContent='';return}
+  if(!tims.length){$('#dBody').innerHTML=`<div class="kpis k4">${H0.kpis}</div>${H0.extra||''}${H0.mitra}<div class="card empty">Belum ada tim aktif${fm||fs||dj?' untuk filter ini':''}.</div>`;$('#updNote').textContent='';return}
   const ids=new Set(tims.map(t=>t.id));const cur=sumRange(ids,R),prev=sumRange(ids,RP);
   const rows=tims.map(t=>{const n=cur.sum[t.id]||0,dd=cur.days[t.id]||{},act=Object.keys(dd).length,target=tgOf(t);
     return{t,n,target,label:LB[t.jenis],prev:prev.sum[t.id]||0,p:target?n/target:null,act,avg:act?n/act:null,best:act?Math.max(...Object.values(dd)):0}});
@@ -955,6 +975,7 @@ function renderDash(){
   const jc=t=>t.jenis==='Sales'?'j-sls':'j-ikr';
   $('#dBody').innerHTML=`
   <div class="kpis k4">${H0.kpis}${JS.map(kp).join('')}</div>
+  ${H0.extra||''}
   ${H0.mitra}
   <div class="sec-h"><h2>Papan peringkat tim ${dj?dj:'IKR & Sales'} Mitra</h2><div class="chips lbj">${[['','Semua'],['IKR','IKR'],['Sales','Sales']].map(([v,l])=>`<span class="chip ${v==='IKR'?'j-ikr':v==='Sales'?'j-sls':''} ${dj===v?'on':''}" data-lj="${v}">${l}</span>`).join('')}</div><span class="sub2" style="margin-left:auto">klik kartu untuk detail harian</span></div>
   <div class="lb">${show.map(r=>{const p=r.p||0;return `<div class="tc ${jc(r.t)} ${r.rank<=3&&r.n>0?'r'+r.rank:''}" data-tim="${esc(r.t.id)}">
@@ -1296,7 +1317,23 @@ function renderHome(){
   const todo=[[onb.filter(t=>t.status==='Daftar').length,'pendaftaran tim baru menunggu verifikasi','#tracking'],[onb.filter(t=>t.status!=='Daftar').length,'tim sedang diverifikasi (ID IKR & kata sandi)','#tracking'],[noId.length,'tim aktif belum punya IKR/Sales ID','#tracking'],
     [unm,'ID pencapaian belum terhubung ke tim','#input'],[B.filter(b=>b.status==='Diajukan').length,'invoice diajukan mitra menunggu dicek Finance','#tagihan'],[needPay,'invoice sudah dicek, menunggu pembayaran '+PAYER,'#tagihan'],[noBill,'tim aktif belum masuk invoice '+perLabel(prev),'#tagihan']].filter(x=>x[0]>0);
   HOME_MIT=mit;
-  return{kpis:`
+  const ago=d=>{if(!d)return'';const ms=Date.now()-new Date(String(d).length<=10?d+'T12:00':d);const m=Math.round(ms/6e4);if(m<1)return'baru saja';if(m<60)return m+' mnt lalu';const h=Math.round(m/60);if(h<24)return h+' jam lalu';const dd=Math.round(h/24);return dd<31?dd+' hari lalu':fmtD(d)};
+  const ev=[];T.forEach(t=>{if(t.created_at)ev.push({at:t.created_at,ic:'👥',cl:'e-reg',tx:`<b>${esc(t.mitra)}</b> mendaftarkan ${esc(aName(t))} ${tag(t.jenis)}`,go:'#tracking'})});
+  B.forEach(b=>{if(b.created_at||b.tgl_ajukan)ev.push({at:b.created_at||b.tgl_ajukan,ic:'🧾',cl:'e-inv',tx:`<b>${esc(b.mitra)}</b> mengajukan invoice <span class="mono">${esc(b.id)}</span> · ${rpS(+b.nilai||0)}`,go:'#tagihan'});
+    if(b.status==='Dibayar'&&b.tgl_bayar)ev.push({at:b.tgl_bayar,ic:'💸',cl:'e-pay',tx:`Invoice <span class="mono">${esc(b.id)}</span> dibayar ${PAYER} · ${rpS(paidV(b))}`,go:'#tagihan'})});
+  ev.sort((a,b)=>String(b.at).localeCompare(String(a.at)));
+  const st3=[['Mitra submit',T.filter(t=>t.status==='Daftar').length,'#e0a92e'],['Verifikasi',T.filter(t=>['Kontrak','Akun'].includes(t.status)).length,'#2a78d6'],['Selesai · aktif',aktif.length,'#1f9d55']];
+  const iv4=[['Diajukan',B.filter(b=>b.status==='Diajukan').length,'#e0a92e'],['Revisi',B.filter(b=>b.status==='Revisi').length,'#c42b2b'],['Dicek',B.filter(b=>b.status==='Dicek').length,'#2a78d6'],['Dibayar',B.filter(b=>b.status==='Dibayar').length,'#1f9d55']];
+  const bars=(L,go)=>{const mx=Math.max(1,...L.map(x=>x[1]));return L.map(([l,n,c])=>`<a class="fb" href="${go}"><span class="fl">${l}</span><span class="ft"><i style="width:${n?Math.max(4,n/mx*100):0}%;background:${c}"></i></span><b>${n}</b></a>`).join('')};
+  const extra=`<div class="home-grid hx">
+    <div class="card"><h2>Alur kerja hari ini</h2><p class="sub">Klik baris untuk membuka menunya</p>
+      <div class="fgrp"><div class="fh">👥 Pendaftaran tim</div>${bars(st3,'#tracking')}</div>
+      <div class="fgrp"><div class="fh">🧾 Invoice mitra</div>${bars(iv4,'#tagihan')}</div>
+      ${todo.length?`<div class="todo">${todo.slice(0,4).map(([n,t,g])=>`<a href="${g}"><b>${n}</b> ${esc(t)} →</a>`).join('')}</div>`:'<div class="todo ok">✓ Semua beres, tidak ada yang menunggu.</div>'}</div>
+    <div class="card"><h2>Aktivitas terbaru</h2><p class="sub">Pendaftaran & invoice dari mitra</p>
+      <div class="feed">${ev.slice(0,7).map(e=>`<a class="fe ${e.cl}" href="${e.go}"><span class="fi">${e.ic}</span><span class="ftx">${e.tx}<small>${esc(ago(e.at))}</small></span></a>`).join('')||'<div class="sub2" style="padding:10px 0">Belum ada aktivitas.</div>'}</div></div>
+  </div>`;
+  return{extra,kpis:`
     <div class="kpi hero"><div class="k">Tim aktif</div><div class="v">${aktif.length}</div><div class="d">IKR ${aktif.filter(t=>t.jenis==='IKR').length} · Sales ${aktif.filter(t=>t.jenis==='Sales').length} · ${nPers(aktif)} personel${onb.length?' · '+onb.length+' proses daftar':''}</div></div>
     <div class="kpi"><div class="k">HC bulan ini</div><div class="v">${nf(hcM(per))}</div><div class="d">${nf(hcM(prev))} bulan lalu</div></div>
     <div class="kpi"><div class="k">Estimasi tagihan bulan ini</div><div class="v">${rpS(est)}</div><div class="d">rumus Program Subsidi Tier 1</div></div>
@@ -1308,7 +1345,12 @@ function renderHome(){
      </tbody></table></div></div>`};
 }
 
-let HOME_MIT=[];
+let HOME_MIT=[];const NUMSEEN={};
+function tickClock(){const el=$('#dClock');if(!el)return;el.textContent='· '+new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long'})+' · '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}
+setInterval(tickClock,30000);
+function animNums(){$$('#dBody .kpi .v').forEach((el,i)=>{const t=el.textContent.trim();const m=t.match(/^(Rp\s?)?([\d.]+)(%?)$/);const key=i+'|'+(el.parentElement.querySelector('.k')?.textContent||'');
+  if(!m||NUMSEEN[key]===t){NUMSEEN[key]=t;return}NUMSEEN[key]=t;const end=+m[2].replace(/\./g,'');if(!end||end>1e9)return;const pre=m[1]||'',suf=m[3]||'';const t0=performance.now();
+  const step=now=>{const p=Math.min(1,(now-t0)/700);const v=Math.round(end*(1-Math.pow(1-p,3)));el.textContent=pre+v.toLocaleString('id-ID')+suf;if(p<1&&el.isConnected)requestAnimationFrame(step);else el.textContent=t};requestAnimationFrame(step)})}
 function mitDetail(btn){const k=+btn.dataset.mx,key=btn.dataset.key,x=HOME_MIT[k];if(!x)return;const tr=btn.closest('tr');
   const open=tr.nextElementSibling&&tr.nextElementSibling.classList.contains('mdet')?tr.nextElementSibling:null;const was=btn.classList.contains('on');
   tr.parentElement.querySelectorAll('.mcell.on').forEach(b=>b.classList.remove('on'));if(open)open.remove();if(was)return;btn.classList.add('on');
@@ -1953,6 +1995,7 @@ $('#fMLogin').onsubmit=async e=>{e.preventDefault();const bt=e.target.querySelec
   try{const r=await api('mitra_login',{username:$('#mlUser').value.trim(),password:$('#mlPw').value});mTokSet(r.token);$('#mlPw').value='';if(location.hash!=='#mitra')location.hash='#mitra';else route()}
   catch(err){$('#mlMsg').textContent=err.message}bt.disabled=false};
 function setThemeIcon(){const d=document.documentElement.getAttribute('data-theme')==='dark';$('#themeBtn').textContent=d?'☀':'☾';$('#themeBtn').title=d?'Ganti ke mode terang':'Ganti ke mode gelap'}
+$('#vpBtn').onclick=()=>{const n=vpMode()==='desk'?'hp':'desk';try{localStorage.setItem('stl_vp',n)}catch(e){}setVP(true);toast(n==='desk'?'Tampilan desktop':'Tampilan HP')};
 $('#themeBtn').onclick=()=>{const d=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',d);try{localStorage.setItem('stl_theme',d)}catch(e){}setThemeIcon();
   try{if(S.view==='portal'&&PORTAL&&!$('#v-portal').classList.contains('hidden'))renderPortal($('#ptPer')?.value);else if(S.admin)renderView()}catch(e){}};
 setThemeIcon();
