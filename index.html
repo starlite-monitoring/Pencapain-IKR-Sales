@@ -576,6 +576,7 @@ body.formmode main{max-width:880px;margin:0 auto}
         <label class="f">Mitra<select id="pMitra"></select></label>
         <input id="pQ" placeholder="Cari tim / nama / HP" style="width:190px">
         <button class="btn" id="pRefresh">Muat ulang</button>
+        <button class="btn pri" id="pXls" title="Export data tim + foto KTP & foto diri ke Excel">⬇ Export Excel</button>
       </div>
     </div>
     <div class="flowbar" id="flowbar"></div>
@@ -739,6 +740,11 @@ async function sbApi(action,b){
   case 'admin_ach_delete':{for(const k of b.keys){const[tanggal,id_akun,sumber]=k.split('|');chk(await sb.from(TB.ach).delete().match({tanggal,id_akun,sumber}))}return{ok:true}}
   case 'admin_config':{const rows=Object.entries(b.config).map(([key,value])=>({key,value:String(value)}));chk(await sb.from(TB.cfg).upsert(rows,{onConflict:'key'}));return{ok:true}}
   case 'admin_pw':{if(!b.newPw||b.newPw.length<6)throw new Error('Password minimal 6 karakter');chk(await sb.auth.updateUser({password:b.newPw}));return{ok:true}}
+  case 'admin_photo_links':{const out={};const ids=b.ids||[];for(let i=0;i<ids.length;i+=200){const rows=chk(await sb.from(TB.tim).select('id,ktp_1,ktp_2,foto_1,foto_2').in('id',ids.slice(i,i+200)))||[];
+      const ps=[...new Set(rows.flatMap(r=>[r.ktp_1,r.ktp_2,r.foto_1,r.foto_2]).filter(p=>p&&!/^(https?:|data:)/.test(p)))];const m={};
+      for(let j=0;j<ps.length;j+=100){const r=await sb.storage.from(BK.ktp).createSignedUrls(ps.slice(j,j+100),604800);if(!r.error)r.data.forEach(x=>{if(x.signedUrl)m[x.path]=x.signedUrl})}
+      rows.forEach(r=>{out[r.id]={};['ktp_1','ktp_2','foto_1','foto_2'].forEach(k=>{const v=r[k];out[r.id][k]=v?(m[v]||(/^(https?:|data:)/.test(v)?v:'')):''})})}
+    return{ok:true,links:out}}
   case 'admin_tim_delete':{const id=b.id;const invs=chk(await sb.from(TB.inv).select('id,tim_ids'))||[];const used=invs.filter(i=>(i.tim_ids||[]).includes(id)).map(i=>i.id);
     if(used.length)throw new Error('Tim sudah masuk invoice '+used.join(', ')+' — tidak bisa dihapus. Gunakan Nonaktifkan.');
     const t=chk(await sb.from(TB.tim).select('*').eq('id',id).maybeSingle());if(!t)throw new Error('Tim tidak ditemukan');
@@ -1109,19 +1115,59 @@ const ILBL={Diajukan:'Diajukan mitra',Revisi:'Perlu revisi',Dicek:'Dicek finance
 const ipill=s=>pill(ILBL[s]||s,IST[s]||'mute');
 function stageOf(status){return status==='Daftar'?'Daftar':(status==='Kontrak'||status==='Akun')?'Verifikasi':status}
 const pStage=t=>stageOf(t.status);
-$('#pMitra').addEventListener('change',()=>renderPipe());$('#pArsip').addEventListener('change',()=>renderPipe());
+$('#pMitra').addEventListener('change',()=>renderPipe());$('#pArsip').addEventListener('change',()=>renderPipe());$('#pXls').onclick=e=>exportTimXlsx(e.currentTarget);
 const TSTEPS=['Daftar','Verifikasi','Aktif'];
 const TLBL={Daftar:'Mitra submit',Verifikasi:'Verifikasi',Aktif:'Selesai'};
 const accN=t=>mems(t).filter(i=>t['id_akun_'+i]&&t['pass_akun_'+i]).length;
 function stageDetail(t,st){
   if(st==='Daftar')return Math.floor((Date.now()-new Date(t.created_at))/864e5)+' hari';
   if(st==='Verifikasi')return 'akun '+accN(t)+'/'+mems(t).length;
-  if(st==='Aktif')return 'akun aktif';return ''}
+  if(st==='Aktif')return t.tgl_aktif?'aktif '+fmtD(t.tgl_aktif):'akun aktif';return ''}
 function stepper(t,st){const idx=TSTEPS.indexOf(st);
   return `<div class="stp">${TSTEPS.map((s,i)=>{const fin=s==='Aktif'&&i===idx;const cls=idx<0?'':i<idx?'done':i===idx?(fin?'cur paid':'cur'):'';
     return `<div class="s ${cls}"><i>${i<idx||fin?'✓':i+1}</i>${TLBL[s]}${i===idx?`<span class="dt">${esc(stageDetail(t,st))}</span>`:''}</div>`}).join('')}</div>`}
 const accLines=t=>mems(t).map(i=>`<div><b>${esc(t['nama_'+i]||'–')}</b> · ${t['id_akun_'+i]?`<span class="mono">${esc(t['id_akun_'+i])}</span>`:'<span style="color:var(--warn)">ID kosong</span>'}${t['pass_akun_'+i]?' · 🔑':''}</div>`).join('');
 const TRK_OPEN=new Set(),TRK_SUBX=new Set();
+const EXCELJS_SRC='https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js';
+async function loadExcelJS(){if(window.ExcelJS)return;await new Promise((res,rej)=>{const sc=document.createElement('script');sc.src=EXCELJS_SRC;sc.onload=res;sc.onerror=()=>rej(new Error('Gagal memuat pembuat Excel (cek koneksi internet)'));document.head.appendChild(sc)})}
+async function thumbOf(url){if(!url)return null;try{const r=await fetch(url);if(!r.ok)return null;const bl=await r.blob();if(!/^image\//.test(bl.type))return{pdf:true};
+  const bm=await createImageBitmap(bl);const sc=Math.min(1,420/Math.max(bm.width,bm.height));const w=Math.max(1,Math.round(bm.width*sc)),h=Math.max(1,Math.round(bm.height*sc));
+  const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(bm,0,0,w,h);return{b64:cv.toDataURL('image/jpeg',.72).split(',')[1],w,h}}catch(e){return null}}
+async function exportTimXlsx(btn){
+  const q=$('#pQ').value.toLowerCase(),fm=$('#pMitra').value,arsip=$('#pArsip').checked;
+  const T=S.admin.tims.filter(t=>(!pJ||t.jenis===pJ)&&(!fm||t.mitra===fm)&&(arsip||!['Ditolak','Nonaktif'].includes(t.status))&&(!q||Object.values(t).join(' ').toLowerCase().includes(q)))
+    .sort((a,b)=>a.mitra.localeCompare(b.mitra)||a.jenis.localeCompare(b.jenis)||aName(a).localeCompare(aName(b)));
+  if(!T.length){toast('Tidak ada tim untuk di-export',true);return}
+  const old=btn.textContent;btn.disabled=true;const prog=t=>{btn.textContent=t};
+  try{prog('Memuat…');await loadExcelJS();const L=(await api('admin_photo_links',{pw:S.pw,ids:T.map(t=>t.id)})).links||{};
+    const rows=[];T.forEach(t=>mems(t).forEach(i=>rows.push({t,i,ktp:(L[t.id]||{})['ktp_'+i]||'',foto:(L[t.id]||{})['foto_'+i]||''})));
+    const imgs=new Map();const urls=[...new Set(rows.flatMap(r=>[r.ktp,r.foto]).filter(Boolean))];let done=0;
+    for(let k=0;k<urls.length;k+=4){await Promise.all(urls.slice(k,k+4).map(async u=>{imgs.set(u,await thumbOf(u));done++}));prog(`Foto ${done}/${urls.length}…`)}
+    prog('Menyusun Excel…');
+    const wb=new ExcelJS.Workbook();wb.creator='Starlite Mitra Center';const ws=wb.addWorksheet('Data Tim Mitra',{views:[{state:'frozen',ySplit:1}]});
+    const stl=t=>({Daftar:'Mitra submit',Kontrak:'Verifikasi',Akun:'Verifikasi',Aktif:'Aktif',Nonaktif:'Nonaktif',Ditolak:'Ditolak'}[t.status]||t.status);
+    ws.columns=[{header:'No',key:'no',width:5},{header:'Nama Mitra',key:'mitra',width:30},{header:'Jenis',key:'jenis',width:8},{header:'Nama Tim',key:'tim',width:18},{header:'Nama Anggota',key:'nama',width:22},
+      {header:'Nama Akun (ID IKR/Sales)',key:'akun',width:22},{header:'Stasiun',key:'stasiun',width:14},{header:'Wilayah',key:'wil',width:12},{header:'No. HP',key:'hp',width:15},{header:'Email',key:'email',width:24},
+      {header:'Status',key:'status',width:13},{header:'Tgl Daftar',key:'daftar',width:13},{header:'Tgl Akun Aktif',key:'aktif',width:14},{header:'Foto KTP',key:'ktp',width:24},{header:'Foto Diri',key:'foto',width:24},
+      {header:'Link KTP (7 hari)',key:'lktp',width:14},{header:'Link Foto (7 hari)',key:'lfoto',width:14}];
+    const hd=ws.getRow(1);hd.height=26;hd.eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF0B2A55'}};c.alignment={vertical:'middle',horizontal:'center',wrapText:true}});
+    const dt=v=>v?new Date(String(v).length===10?v+'T00:00':v):null;
+    rows.forEach((r,n)=>{const t=r.t,i=r.i;const row=ws.addRow({no:n+1,mitra:t.mitra,jenis:t.jenis,tim:aName(t),nama:t['nama_'+i],akun:t['id_akun_'+i]||'',stasiun:t.stasiun,wil:t.wilayah||'',hp:t['hp_'+i]||'',email:t['email_'+i]||'',
+        status:stl(t),daftar:dt(t.created_at),aktif:t.status==='Aktif'?dt(t.tgl_aktif):null,
+        lktp:r.ktp?{text:'Buka KTP',hyperlink:r.ktp}:'',lfoto:r.foto?{text:'Buka foto',hyperlink:r.foto}:''});
+      row.height=96;row.alignment={vertical:'middle',wrapText:true};['daftar','aktif'].forEach(k=>row.getCell(k).numFmt='dd mmm yyyy');
+      row.getCell('jenis').font={bold:true,color:{argb:t.jenis==='Sales'?'FF1A7FE0':'FF1F9D55'}};
+      ['lktp','lfoto'].forEach(k=>{if(row.getCell(k).value)row.getCell(k).font={color:{argb:'FF1A62C9'},underline:true}});
+      [['ktp',r.ktp,14],['foto',r.foto,15]].forEach(([k,u,col])=>{const im=u&&imgs.get(u);const cell=row.getCell(k);
+        if(im&&im.b64){const id=wb.addImage({base64:im.b64,extension:'jpeg'});const mw=165,mh=120;const sc=Math.min(mw/im.w,mh/im.h);ws.addImage(id,{tl:{col:col-1+0.06,row:row.number-1+0.06},ext:{width:Math.round(im.w*sc),height:Math.round(im.h*sc)},editAs:'oneCell'})}
+        else cell.value=u?(im&&im.pdf?'(file PDF — lihat link)':'(gagal dimuat — lihat link)'):'Tidak ada';cell.alignment={vertical:'middle',horizontal:'center',wrapText:true}})});
+    ws.autoFilter={from:{row:1,column:1},to:{row:1,column:17}};
+    ws.pageSetup={orientation:'landscape',paperSize:9,fitToPage:true,fitToWidth:1,fitToHeight:0,margins:{left:.3,right:.3,top:.4,bottom:.4,header:.2,footer:.2}};ws.pageSetup.printTitlesRow='1:1';
+    ws.eachRow((row,n)=>{if(n>1)row.eachCell({includeEmpty:true},c=>{c.border={bottom:{style:'thin',color:{argb:'FFE2E1DC'}}}})});
+    const buf=await wb.xlsx.writeBuffer();const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Data-Tim-Mitra-Starlite-${fm?fm.replace(/\s+/g,'_')+'-':''}${ymd(new Date())}.xlsx`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
+    toast(`Excel berisi ${rows.length} orang dari ${T.length} tim sudah diunduh`)}
+  catch(e){toast(e.message,true)}finally{btn.disabled=false;btn.textContent=old}}
 function renderPipe(){
   {const sel=$('#pMitra'),cur=sel.value;const ml=[...new Set([...mitraList(),...S.admin.tims.map(t=>t.mitra)].filter(Boolean))];sel.innerHTML='<option value="">Semua mitra</option>'+ml.map(m=>`<option>${esc(m)}</option>`).join('');if(ml.includes(cur))sel.value=cur}
   const q=$('#pQ').value.toLowerCase(),fm=$('#pMitra').value,arsip=$('#pArsip').checked;
@@ -1139,7 +1185,7 @@ function renderPipe(){
     return `<div class="trk-r ${off?'off':''}">
       <div class="who"><b>${esc(aName(t))}</b> ${tag(t.jenis)} ${off?pill(t.status,STK[t.status]):''}<div class="sub2">${esc(names(t))}</div><div class="sub2">${esc(t.stasiun)} · <span class="mono">${esc(t.id)}</span></div></div>
       ${stepper(t,off?'':st)}
-      <div class="inf">${st==='Daftar'?'Data tim dari mitra sudah masuk.<br>Klik <b>Verifikasi</b> untuk memproses.':accLines(t)}</div>
+      <div class="inf">${st==='Daftar'?'Data tim dari mitra sudah masuk.<br>Klik <b>Verifikasi</b> untuk memproses.':accLines(t)}<div class="sub2" style="margin-top:4px">📝 Daftar ${fmtD(t.created_at)}${t.tgl_aktif&&t.status==='Aktif'?` · ✅ Aktif <b style="color:var(--good)">${fmtD(t.tgl_aktif)}</b>`:''}</div></div>
       <div class="act">${st==='Daftar'?`<button class="btn sm pri" data-edit="${esc(t.id)}">Verifikasi →</button>`:st==='Verifikasi'?`<button class="btn sm pri" data-edit="${esc(t.id)}">Lanjut verifikasi →</button>`:`<button class="btn sm" data-edit="${esc(t.id)}">✎ Edit</button>`}<button class="btn sm bad" data-del="${esc(t.id)}" title="Hapus tim ini">🗑 Hapus</button></div></div>`};
   $('#trk').innerHTML=`<div class="trk-tools"><button type="button" class="btn sm" id="trkOpenAll">Buka semua</button><button type="button" class="btn sm" id="trkCloseAll">Tutup semua</button></div>`+(order.map(m=>{
     const L=T.filter(t=>t.mitra===m);const vis=L.filter(t=>arsip||!['Ditolak','Nonaktif'].includes(t.status))
@@ -1168,7 +1214,7 @@ function openEdit(id){
   const lid=t.jenis==='Sales'?'ID Sales':'ID IKR';const sv=stageOf(t.status);
   const ren=n=>{n=String(n||'').trim();if(!n)return'';if(/^IJE_/i.test(n))return n.toUpperCase();return 'IJE_'+n.split(/\s+/)[0].toUpperCase()};
   const IV=INV().filter(i=>(i.tim_ids||[]).includes(t.id)).sort((a,b)=>b.periode.localeCompare(a.periode));
-  const m=modal(`<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h2 style="margin:0">${esc(aName(t))} ${tag(t.jenis)}</h2><div class="sub2">${esc(t.mitra)} · <span class="mono">${esc(t.id)}</span> · masuk ${fmtD(t.created_at)}</div></div>${pill(t.status==='Daftar'?'Mitra submit':sv==='Verifikasi'?'Verifikasi':t.status==='Aktif'?'Selesai':t.status,STK[t.status])}</div>
+  const m=modal(`<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h2 style="margin:0">${esc(aName(t))} ${tag(t.jenis)}</h2><div class="sub2">${esc(t.mitra)} · <span class="mono">${esc(t.id)}</span> · daftar ${fmtD(t.created_at)}${t.tgl_aktif&&t.status==='Aktif'?' · aktif '+fmtD(t.tgl_aktif):''}</div></div>${pill(t.status==='Daftar'?'Mitra submit':sv==='Verifikasi'?'Verifikasi':t.status==='Aktif'?'Selesai':t.status,STK[t.status])}</div>
   <div style="display:flex;gap:6px;margin:14px 0 0;flex-wrap:wrap">${TSTEPS.map((s,i)=>`<span class="pill ${TSTEPS.indexOf(sv)>=i?'p-good':'p-mute'}">${i+1}. ${TLBL[s]}</span>`).join('')}</div>
   <form id="fEdit">
    <input type="hidden" name="status" value="${esc(t.status)}">
@@ -1510,7 +1556,7 @@ function renderPortal(per){
   const hc=rows.reduce((s,r)=>s+r.x.hc,0),est=rows.reduce((s,r)=>s+r.x.total,0),cap=rows.length?rows.reduce((s,r)=>s+r.x.pct,0)/rows.length:null;
   const tn=id=>{const t=T.find(x=>x.id===id);return t?aName(t):'–'};
   const accP=t=>{const st=pStage(t);if(st==='Daftar')return '<span class="sub2">Menunggu verifikasi admin Starlite</span>';if(st==='Verifikasi')return '<span class="sub2">Sedang diverifikasi admin — akun dibuatkan</span>';
-    return mems(t).map(i=>t['id_akun_'+i]?`<div><b>${esc(t['nama_'+i])}</b> · ID <span class="mono">${esc(t['id_akun_'+i])}</span>${t['pass_akun_'+i]?` · sandi <span class="mono" data-pwv="${esc(t['pass_akun_'+i])}">••••••</span> <button type="button" class="btn sm" data-shpw style="padding:1px 7px;font-size:11px">lihat</button>`:''}</div>`:'').join('')||'<span class="sub2">Akun belum diisi admin</span>'};
+    return (t.tgl_aktif?`<div class="sub2">✅ Aktif sejak <b>${fmtD(t.tgl_aktif)}</b></div>`:'')+mems(t).map(i=>t['id_akun_'+i]?`<div><b>${esc(t['nama_'+i])}</b> · ID <span class="mono">${esc(t['id_akun_'+i])}</span>${t['pass_akun_'+i]?` · sandi <span class="mono" data-pwv="${esc(t['pass_akun_'+i])}">••••••</span> <button type="button" class="btn sm" data-shpw style="padding:1px 7px;font-size:11px">lihat</button>`:''}</div>`:'').join('')||'<span class="sub2">Akun belum diisi admin</span>'};
   $('#portalBody').innerHTML=`
   <div style="position:relative">
     <div class="p-plus">${P.base==='#mitra'?'<button type="button" class="btn sm p-out" id="pOut">Keluar</button>':''}<button type="button" class="plus-btn" id="pPlus" title="Tambah" aria-label="Tambah">+</button>
@@ -1945,7 +1991,7 @@ function demoApi(action,b){
     if(action==='portal'){const a=DB.akses.find(x=>x.token===b.token&&x.aktif);if(!a)throw new Error('Link tidak valid atau sudah dinonaktifkan');const T=DB.tims.filter(t=>t.mitra===a.mitra);
       const ids=new Set(T.flatMap(t=>[t.id_akun_1,t.id_akun_2]).filter(Boolean).map(v=>v.toUpperCase()));
       return{mitra:a.mitra,config:DB.config,updated:new Date().toISOString(),
-        tims:T.map(t=>({id:t.id,status:t.status,jenis:t.jenis,stasiun:t.stasiun,wilayah:t.wilayah,nama_tim:t.nama_tim,nama_1:t.nama_1,nama_2:t.nama_2,id_akun_1:t.id_akun_1,id_akun_2:t.id_akun_2,pass_akun_1:t.status==='Aktif'?t.pass_akun_1||'':'',pass_akun_2:t.status==='Aktif'?t.pass_akun_2||'':'',kontrak_langkah:t.kontrak_langkah,pkwt_mulai:t.pkwt_mulai,pkwt_selesai:t.pkwt_selesai,pkwt_file_1:t.pkwt_file_1?'1':'',pkwt_file_2:t.pkwt_file_2?'1':'',bpjs_file_1:t.bpjs_file_1?'1':'',bpjs_file_2:t.bpjs_file_2?'1':'',created_at:t.created_at})),
+        tims:T.map(t=>({id:t.id,status:t.status,jenis:t.jenis,stasiun:t.stasiun,wilayah:t.wilayah,nama_tim:t.nama_tim,nama_1:t.nama_1,nama_2:t.nama_2,id_akun_1:t.id_akun_1,id_akun_2:t.id_akun_2,tgl_aktif:t.tgl_aktif||'',pass_akun_1:t.status==='Aktif'?t.pass_akun_1||'':'',pass_akun_2:t.status==='Aktif'?t.pass_akun_2||'':'',kontrak_langkah:t.kontrak_langkah,pkwt_mulai:t.pkwt_mulai,pkwt_selesai:t.pkwt_selesai,pkwt_file_1:t.pkwt_file_1?'1':'',pkwt_file_2:t.pkwt_file_2?'1':'',bpjs_file_1:t.bpjs_file_1?'1':'',bpjs_file_2:t.bpjs_file_2?'1':'',created_at:t.created_at})),
         ach:DB.ach.filter(x=>ids.has(x.id_akun.toUpperCase())).map(x=>({tanggal:x.tanggal,id_akun:x.id_akun,jumlah:x.jumlah})),
         invoices:DB.inv.filter(x=>x.mitra===a.mitra).map(x=>({id:x.id,periode:x.periode,tim_ids:[...x.tim_ids],status:x.status,jumlah:+x.jumlah||0,nilai:+x.nilai||0,nilai_bayar:x.nilai_bayar?+x.nilai_bayar:null,catatan:x.catatan||'',catatan_finance:x.catatan_finance||'',tgl_ajukan:x.tgl_ajukan,tgl_bayar:x.tgl_bayar||'',f1:!!x.file_1,f2:!!x.file_2,f3:!!x.file_3}))}}
     if(action==='portal_invoice'){const a=DB.akses.find(x=>x.token===b.token&&x.aktif);if(!a)throw new Error('Link mitra tidak valid atau sudah dinonaktifkan');const today=ymd(new Date());
@@ -1963,6 +2009,7 @@ function demoApi(action,b){
       DB.tims.push({...d,hp_1:nh(d.hp_1),hp_2:nh(d.hp_2),rek_1:String(d.rek_1).replace(/\D/g,''),rek_2:String(d.rek_2).replace(/\D/g,''),id,created_at:new Date().toISOString(),status:'Daftar',ktp_1:'#',ktp_2:'#',foto_1:'#',foto_2:'#',id_akun_1:'',id_akun_2:'',kontrak_langkah:'0',pkwt_mulai:'',pkwt_selesai:'',catatan:'',updated_at:new Date().toISOString()});return{ok:true,id}}
     if(b.pw!==DB.pw)throw new Error('Password admin salah');
     if(action==='admin_data'){const m=map();return{ok:true,config:DB.config,tims:DB.tims.map(t=>({...t})),ach:DB.ach.map(a=>({...a,tim_id:m[a.id_akun.toUpperCase()]||''})),invoices:DB.inv.map(x=>({...x,tim_ids:[...x.tim_ids]})),akses:DB.akses.map(({password,...x})=>({...x,username:x.username||'',has_pass:!!password})),admins:[...DB.admins],me:'admin@starlite.co.id'}}
+    if(action==='admin_photo_links'){const out={};(b.ids||[]).forEach(id=>{const t=DB.tims.find(x=>x.id===id);if(t)out[id]={ktp_1:t.ktp_1||'',ktp_2:t.ktp_2||'',foto_1:t.foto_1||'',foto_2:t.foto_2||''}});return{ok:true,links:out}}
     if(action==='admin_tim_delete'){const used=DB.inv.filter(i=>i.tim_ids.includes(b.id)).map(i=>i.id);if(used.length)throw new Error('Tim sudah masuk invoice '+used.join(', ')+' — tidak bisa dihapus. Gunakan Nonaktifkan.');
       if(!DB.tims.some(t=>t.id===b.id))throw new Error('Tim tidak ditemukan');DB.tims=DB.tims.filter(t=>t.id!==b.id);return{ok:true}}
     const getInv=id=>{const o=DB.inv.find(x=>x.id===id);if(!o)throw new Error('Invoice tidak ditemukan');return o};
@@ -1978,7 +2025,7 @@ function demoApi(action,b){
     if(action==='admin_akses_save'){const r=b.row;const e=DB.akses.find(x=>x.mitra===r.mitra);if(e)Object.assign(e,r);else DB.akses.push({...r});return{ok:true}}
     if(action==='admin_admin_add'){const e=String(b.email).toLowerCase();if(!DB.admins.includes(e))DB.admins.push(e);return{ok:true}}
     if(action==='admin_admin_del'){if(b.email==='admin@starlite.co.id')throw new Error('Tidak bisa menghapus akun sendiri');DB.admins=DB.admins.filter(x=>x!==b.email);return{ok:true}}
-    if(action==='admin_update'){const t=DB.tims.find(x=>x.id===b.id);for(const k of ['id_akun_1','id_akun_2']){const v=(b.fields[k]||'').toUpperCase();if(v&&DB.tims.some(x=>x.id!==b.id&&[x.id_akun_1,x.id_akun_2].map(z=>(z||'').toUpperCase()).includes(v)))throw new Error('ID akun '+b.fields[k]+' sudah dipakai tim lain')}Object.assign(t,b.fields,{updated_at:new Date().toISOString()});return{ok:true}}
+    if(action==='admin_update'){const t=DB.tims.find(x=>x.id===b.id);for(const k of ['id_akun_1','id_akun_2']){const v=(b.fields[k]||'').toUpperCase();if(v&&DB.tims.some(x=>x.id!==b.id&&[x.id_akun_1,x.id_akun_2].map(z=>(z||'').toUpperCase()).includes(v)))throw new Error('ID akun '+b.fields[k]+' sudah dipakai tim lain')}if(b.fields.status==='Aktif'&&t.status!=='Aktif')t.tgl_aktif=new Date().toISOString();Object.assign(t,b.fields,{updated_at:new Date().toISOString()});return{ok:true}}
     if(action==='admin_wo'){return DB.wo.filter(w=>w.tanggal&&w.tanggal.startsWith(b.periode)).map(w=>({...w}))}
     if(action==='admin_wo_upload'){const idx=new Map(DB.wo.map((w,i)=>[w.id_wo,i]));b.rows.forEach(r=>{if(idx.has(r.id_wo))DB.wo[idx.get(r.id_wo)]=r;else{idx.set(r.id_wo,DB.wo.length);DB.wo.push(r)}});
       const ds=b.rows.map(r=>r.tanggal).filter(Boolean).sort();const from=ds[0],to=ds[ds.length-1];if(from)demoRekap(from,to);return{ok:true,from,to}}
